@@ -97,7 +97,7 @@ gulp.task('server:spawn', function() {
   }, 500);
 });
 
-gulp.task('server:reload-bs', function() {
+gulp.task('server:reload', function() {
   if (server) {
     browserSync.reload();
   }
