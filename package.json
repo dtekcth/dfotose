@@ -29,9 +29,12 @@
   },
   "dependencies": {
     "body-parser": "^1.15.1",
+    "connect-redis": "^3.0.2",
     "express": "^4.13.4",
+    "express-session": "^1.13.0",
     "lodash": "^4.13.1",
     "mongodb": "^2.1.19",
-    "mongoose": "^4.4.19"
+    "mongoose": "^4.4.19",
+    "morgan": "^1.7.0"
   }
 }
