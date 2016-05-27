@@ -4,3 +4,4 @@
 
 # Vim temp files
 *~
+*.swp
