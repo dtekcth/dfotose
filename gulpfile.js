@@ -13,12 +13,14 @@ var path = {
   SRV_SRC: ['src/server/**/*', '!*~'],
   CLI_SRC: ['src/client/**/*', '!*~'],
 
+  LIB_SRC: ['bower_components/**/*.js'],
+
   OUT_DIR: 'dist/'
 };
 
 var server = null;
 
-gulp.task('default', gulpSequence(['server:build', 'client:build'], 'server:spawn', 'watch'));
+gulp.task('default', gulpSequence('server:build', 'client:build', 'server:spawn', 'watch'));
 
 gulp.task('watch', function() {
   gulp.watch(path.SRV_SRC, ['server:rebuild']);
@@ -29,6 +31,7 @@ gulp.task('client:build', function() {
   const jsf = filter('**/*.js', {restore: true});
   const sassf = filter('**/*.scss', {restore: true});
 
+  // Pipe and compile
   gulp.src(path.CLI_SRC)
 
     .pipe(jsf)
@@ -42,6 +45,10 @@ gulp.task('client:build', function() {
     .pipe(sassf.restore)
 
     .pipe(gulp.dest(path.OUT_DIR + '/public'));
+
+  // Copy all libraries
+  gulp.src(path.LIB_SRC)
+    .pipe(gulp.dest(path.OUT_DIR + '/public/libs'));
 });
 
 gulp.task('server:rebuild', function(next) {
