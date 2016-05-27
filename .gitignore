@@ -5,3 +5,6 @@
 # Vim temp files
 *~
 *.swp
+
+/dist
+/node_modules
