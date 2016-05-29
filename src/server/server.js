@@ -7,11 +7,11 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 
 // Routes
-// import fooRoutes from './routes/foo';
+import imageRouter from './routes/image-api';
+import authRouter from './routes/auth-api';
 
-// mongoose.connect('mongodb://localhost/dfotose');
-//
-//
+mongoose.connect('mongodb://localhost/dfotose');
+
 const app = express();
 
 const RedisStore = connectRedis(session);
@@ -31,7 +31,14 @@ app.use('/', express.static(__dirname + '/public'));
 app.use(morgan('dev'));
 app.use(sessionMiddleware);
 
-// app.use(fooRoutes);
+// Include all routes
+const baseUrl = '/v1';
+
+// Auth routes should not be prepended
+app.use(authRouter);
+
+// Pure API routes should be prepended
+app.use(baseUrl, imageRouter);
 
 app.listen(4000, () => {
   console.log('Listening :4000');
