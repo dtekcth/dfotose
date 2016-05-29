@@ -14,16 +14,34 @@ const jsonParser = bodyParser.json();
 //  - Returns 403 if not logged-in
 router.get('/auth/user', LoggedInRequired, (req, res) => {
   const user = req.session.user;
-  const userData = {
-    username: user.username,
-    fullname: user.fullname
-  };
-  res.send(userData);
+  res.send(user);
+});
+
+// Get all users
+//  - Returns 403 if not logged-in
+router.get('/auth/users', LoggedInRequired, (req, res) => {
+  User.find({}, (err, users) => {
+    if (err) {
+      res.status(500);
+      res.send(err);
+      throw err;
+    }
+
+    const strippedUsers = _.map(users, (user) => {
+      return {
+        id: user._id,
+        username: user.username,
+        fullname: user.fullname
+      };
+    });
+
+    res.send(strippedUsers);
+  });
 });
 
 // Creates a new user
 //  - Returns 403 if not logged-in
-router.post('/auth/user', jsonParser, (req, res) => {
+router.post('/auth/user', LoggedInRequired, jsonParser, (req, res) => {
   var userData = req.body;
 
   // Hash the password before-hand
@@ -51,7 +69,7 @@ router.post('/auth/user', jsonParser, (req, res) => {
 
 // Login a user
 //  - Logs out the previous user if any
-router.post('/auth/login', LoggedInRequired, jsonParser, (req, res) => {
+router.post('/auth/login', jsonParser, (req, res) => {
   const userData = req.body;
 
   User.find({username: userData.username}, (err, users) => {
@@ -70,7 +88,11 @@ router.post('/auth/login', LoggedInRequired, jsonParser, (req, res) => {
       
       // Verify the password
       if (passwordHash.verify(userData.password, user.password)) {
-        req.session.user = user;
+        req.session.user = {
+          id: user._id,
+          username: user.username,
+          fullname: user.fullname
+        }
         res.send(user);
       } else {
         res.status(403);
@@ -81,14 +103,11 @@ router.post('/auth/login', LoggedInRequired, jsonParser, (req, res) => {
 });
 
 // Logout the currently logged-in user
-//  - Returns 404 if not logged-in
-router.post('/auth/logout', (req, res) => {
-  if (req.session === undefined || req.session.user === undefined) {
-    res.status(404);
-    res.end();
-  } else {
-    req.session.destroy();
-  }
+//  - Returns 403 if not logged-in
+router.post('/auth/logout', LoggedInRequired, (req, res) => {
+  req.session.destroy();
+  res.status(200);
+  res.end();
 });
 
 // Middleware for express to ensure
