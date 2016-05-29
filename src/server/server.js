@@ -8,6 +8,7 @@ import connectRedis from 'connect-redis';
 
 // Routes
 import imageRouter from './routes/image-api';
+import galleryRouter from './routes/gallery-api';
 import authRouter from './routes/auth-api';
 
 mongoose.connect('mongodb://localhost/dfotose');
@@ -39,6 +40,7 @@ app.use(authRouter);
 
 // Pure API routes should be prepended
 app.use(baseUrl, imageRouter);
+app.use(baseUrl, galleryRouter);
 
 app.listen(4000, () => {
   console.log('Listening :4000');
