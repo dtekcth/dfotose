@@ -6,6 +6,8 @@ import morgan from 'morgan';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 
+import Webpack from './webpack';
+
 // Routes
 import imageRouter from './routes/image-api';
 import galleryRouter from './routes/gallery-api';
@@ -26,6 +28,8 @@ const sessionMiddleware = session({
   saveUninitialized: false,
   name: 'dfotose.session',
 });
+
+Webpack(app);
 
 app.use('/', express.static(__dirname + '/public'));
 
