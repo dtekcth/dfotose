@@ -10,4 +10,7 @@
 /node_modules
 /bower_components
 
+# Config files
+/src/config/config.yml
+
 /.idea

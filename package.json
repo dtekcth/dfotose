@@ -50,11 +50,13 @@
     "mongodb": "^2.1.19",
     "mongoose": "^4.4.19",
     "morgan": "^1.7.0",
+    "node-yaml-config": "0.0.4",
     "password-hash": "^1.2.2",
     "purecss": "^0.6.0",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "webpack-dev-middleware": "^1.6.1",
-    "webpack-hot-middleware": "^2.10.0"
+    "webpack-hot-middleware": "^2.10.0",
+    "winston": "^2.2.0"
   }
 }

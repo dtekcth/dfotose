@@ -1,0 +1,13 @@
+default:
+  port: 4000
+
+  session:
+    static: true
+    secret: 'foobarwithdragons'
+
+  database:
+    host: 'localhost'
+    name: 'dfotose'
+
+  redis:
+    host: 'localhost'

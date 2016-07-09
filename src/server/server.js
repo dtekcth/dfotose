@@ -13,20 +13,22 @@ import imageRouter from './routes/image-api';
 import galleryRouter from './routes/gallery-api';
 import authRouter from './routes/auth-api';
 
-mongoose.connect('mongodb://localhost/dfotose');
+import config from './config';
+
+mongoose.connect(`mongodb://${config.database.host}/${config.database.name}`);
 
 const app = express();
 
 const RedisStore = connectRedis(session);
 const sessionMiddleware = session({
   store: new RedisStore({
-    host: '127.0.0.1',
+    host: config.redis.host,
     port: 6379
   }),
-  secret: 'XVUtmVft5KwvC7QmsmYF2SJn3z5c8e3B',
+  secret: config.session.secret,
   resave: false,
   saveUninitialized: false,
-  name: 'dfotose.session',
+  name: 'dfotose.session'
 });
 
 Webpack(app);
@@ -46,6 +48,6 @@ app.use(authRouter);
 app.use(baseUrl, imageRouter);
 app.use(baseUrl, galleryRouter);
 
-app.listen(4000, () => {
-  console.log('Listening :4000');
+app.listen(config.port, () => {
+  console.log(`Listening :${config.port}`);
 });

@@ -7,20 +7,20 @@ var util = require('gulp-util');
 var filter = require('gulp-filter');
 
 var webpack = require('webpack');
-var WebpackDevServer = require('webpack-dev-server');
 var webpackConfig = require('./webpack.config.js');
 
 var child = require('child_process');
 
 var path = {
   SRV_SRC: ['src/server/**/*', '!*~'],
+  CNF_SRC: ['src/config/**/*', '!*~'],
 
   OUT_DIR: 'dist/'
 };
 
 var server = null;
 
-gulp.task('default', gulpSequence(['server:build', 'client:copy', 'server:spawn'], 'watch'));
+gulp.task('default', gulpSequence(['server:build', 'config:copy', 'client:copy', 'server:spawn'], 'watch'));
 
 gulp.task('watch', function() {
   gulp.watch(path.SRV_SRC, ['server:rebuild']);
@@ -29,6 +29,11 @@ gulp.task('watch', function() {
 gulp.task('client:copy', function() {
   gulp.src('./src/client/index.html')
     .pipe(gulp.dest(path.OUT_DIR + 'public'));
+});
+
+gulp.task('config:copy', function() {
+  gulp.src(path.CNF_SRC)
+    .pipe(gulp.dest(path.OUT_DIR + '/config'));
 });
 
 gulp.task('server:rebuild', function(next) {
