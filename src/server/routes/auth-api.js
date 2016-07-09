@@ -92,7 +92,7 @@ router.post('/auth/login', jsonParser, (req, res) => {
           id: user._id,
           username: user.username,
           fullname: user.fullname
-        }
+        };
         res.send(user);
       } else {
         res.status(403);
