@@ -5,6 +5,8 @@ import bodyParser from 'body-parser';
 
 import User from '../model/user';
 
+import Logger from '../logger';
+
 const router = Router();
 export default router;
 
@@ -34,6 +36,8 @@ router.get('/auth/users', LoggedInRequired, (req, res) => {
         fullname: user.fullname
       };
     });
+    
+    Logger.info(`User ${req.session.user.id} fetched all other users`);
 
     res.send(strippedUsers);
   });
@@ -56,7 +60,7 @@ router.post('/auth/user', LoggedInRequired, jsonParser, (req, res) => {
       throw err;
     }
 
-    console.log('New user created: ' + newUser.username);
+    Logger.info(`New user created: ${newUser.username}`);
 
     // Respond with a username stripped of the
     // password
@@ -88,6 +92,8 @@ router.post('/auth/login', jsonParser, (req, res) => {
       
       // Verify the password
       if (passwordHash.verify(userData.password, user.password)) {
+        Logger.info(`Logged in user ${user.id}`);
+        
         req.session.user = {
           id: user._id,
           username: user.username,
