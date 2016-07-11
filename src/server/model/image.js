@@ -7,10 +7,9 @@ const imageSchema = new Schema({
   authorId: {type: String, required: true},
   
   galleryId: {type: String},
-  path: {
-    thumbnail: {type: String},
-    fullSize: {type: String}
-  },
+  
+  thumbnail: {type: String},
+  fullSize: {type: String},
   
   created_at: {type: Date, default: Date.now}
 });
