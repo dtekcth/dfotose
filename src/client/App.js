@@ -5,6 +5,7 @@ require('purecss');
 require('./css/all.scss');
 
 import Header from './components/Header';
+import ImageUpload from './components/ImageUpload';
 
 @observer
 class App extends React.Component {
@@ -13,7 +14,7 @@ class App extends React.Component {
       <div>
         <Header />
         
-        <button className="pure-button pure-button-primary">Test button</button>
+        <ImageUpload />
       </div>
     );
   }
