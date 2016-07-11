@@ -11,3 +11,7 @@ default:
 
   redis:
     host: 'localhost'
+
+  storage:
+    path: './storage/images/'
+    temporaryImagePath: './uploaded-images/'

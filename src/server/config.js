@@ -39,6 +39,10 @@ const model = {
   },
   redis: {
     host: undefined
+  },
+  storage: {
+    path: undefined,
+    temporaryImagePath: undefined
   }
 };
 
