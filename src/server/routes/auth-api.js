@@ -119,10 +119,11 @@ router.post('/auth/logout', LoggedInRequired, (req, res) => {
 // Middleware for express to ensure
 //  that a valid user is logged-in before continuing.
 export function LoggedInRequired(req, res, next) {
-  if (req.session !== undefined && req.session.user !== undefined) {
+  const hasSession = _.has(req, 'session');
+  const hasSessionUser = _.has(req, 'session.user');
+  if (hasSession && hasSessionUser) {
     next();
   } else {
-    res.status(403);
-    res.end();
+    res.status(403).send();
   }
 };
