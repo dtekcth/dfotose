@@ -1,5 +1,6 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import modRewrite from 'connect-modrewrite';
 
 import morgan from 'morgan';
 
@@ -32,6 +33,10 @@ const sessionMiddleware = session({
 });
 
 Webpack(app);
+
+app.use(modRewrite([
+  '^\/(?!(v1|favicon\.ico|robots\.txt)).*$ /index.html'
+]));
 
 app.use('/', express.static(__dirname + '/public'));
 

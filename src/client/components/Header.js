@@ -1,14 +1,18 @@
-import React from 'react';
+import React from "react";
+import {Link} from "react-router";
 
 export default class Header extends React.Component {
   render() {
     return (
-      <div className="header pure-menu">
-        <a href="#" className="pure-menu-heading pure-menu-link">DFoto</a>
-        <ul className="pure-menu-list">
-          <li className="pure-menu-item">Album</li>
-          <li className="pure-menu-item">Om DFoto</li>
-        </ul>
+      <div className="header">
+        <div className="header-content">
+          <img
+            src="https://scontent-arn2-1.xx.fbcdn.net/v/t1.0-9/10274074_505549666223770_604053247227379460_n.jpg?oh=cf4fae6e3e1889cb30f139bf74916687&oe=58278F8A"/>
+          <ul>
+            <li><Link to="/"> Album </Link></li>
+            <li><Link to="/about"> Om DFoto </Link></li>
+          </ul>
+        </div>
       </div>
     );
   }
