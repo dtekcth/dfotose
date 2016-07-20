@@ -7,6 +7,7 @@ import Logger from '../logger';
 import config from '../config';
 
 import Image from '../model/image';
+import Gallery from '../model/gallery';
 
 const router = Router();
 export default router;
@@ -50,15 +51,8 @@ router.get('/image/:galleryId', (req, res) => {
       res.status(500).send(err);
       throw err;
     }
-    
-    const imagesWithId = _.map(images, (image) => {
-      const id = _.get(image, '_id');
-      _.unset(image, '_id');
-      _.set(image, 'id', id);
-      return image;
-    });
 
-    res.send(imagesWithId);
+    res.send(images);
   });
 });
 
@@ -71,21 +65,15 @@ router.get('/image/:id', (req, res) => {
       res.status(500).send(err);
       throw err;
     }
-    
-    const id = _.get(image, '_id');
-    _.unset(image, '_id');
-    _.set(image, 'id', id);
-    
+
     res.send(image);
   });
 });
 
-// Upload images
-//  - The images will not be attached to any
-//    gallery when uploaded
-router.post('/image', LoggedInRequired, upload.array('photos'), (req, res) => {
+function handleImages(req, res, galleryId) {
   const userId = req.session.user.id;
   const images = req.files;
+
   _.forEach(images, (image) => {
     const fieldName = _.get(image, 'fieldname');
     if (fieldName !== 'photos') {
@@ -98,33 +86,40 @@ router.post('/image', LoggedInRequired, upload.array('photos'), (req, res) => {
     const filename = uuid.v4();
     const imagePath = config.storage.path;
     const fullSizeImagePath = `${imagePath}/${filename}.${extension}`;
-    
+
     fs.move(image.path, fullSizeImagePath, (err) => {
       if (err) {
         Logger.error(err);
       }
-      
+
       // TODO: generate thumbnail
       var newImage = new Image({
         filename: filename,
         authorId: userId,
-        galleryId: 'undefined',
+        galleryId: galleryId,
         thumbnail: 'undefined',
         fullSize: fullSizeImagePath
       });
-      
+
       newImage.save((err) => {
         if (err) {
           Logger.error(err);
           throw err;
         }
-        
+
         Logger.info(`Saved image ${filename}`);
       });
     });
   });
-  
+
   Logger.info(`${images.length} new images uploaded by ${req.session.user.id}`);
+}
+
+// Upload images
+//  - The images will not be attached to any
+//    gallery when uploaded
+router.post('/image', LoggedInRequired, upload.array('photos'), (req, res) => {
+  handleImages(req, res, 'undefined');
   
   res.status(202).send();
 });
@@ -134,7 +129,18 @@ router.post('/image', LoggedInRequired, upload.array('photos'), (req, res) => {
 //  - The images will be added to the gallery
 //    automatically.
 router.put('/image/:galleryId', LoggedInRequired, (req, res) => {
-  res.send('undefined');
+  const galleryId = req.params.galleryId;
+
+  // Validate the gallery
+  Gallery.findById(galleryId, (err) => {
+    if (err) {
+      res.status(500).send(err);
+      throw err;
+    }
+    
+    handleImages(req, res, galleryId);
+    res.status(202).send();
+  });
 });
 
 // Delete a specific image
