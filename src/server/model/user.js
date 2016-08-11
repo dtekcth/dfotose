@@ -4,10 +4,9 @@ const Schema = mongoose.Schema;
 
 // A user is also considered an author
 const userSchema = new Schema({
-  username: {type: String, required: true, unique: true},
-  password: {type: String, required: true},
-
-  fullname: {type: String, required: true},
+  cid: {type: String, required: true, unique: true},
+  fullname: {type: String},
+  dfotoMember: {type: Boolean, default: false},
 
   created_at: {type: Date, default: Date.now},
   updated_at: {type: Date, default: Date.now}
@@ -15,9 +14,7 @@ const userSchema = new Schema({
 
 // Update updated_at parameter
 userSchema.pre('save', function (next) {
-  var now = new Date();
-
-  this.updated_at = now;
+  this.updated_at = new Date();
 
   next();
 });

@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const imageSchema = new Schema({
   filename: {type: String, required: true, unique: true},
-  authorId: {type: String, required: true},
+  authorCid: {type: String, required: true},
   
   galleryId: {type: String},
   

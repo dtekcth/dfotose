@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import bodyParser from 'body-parser';
 
-import LoggedInRequired from './auth-api.js';
+import {LoggedInAsDfotoRequired} from './auth-api.js';
 import Logger from '../logger';
 
 import Gallery from '../model/gallery';
@@ -40,7 +40,7 @@ router.get('/gallery/:id', (req, res) => {
 // Create an entirely new gallery
 //    - Possibly associate with an event or
 //      to restrict it to one gallery per event.
-router.post('/gallery', LoggedInRequired, jsonParser, (req, res) => {
+router.post('/gallery', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
   const galleryData = req.body;
 
   var newGallery = Gallery(galleryData);
@@ -60,7 +60,7 @@ router.post('/gallery', LoggedInRequired, jsonParser, (req, res) => {
 //  - Should not be able to modify authors
 //      as they should be set automatically and
 //      removed automatically.
-router.put('/gallery/:id', LoggedInRequired, jsonParser, (req, res) => {
+router.put('/gallery/:id', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
   const galleryData = req.body;
   const id = req.params.id;
 

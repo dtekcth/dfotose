@@ -45,6 +45,7 @@
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "fs-extra": "^0.30.0",
+    "kerberos": "0.0.21",
     "lodash": "^4.13.1",
     "mobx": "^2.2.2",
     "mobx-react": "^3.3.1",

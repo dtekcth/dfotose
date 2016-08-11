@@ -1,8 +1,10 @@
 import _ from 'lodash';
 import uuid from 'uuid';
 import {Router} from 'express';
+import multer from 'multer';
+import fs from 'fs-extra';
 
-import {LoggedInRequired} from './auth-api.js';
+import {LoggedInAsDfotoRequired} from './auth-api.js';
 import Logger from '../logger';
 import config from '../config';
 
@@ -11,9 +13,6 @@ import Gallery from '../model/gallery';
 
 const router = Router();
 export default router;
-
-import multer from 'multer';
-import fs from 'fs-extra';
 
 const imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -71,7 +70,7 @@ router.get('/image/:id', (req, res) => {
 });
 
 function handleImages(req, res, galleryId) {
-  const userId = req.session.user.id;
+  const userCid = req.session.user.cid;
   const images = req.files;
 
   _.forEach(images, (image) => {
@@ -95,7 +94,7 @@ function handleImages(req, res, galleryId) {
       // TODO: generate thumbnail
       var newImage = new Image({
         filename: filename,
-        authorId: userId,
+        authorCid: userCid,
         galleryId: galleryId,
         thumbnail: 'undefined',
         fullSize: fullSizeImagePath
@@ -112,13 +111,13 @@ function handleImages(req, res, galleryId) {
     });
   });
 
-  Logger.info(`${images.length} new images uploaded by ${req.session.user.id}`);
+  Logger.info(`${images.length} new images uploaded by ${req.session.user.cid}`);
 }
 
 // Upload images
 //  - The images will not be attached to any
 //    gallery when uploaded
-router.post('/image', LoggedInRequired, upload.array('photos'), (req, res) => {
+router.post('/image', LoggedInAsDfotoRequired, upload.array('photos'), (req, res) => {
   handleImages(req, res, 'undefined');
   
   res.status(202).send();
@@ -128,7 +127,7 @@ router.post('/image', LoggedInRequired, upload.array('photos'), (req, res) => {
 //  - Author is always the logged-in user
 //  - The images will be added to the gallery
 //    automatically.
-router.put('/image/:galleryId', LoggedInRequired, (req, res) => {
+router.put('/image/:galleryId', LoggedInAsDfotoRequired, (req, res) => {
   const galleryId = req.params.galleryId;
 
   // Validate the gallery
@@ -146,7 +145,7 @@ router.put('/image/:galleryId', LoggedInRequired, (req, res) => {
 // Delete a specific image
 //  - Note: this automatically removes all gallery
 //          associations.
-router.delete('/image/:id', LoggedInRequired, (req, res) => {
+router.delete('/image/:id', LoggedInAsDfotoRequired, (req, res) => {
   const id = req.params.id;
 
   Image.findByIdAndRemove(id, (err, image) => {
@@ -155,7 +154,7 @@ router.delete('/image/:id', LoggedInRequired, (req, res) => {
       throw err;
     }
     
-    Logger.info(`User ${req.session.user._id} removed image ${id}`);
+    Logger.info(`User ${req.session.user.cid} removed image ${id}`);
     
     res.status(202).send();
   });

@@ -35,7 +35,7 @@ const sessionMiddleware = session({
 Webpack(app);
 
 app.use(modRewrite([
-  '^\/(?!(v1|favicon\.ico|robots\.txt)).*$ /index.html'
+  '^\/(?!(v1|auth|favicon\.ico|robots\.txt)).*$ /index.html'
 ]));
 
 app.use('/', express.static(__dirname + '/public'));
@@ -46,10 +46,7 @@ app.use(sessionMiddleware);
 // Include all routes
 const baseUrl = '/v1';
 
-// Auth routes should not be prepended
 app.use(authRouter);
-
-// Pure API routes should be prepended
 app.use(baseUrl, imageRouter);
 app.use(baseUrl, galleryRouter);
 
