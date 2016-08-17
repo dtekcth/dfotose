@@ -14,9 +14,9 @@ export default router;
 
 const jsonParser = bodyParser.json();
 
-// Get the currently logged in user
+// Get the currently logged in User
 //  - Returns 403 if not logged-in
-router.get('/auth/user', LoggedInRequired, (req, res) => {
+router.get('/auth/User', LoggedInRequired, (req, res) => {
   const user = req.session.user;
   res.send(user);
 });
@@ -33,11 +33,10 @@ router.get('/auth/users', LoggedInAsDfotoRequired, (req, res) => {
   });
 });
 
-// Login a user
-//  - Logs out the previous user if any
+// Login a User
+//  - Logs out the previous User if any
 router.post('/auth/login', jsonParser, (req, res) => {
   const {cid, password} = req.body;
-  
   Kerberos.authUserKrb5Password(cid, password, '', (err, ok) => {
     abortOnError(err, res);
     
@@ -69,8 +68,8 @@ router.post('/auth/login', jsonParser, (req, res) => {
   });
 });
 
-// Change user-data
-router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
+// Change User-data
+router.put('/auth/User/:cid', LoggedInRequired, jsonParser, (req, res) => {
   const cid = req.params.cid;
   const {fullname} = req.body;
   const dfotoMember = _.get(req.body, 'dfotoMember', false);
@@ -88,7 +87,7 @@ router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
       throw err;
     }
 
-    // Update current user object
+    // Update current User object
     if (req.session.user.cid === cid) {
       _.merge(req.session.user, updated);
     }
@@ -97,7 +96,7 @@ router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
   });
 });
 
-// Logout the currently logged-in user
+// Logout the currently logged-in User
 //  - Returns 403 if not logged-in
 router.post('/auth/logout', LoggedInRequired, (req, res) => {
   req.session.destroy();
@@ -112,7 +111,7 @@ function isLoggedIn(req) {
 }
 
 // Middleware for express to ensure
-//  that a valid user is logged-in before continuing.
+//  that a valid User is logged-in before continuing.
 export function LoggedInRequired(req, res, next) {
   if (isLoggedIn(req)) {
     next();
@@ -127,6 +126,7 @@ export function LoggedInAsDfotoRequired(req, res, next) {
   if (loggedIn && isDfoto) {
     next();
   } else {
+    Logger.info(`Rejected, isDfoto: ${isDfoto}, loggedIn: ${loggedIn}`);
     res.status(403).end();
   }
 }

@@ -1,10 +1,16 @@
 import React from "react";
 import {Router, Route, IndexRoute, Link, browserHistory} from "react-router";
 import {observer} from "mobx-react";
+
 import Header from "./components/Header";
 import ImageUpload from "./components/ImageUpload";
+import LoginView from './components/LoginView';
+
+import User from './User';
 
 require('./css/all.scss');
+
+const user = new User();
 
 const ContentContainer = ({children}) => {
   return (
@@ -27,11 +33,17 @@ const Site = ({children}) => {
   )
 };
 
-const Home = () => {
-  return (
-    <ImageUpload />
-  )
-};
+@observer
+class Home extends React.Component {
+  render() {
+    return (
+      <div>
+        { user.isLoggedIn ? <p> Du är inloggad som { user.current.cid } </p> : null }
+        <ImageUpload />
+      </div>
+    );
+  }
+}
 
 const About = () => {
   return (
@@ -48,6 +60,10 @@ const About = () => {
   );
 };
 
+const Login = () => {
+  return (<LoginView user={ user }/>);
+};
+
 @observer
 class App extends React.Component {
   render() {
@@ -57,6 +73,7 @@ class App extends React.Component {
           <Route path="/" component={ Site }>
             <IndexRoute component={ Home }/>
             <Route path="about" component={ About }/>
+            <Route path="login" component={ Login }/>
           </Route>
         </Router>
       </div>

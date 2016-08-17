@@ -16,6 +16,7 @@ import authRouter from './routes/auth-api';
 
 import config from './config';
 
+mongoose.promise = global.Promise;
 mongoose.connect(`mongodb://${config.database.host}/${config.database.name}`);
 
 const app = express();

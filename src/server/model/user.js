@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-// A user is also considered an author
+// A User is also considered an author
 const userSchema = new Schema({
   cid: {type: String, required: true, unique: true},
   fullname: {type: String},

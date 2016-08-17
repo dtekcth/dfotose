@@ -71,6 +71,14 @@ router.get('/image/:id', (req, res) => {
   });
 });
 
+function createDirectoryIfNeeded(dir) {
+  try {
+    fs.statSync(dir);
+  } catch(err) {
+    fs.mkdirSync(dir);
+  }
+}
+
 function handleImages(req, res, galleryId) {
   const userCid = req.session.user.cid;
   const images = req.files;
@@ -84,18 +92,20 @@ function handleImages(req, res, galleryId) {
 
     const extension = image.originalname.split('.').pop();
     const filename = uuid.v4();
-    const imagePath = path.resolve(config.storage.path, galleryId);
-    const fullSizeImagePath = `${imagePath}/${filename}.${extension}`;
+    const galleryPath = path.resolve(config.storage.path, galleryId);
+    const fullSizeImagePath = `${galleryPath}/${filename}.${extension}`;
+
+    createDirectoryIfNeeded(galleryPath);
+    createDirectoryIfNeeded(path.resolve(galleryPath, "thumbnails"));
 
     fs.move(image.path, fullSizeImagePath, (err) => {
       if (err) {
         Logger.error(err);
       }
-      
-      const thumbnailsPath = path.resolve(imagePath, "thumbnails");
-      const thumbnail = path.resolve(thumbnailsPath, filename);
+
+      const thumbnail = path.resolve(galleryPath, "thumbnails", `${filename}.${extension}`);
       sharp(fullSizeImagePath)
-        .resize(-1, 600)
+        .resize(null, 600)
         .toFile(thumbnail, (err) => {
           if (err) {
             Logger.error(`Could not save thumbnail for image ${filename}`);

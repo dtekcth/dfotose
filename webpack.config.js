@@ -23,9 +23,20 @@ module.exports = {
   module: {
     loaders:[
       {
-        test: /\.js?$/,
-        exclude: /node_modules/,
-        loaders: ['babel-loader?presets[]=react,presets[]=es2015']
+        //test: /\.js?$/,
+        test: /\.jsx?$/,
+        loader: 'babel-loader',
+        exclude: [
+          path.resolve(__dirname, "node_modules")
+        ],
+        include: [
+          path.resolve(__dirname, "src")
+        ],
+        query: {
+          plugins: ['transform-decorators-legacy'],
+          presets: ['es2015', 'stage-0', 'react']
+        }
+        //'babel-loader?presets[]=react,presets[]=es2015,presets[]=stage-0,plugins[]=transform-decorators-legacy'
       },
       {
         test: /\.html$/,
@@ -37,7 +48,11 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-          loaders: ["style", "css", "sass"]
+        loaders: ["style", "css", "sass"]
+      },
+      {
+        test: /\.json$/,
+        loader: "json-loader"
       }
     ]
   }
