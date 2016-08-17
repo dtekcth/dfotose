@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 
 import {LoggedInAsDfotoRequired} from './auth-api.js';
 import Logger from '../logger';
+import {abortOnError} from '../utils';
 
 import Gallery from '../model/gallery';
 
@@ -11,14 +12,18 @@ const jsonParser = bodyParser.json();
 const router = Router();
 export default router;
 
-// Return all galleries
+// Return all published galleries
 router.get('/gallery', (req, res) => {
+  Gallery.find({ published: true }, (err, galleries) => {
+    abortOnError(err, res);
+    res.send(galleries);
+  });
+});
+
+// Return _all_ galleries, even unpublished
+router.get('/gallery/all', LoggedInAsDfotoRequired, (err, res) => {
   Gallery.find({}, (err, galleries) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
-    
+    abortOnError(err, res);
     res.send(galleries);
   });
 });
@@ -28,11 +33,7 @@ router.get('/gallery/:id', (req, res) => {
   const id = req.params.id;
   
   Gallery.findById(id, (err, gallery) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
-
+    abortOnError(err, res);
     res.send(gallery);
   });
 });
@@ -45,10 +46,7 @@ router.post('/gallery', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
 
   var newGallery = Gallery(galleryData);
   newGallery.save((err) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
+    abortOnError(err, res);
 
     Logger.info(`New gallery with name ${newGallery.name} created`);
 
@@ -70,17 +68,45 @@ router.put('/gallery/:id', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
       description: galleryData.description
     }
   }, (err) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
+    abortOnError(err, res);
     
     res.status(202).end();
   });
 });
 
+// Publish a gallery
+router.post('/gallery/:id/publish', LoggedInAsDfotoRequired, (req, res) => {
+  const id = req.params.id;
+
+  Gallery.findOneAndUpdate({_id: id}, {
+    $set: {
+      published: true
+    }
+  }, (err) => {
+    abortOnError(err, res);
+  });
+});
+
+// Unpublish a gallery
+router.post('/gallery/:id/unpublish', LoggedInAsDfotoRequired, (req, res) => {
+  const id = req.params.id;
+
+  Gallery.findOneAndUpdate({_id: id}, {
+    $set: {
+      published: false
+    }
+  }, (err) => {
+    abortOnError(err, res);
+  });
+});
+
 // Remove an entire gallery
 //  should not be used ever imho.
-router.delete('/gallery/:id', (req, res) => {
-  res.status(403).send('not supported');
+router.delete('/gallery/:id', LoggedInAsDfotoRequired, (req, res) => {
+  const id = req.params.id;
+  
+  Gallery.deleteOne({ _id: id }, (err) => {
+    abortOnError(err);
+    res.status(202).end();
+  });
 });

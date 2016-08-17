@@ -6,6 +6,7 @@ import krb5 from 'kerberos';
 import User from '../model/user';
 
 import Logger from '../logger';
+import {abortOnError} from '../utils';
 const Kerberos = new krb5.Kerberos();
 
 const router = Router();
@@ -20,15 +21,11 @@ router.get('/auth/user', LoggedInRequired, (req, res) => {
   res.send(user);
 });
 
-// Get all users
+// Get all -saved- users
 //  - Returns 403 if not logged-in
 router.get('/auth/users', LoggedInAsDfotoRequired, (req, res) => {
   User.find({}, (err, users) => {
-    if (err) {
-      res.status(500);
-      res.send(err);
-      throw err;
-    }
+    abortOnError(err, res);
 
     Logger.info(`User ${req.session.user.cid} fetched all other users`);
 
@@ -131,14 +128,5 @@ export function LoggedInAsDfotoRequired(req, res, next) {
     next();
   } else {
     res.status(403).end();
-  }
-}
-
-function abortOnError(err, res) {
-  if (err) {
-    res.status(500);
-    res.send(err);
-
-    throw err;
   }
 }
