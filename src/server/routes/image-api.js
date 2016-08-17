@@ -3,6 +3,8 @@ import uuid from 'uuid';
 import {Router} from 'express';
 import multer from 'multer';
 import fs from 'fs-extra';
+import path from 'path';
+import sharp from 'sharp';
 
 import {LoggedInAsDfotoRequired} from './auth-api.js';
 import Logger from '../logger';
@@ -80,23 +82,33 @@ function handleImages(req, res, galleryId) {
       throw "incorrect fieldName specified";
     }
 
-    // Since this file is unattached, give it a uuid as filename
     const extension = image.originalname.split('.').pop();
     const filename = uuid.v4();
-    const imagePath = config.storage.path;
+    const imagePath = path.resolve(config.storage.path, galleryId);
     const fullSizeImagePath = `${imagePath}/${filename}.${extension}`;
 
     fs.move(image.path, fullSizeImagePath, (err) => {
       if (err) {
         Logger.error(err);
       }
+      
+      const thumbnailsPath = path.resolve(imagePath, "thumbnails");
+      const thumbnail = path.resolve(thumbnailsPath, filename);
+      sharp(fullSizeImagePath)
+        .resize(-1, 600)
+        .toFile(thumbnail, (err) => {
+          if (err) {
+            Logger.error(`Could not save thumbnail for image ${filename}`);
+          } else {
+            Logger.info(`Saved thumbnail ${thumbnail}`);
+          }
+        });
 
-      // TODO: generate thumbnail
       var newImage = new Image({
         filename: filename,
         authorCid: userCid,
         galleryId: galleryId,
-        thumbnail: 'undefined',
+        thumbnail: thumbnail,
         fullSize: fullSizeImagePath
       });
 
@@ -124,7 +136,7 @@ router.post('/image', LoggedInAsDfotoRequired, upload.array('photos'), (req, res
 });
 
 // Upload images to a specific gallery
-//  - Author is always the logged-in user
+//  - Author is always the logged-in User
 //  - The images will be added to the gallery
 //    automatically.
 router.put('/image/:galleryId', LoggedInAsDfotoRequired, (req, res) => {
