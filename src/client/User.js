@@ -7,10 +7,17 @@ class User {
   @observable data = { user: null };
   
   constructor() {
+    this.firstCheck();
+  }
+  
+  @action firstCheck() {
     axios.get('/auth/user', null, { responseType: 'json' })
       .then((response => {
         this.data.user = response.data;
       }).bind(this))
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   @action login(cid, password) {
@@ -26,6 +33,18 @@ class User {
   
   @computed get isLoggedIn() {
     return this.data.user != null;
+  }
+  
+  @computed get dfotoMember() {
+    return _.get(this.data, 'user.dfotoMember', false);
+  }
+  
+  @computed get cid() {
+    return _.get(this.data, 'user.cid', '');
+  }
+  
+  @computed get fullName() {
+    return _.get(this.data, 'user.fullname');
   }
 }
 

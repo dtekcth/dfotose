@@ -69,7 +69,7 @@ router.post('/auth/login', jsonParser, (req, res) => {
 });
 
 // Change User-data
-router.put('/auth/User/:cid', LoggedInRequired, jsonParser, (req, res) => {
+router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
   const cid = req.params.cid;
   const {fullname} = req.body;
   const dfotoMember = _.get(req.body, 'dfotoMember', false);

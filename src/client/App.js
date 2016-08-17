@@ -6,6 +6,8 @@ import Header from "./components/Header";
 import ImageUpload from "./components/ImageUpload";
 import LoginView from './components/LoginView';
 
+import AdminIndex from './components/admin/Index';
+
 import User from './User';
 
 require('./css/all.scss');
@@ -25,7 +27,7 @@ const ContentContainer = ({children}) => {
 const Site = ({children}) => {
   return (
     <div>
-      <Header />
+      <Header user={ user } />
       <ContentContainer>
         { children }
       </ContentContainer>
@@ -64,6 +66,19 @@ const Login = () => {
   return (<LoginView user={ user }/>);
 };
 
+const Admin = ({children}) => {
+  return (
+    <div>
+      <h2> Admin </h2>
+      { children }
+    </div>
+  );
+};
+
+const AdminHome = () => {
+  return (<AdminIndex user={ user } />);
+};
+
 @observer
 class App extends React.Component {
   render() {
@@ -74,6 +89,9 @@ class App extends React.Component {
             <IndexRoute component={ Home }/>
             <Route path="about" component={ About }/>
             <Route path="login" component={ Login }/>
+            <Route path="admin" component={ Admin }>
+              <IndexRoute component={ AdminHome } />
+            </Route>
           </Route>
         </Router>
       </div>

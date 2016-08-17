@@ -1,8 +1,13 @@
 import React from "react";
 import {Link} from "react-router";
 
-export default class Header extends React.Component {
+import {observer} from 'mobx-react';
+
+@observer
+class Header extends React.Component {
   render() {
+    const user = this.props.user;
+    
     return (
       <div className="header">
         <div className="header-content">
@@ -11,9 +16,17 @@ export default class Header extends React.Component {
           <ul>
             <li><Link to="/"> Album </Link></li>
             <li><Link to="/about"> Om DFoto </Link></li>
+            { !user.isLoggedIn ?
+              <li><Link to="/login"> Logga in </Link></li>
+            : null }
+            { user.isLoggedIn && user.dfotoMember ?
+              <li><Link to="/admin">Admin </Link></li>
+            : null }
           </ul>
         </div>
       </div>
     );
   }
 }
+
+export default Header;
