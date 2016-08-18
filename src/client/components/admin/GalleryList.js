@@ -12,7 +12,12 @@ class Gallery extends React.Component {
     
     const editLink = `/admin/gallery/edit/${gallery.id}`;
     return (
-      <li><Link to={ editLink }>{ gallery.name }</Link></li>
+      <Link to={ editLink }>
+        <li>
+          <p className="name">{ gallery.name }</p>
+          <p>{ gallery.description } </p>
+        </li>
+      </Link>
     );
   }
 } 
@@ -27,7 +32,7 @@ class GalleryList extends React.Component {
     return (
       <div>
         Totalt {galleries.length} gallerier.
-        <ul>
+        <ul className="editable-gallery-list">
           {galleries}
         </ul>
       </div>

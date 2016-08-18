@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router';
 import {browserHistory} from 'react-router';
 
 import uiState from '../../UiState';
@@ -40,6 +41,7 @@ class NewGalleryView extends React.Component {
         <label>Beskrivning utav gallery:</label>
         <textarea className="u-full-width" value={ this.state.description } onChange={ this.onChangeDescription.bind(this) }/>
         <button type="submit" className="button-primary">Spara</button>
+        <Link to="/admin/gallery">Tillbaka</Link>
       </form>
     );
   }

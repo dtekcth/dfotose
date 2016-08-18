@@ -1,4 +1,5 @@
 import React from "react";
+import {browserHistory} from "react-router";
 import {observer} from "mobx-react";
 
 import uiState from '../UiState';
@@ -23,6 +24,12 @@ import uiState from '../UiState';
     this.props.user.login(this.state.cid, this.state.password)
       .then(() => {
         uiState.refresh();
+        
+        if (uiState.user.dfotoMember) {
+          browserHistory.push('/admin');
+        } else {
+          browserHistory.push('/');
+        }
       });
   }
   
