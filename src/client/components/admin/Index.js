@@ -1,26 +1,23 @@
 import _ from 'lodash';
 import React from 'react';
+import {Link} from 'react-router';
 import {observer} from 'mobx-react';
 import axios from 'axios';
 
-import GalleryList from './GalleryList';
+import uiState from '../../UiState';
 
 @observer
 class AdminIndex extends React.Component {
   constructor(props) {
     super(props);
 
-    const galleryList = new GalleryList();
-    
-    const fullname = props.user.fullName;
     this.state = {
-      fullname: fullname,
-      galleryList: galleryList
+      fullname: uiState.user.fullName
     };
   }
   
   changeNameSubmit(event) {
-    const cid = _.get(this.props.user, 'current.cid', '');
+    const cid = uiState.user.cid;
     const url = `/auth/user/${cid}`;
     
     axios.put(url, { 
@@ -38,24 +35,16 @@ class AdminIndex extends React.Component {
   }
   
   render() {
-    const user = this.props.user;
-    if (user == null || !user.dfotoMember) {
+    if (!uiState.user.isLoggedIn || !uiState.user.dfotoMember) {
       return (<p>Du får inte vara här.</p>);
     }
     
     const saveSuccess = _.get(this.state, 'saveSuccess');
-    const fullname = _.get(this.state, 'fullname', user.current.fullname);
-    
-    const galleries = _.get(this.state.galleryList, 'Galleries', []);
-    const renderedGalleries = _.map(galleries, (gallery) => {
-      return (
-        <li>{ gallery.name } </li>
-      );
-    });
+    const fullname = _.get(this.state, 'fullname', uiState.user.fullName);
     
     return (
       <div>
-        <p> Välkommen {user.cid}. </p>
+        <p> Välkommen {uiState.user.cid}. </p>
         
         <form onSubmit={ this.changeNameSubmit.bind(this) }>
           <label>Ditt namn:</label>
@@ -65,10 +54,7 @@ class AdminIndex extends React.Component {
           <p> Det är detta namnet som syns på dina bilder, om du inte har satt något namn syns ditt cid.</p>
         </form>
         <hr/>
-        <h4>Gallerier</h4>
-        <ul>
-          { renderedGalleries }
-        </ul>
+        <Link to="/admin/gallery"><button type="button">Hantera gallerier</button></Link>
       </div>
     );
   }

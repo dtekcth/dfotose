@@ -1,26 +1,37 @@
-import axios from 'axios';
-import {computed, action,observable} from 'mobx';
+import _ from 'lodash';
+import React from 'react';
+import {Link} from 'react-router';
+import {observer} from 'mobx-react';
 
-class GalleryList {
-  @observable galleries = [];
+import uiState from '../../UiState';
 
-  constructor() {
-    axios.get('/v1/gallery/all', null, { responseType: 'json' })
-      .then((response => {
-        this.galleries = response.data;
-      }).bind(this));
+@observer
+class Gallery extends React.Component {
+  render() {
+    const gallery = this.props.gallery;
+    
+    const editLink = `/admin/gallery/edit/${gallery.id}`;
+    return (
+      <li><Link to={ editLink }>{ gallery.name }</Link></li>
+    );
   }
+} 
 
-  @action addGallery(name, description) {
-    return axios.push('/v1/gallery', { name: name, description: description }, { responseType: 'json' })
-      .then((response => {
-        const newGallery = response.data;
-        this.galleries.push(newGallery);
-      }).bind(this));
-  }
-  
-  @computed get Galleries() {
-    return this.galleries;
+@observer
+class GalleryList extends React.Component {
+  render() {
+    const galleries = _.map(uiState.galleryStore.Galleries, gallery => {
+      return (<Gallery key={ gallery.id } gallery={ gallery }/>);
+    });
+    
+    return (
+      <div>
+        Totalt {galleries.length} gallerier.
+        <ul>
+          {galleries}
+        </ul>
+      </div>
+    )
   }
 }
 

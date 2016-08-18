@@ -16,8 +16,6 @@ UI:
     - göra publikt / ej publikt
     - visible för endast inloggade
 - ladda upp bilder till galleri
-- fixa mobx observable react, så att man inte behöver byta tabbar och skit ibland
-- fixa något schysst state-storage, hemskt rörigt just nu
 - vy för att kolla på en bild
 - vy för att kolla på ett galleri
 - vy för att kolla på alla gallerier (standard, paginated)

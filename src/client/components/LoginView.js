@@ -1,6 +1,8 @@
 import React from "react";
 import {observer} from "mobx-react";
 
+import uiState from '../UiState';
+
 @observer class LoginView extends React.Component {
   static propTypes = {
     user: React.PropTypes.object.isRequired
@@ -20,7 +22,7 @@ import {observer} from "mobx-react";
     
     this.props.user.login(this.state.cid, this.state.password)
       .then(() => {
-        alert("success!");
+        uiState.refresh();
       });
   }
   

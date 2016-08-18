@@ -7,12 +7,13 @@ import ImageUpload from "./components/ImageUpload";
 import LoginView from './components/LoginView';
 
 import AdminIndex from './components/admin/Index';
+import GalleryListView from './components/admin/GalleryListView';
+import NewGalleryView from './components/admin/NewGalleryView';
+import EditGalleryView from './components/admin/EditGalleryView';
 
-import User from './User';
+import uiState from './UiState';
 
 require('./css/all.scss');
-
-const user = new User();
 
 const ContentContainer = ({children}) => {
   return (
@@ -27,7 +28,7 @@ const ContentContainer = ({children}) => {
 const Site = ({children}) => {
   return (
     <div>
-      <Header user={ user } />
+      <Header/>
       <ContentContainer>
         { children }
       </ContentContainer>
@@ -40,7 +41,7 @@ class Home extends React.Component {
   render() {
     return (
       <div>
-        { user.isLoggedIn ? <p> Du är inloggad som { user.current.cid } </p> : null }
+        { uiState.user.isLoggedIn ? <p> Du är inloggad som { uiState.user.cid } </p> : null }
         <ImageUpload />
       </div>
     );
@@ -63,7 +64,7 @@ const About = () => {
 };
 
 const Login = () => {
-  return (<LoginView user={ user }/>);
+  return (<LoginView user={ uiState.user }/>);
 };
 
 const Admin = ({children}) => {
@@ -76,7 +77,7 @@ const Admin = ({children}) => {
 };
 
 const AdminHome = () => {
-  return (<AdminIndex user={ user } />);
+  return (<AdminIndex />);
 };
 
 @observer
@@ -91,6 +92,11 @@ class App extends React.Component {
             <Route path="login" component={ Login }/>
             <Route path="admin" component={ Admin }>
               <IndexRoute component={ AdminHome } />
+              <Route path="gallery">
+                <IndexRoute component={ GalleryListView } />
+                <Route path="new" component={ NewGalleryView } />
+                <Route path="edit/:id" component={ EditGalleryView } />
+              </Route>
             </Route>
           </Route>
         </Router>
