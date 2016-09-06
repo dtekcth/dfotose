@@ -13,8 +13,6 @@ UI:
     - ta bort
     - sätta taggar
     - visible för endast inloggade
-- vy för att kolla på en bild
-- vy för att kolla på ett galleri
 - vy för att kolla på alla gallerier
   - lägg till pagination så är det klart
 - sök-funktion bland taggar
