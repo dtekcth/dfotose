@@ -143,7 +143,7 @@ function handleImages(req, res, galleryId) {
       
       const preview = path.resolve(galleryPath, "previews", `${filename}.${extension}`);
       sharp(fullSizeImagePath)
-        .resize(null, 600)
+        .resize(null, 800)
         .toFile(preview, (err) => {
           if (err) {
             Logger.error(`Could not save preview for image ${filename}`);

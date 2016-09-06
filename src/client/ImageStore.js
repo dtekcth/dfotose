@@ -8,6 +8,10 @@ export class Image {
   constructor(data) {
     this.data = data;
   }
+  
+  @computed get id() {
+    return this.data._id;
+  }
 
   @computed get galleryId() {
     return this.data.galleryId;

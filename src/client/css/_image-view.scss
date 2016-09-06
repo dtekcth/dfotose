@@ -1,0 +1,43 @@
+.image-view {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  .image-with-buttons {
+    max-width: 800px;
+    @media (max-width: 926px) {
+      width: 80vw;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      max-width: 100%;
+
+      a:last-child {
+        align-self: flex-end;
+        margin-left: auto;
+      }
+    }
+
+    .primary-image {
+      max-width: 100%;
+      border-radius: 15px;
+    }
+  }
+
+  .details {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 250px;
+    max-height: 200px;
+
+
+    background: #eee;
+    margin-left: 20px;
+    padding: 10px;
+    border-radius: 10px;
+  }
+}

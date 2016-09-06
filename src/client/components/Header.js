@@ -21,6 +21,10 @@ class Header extends React.Component {
               <li><Link to="/admin">Admin </Link></li>
             : null }
           </ul>
+          
+          <div className="info">
+            { uiState.user.isLoggedIn ? <span>Du är inloggad som { uiState.user.cid }</span> : null }
+          </div>
         </div>
       </div>
     );

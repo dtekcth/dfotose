@@ -8,10 +8,11 @@ class Gallery extends React.Component {
     const gallery = this.props.gallery;
     
     const thumbnailPreview = gallery.thumbnailPreview;
+    const galleryViewLink = `/gallery/${gallery.id}`;
     
     return (
       <div className="gallery-card">
-        <Link to="">
+        <Link to={ galleryViewLink }>
           <img src={ thumbnailPreview } />
           <div className="name"><span>{ gallery.name }</span></div>
         </Link>
@@ -23,7 +24,7 @@ class Gallery extends React.Component {
 @observer
 class GalleryList extends React.Component {
   render() {
-    const allGalleries = this.props.galleries.Galleries.toJS();
+    const allGalleries = this.props.galleries;
     
     // Filter to ensure all is published, safety precaution
     const publishedGalleries = _.chain(allGalleries)
