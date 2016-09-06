@@ -25,7 +25,7 @@ class ImageView extends React.Component {
       imageId: props.imageId
     };
   }
-  
+
   openNextImage(event) {
     event.preventDefault();
     
@@ -39,7 +39,7 @@ class ImageView extends React.Component {
     const nextId = insideBounds ? images[nextIndex].id : images[0].id;
     this.openImage(nextId);
   }
-  
+
   openPrevImage(event) {
     event.preventDefault();
     
@@ -59,10 +59,6 @@ class ImageView extends React.Component {
     this.setState({imageId: nextId});
   }
   
-  openFullSize(fullSizeUrl) {
-    window.open(fullSizeUrl, '_blank');
-  }
-  
   render() {
     const images = this.props.images;
     const imageId = this.state.imageId;
@@ -70,6 +66,13 @@ class ImageView extends React.Component {
     
     if (images.length <= 0) {
       return (<p>Väntar på att bilden skall laddas ..</p>);
+    }
+    
+    function clickFullSize(fullSize) {
+      return (event) => {
+        event.preventDefault();
+        window.open(fullSize);
+      };
     }
     
     return (
@@ -85,7 +88,7 @@ class ImageView extends React.Component {
         <div className="details">
           <span>Fotograf: {currentImage.author}</span>
           <span>Bild-Id: {currentImage.id}</span>
-          <a href={ currentImage.fullSize } onClick={ this.openFullSize(currentImage.fullSize) } target="_blank">Öppna bilden i full storlek</a>
+          <a href={ currentImage.fullSize } onClick={ clickFullSize(currentImage.fullSize) } target="_blank">Öppna bilden i full storlek</a>
           
           <span>Taggar: plats-för-taggar</span>
         </div>

@@ -10,7 +10,7 @@ class Header extends React.Component {
     return (
       <div className="header">
         <div className="header-content">
-          <img src="https://scontent-arn2-1.xx.fbcdn.net/v/t1.0-9/10274074_505549666223770_604053247227379460_n.jpg?oh=cf4fae6e3e1889cb30f139bf74916687&oe=58278F8A"/>
+          <img src="/assets/images/logo.png"/>
           <ul>
             <li><Link to="/"> Bilder </Link></li>
             <li><Link to="/about"> Kommittén </Link></li>

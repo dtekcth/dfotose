@@ -31,7 +31,7 @@ const ContentContainer = ({children}) => {
 const Site = ({children}) => {
   return (
     <div>
-      <Header/>
+      <Header user={ uiState.user } />
       <ContentContainer>
         { children }
       </ContentContainer>

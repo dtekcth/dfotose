@@ -5,6 +5,7 @@ var gulpSequence = require('gulp-sequence');
 var concat = require('gulp-concat');
 var util = require('gulp-util');
 var filter = require('gulp-filter');
+var env = require('gulp-env');
 
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.config.js');
@@ -29,6 +30,9 @@ gulp.task('watch', function() {
 gulp.task('client:copy', function() {
   gulp.src('./src/client/index.html')
     .pipe(gulp.dest(path.OUT_DIR + 'public'));
+
+  gulp.src('./src/client/assets/**/*')
+    .pipe(gulp.dest(path.OUT_DIR + 'public/assets'));
 });
 
 gulp.task('config:copy', function() {
@@ -66,6 +70,16 @@ gulp.task('server:build', function() {
     }))
     .pipe(gulp.dest(path.OUT_DIR));
 });
+
+gulp.task('server:env-release', function() {
+  env({
+    vars: {
+      NODE_ENV: "production"
+    }
+  });
+});
+
+gulp.task('server:release', ['server:env-release', 'server:build']);
 
 gulp.task('server:spawn', function() {
   if (server) {

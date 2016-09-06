@@ -33,10 +33,12 @@ const sessionMiddleware = session({
   name: 'dfotose.session'
 });
 
-Webpack(app);
+if (process.env.NODE_ENV !== "production") {
+  Webpack(app);
+}
 
 app.use(modRewrite([
-  '^\/(?!(v1|auth|favicon\.ico|robots\.txt)).*$ /index.html'
+  '^\/(?!(v1|auth|assets|favicon\.ico|robots\.txt)).*$ /index.html'
 ]));
 
 app.use('/', express.static(__dirname + '/public'));
