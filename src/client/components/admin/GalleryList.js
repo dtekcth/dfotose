@@ -24,16 +24,34 @@ class Gallery extends React.Component {
 
 @observer
 class GalleryList extends React.Component {
+  renderGallery(gallery) {
+    return (<Gallery key={ gallery.id } gallery={ gallery }/>);
+  }
+  
   render() {
-    const galleries = _.map(uiState.galleryStore.Galleries, gallery => {
-      return (<Gallery key={ gallery.id } gallery={ gallery }/>);
-    });
+    const allGalleries = this.props.galleries.Galleries.toJS();
+    
+    const unpublishedGalleries = _.chain(allGalleries)
+      .filter({ published: false })
+      .map(this.renderGallery)
+      .value();
+    
+    const publishedGalleries = _.chain(allGalleries)
+      .filter({ published: true })
+      .map(this.renderGallery)
+      .value();
     
     return (
       <div>
-        Totalt {galleries.length} gallerier.
+        <p>Totalt {allGalleries.length} gallerier.</p>
+        <h3>Opublicerade gallerier ({unpublishedGalleries.length} st)</h3>
         <ul className="editable-gallery-list">
-          {galleries}
+          {unpublishedGalleries}
+        </ul>
+        
+        <h3>Publicerade gallerier ({publishedGalleries.length} st)</h3>
+        <ul className="editable-gallery-list">
+          {publishedGalleries}
         </ul>
       </div>
     )

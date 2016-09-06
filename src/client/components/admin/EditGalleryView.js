@@ -5,6 +5,7 @@ import {browserHistory} from 'react-router';
 import {observer} from 'mobx-react';
 
 import uiState from '../../UiState';
+import GalleryImagesView from './GalleryImagesView';
 
 class EditGalleryView extends React.Component {
   constructor(props) {
@@ -14,10 +15,15 @@ class EditGalleryView extends React.Component {
     
     const galleries = uiState.galleryStore.galleries;
     const gallery = _.find(galleries, gallery => gallery.id == id);
+    
+    var imageList = uiState.imageStore.getImagesForGallery(gallery.id);
+    
     this.state = {
       gallery: gallery,
       name: gallery.name,
-      description: gallery.description
+      description: gallery.description,
+      published: gallery.published,
+      imageList: imageList
     };
   }
 
@@ -42,18 +48,42 @@ class EditGalleryView extends React.Component {
         browserHistory.push('/admin/gallery');
       });
   }
+  
+  onPublishToggle(event) {
+    event.preventDefault();
+    
+    const isPublished = this.state.gallery.published;
+    if (isPublished) {
+      this.state.gallery.unpublish().then((() => {
+        this.setState({ published: false });
+      }).bind(this));
+    } else {
+      this.state.gallery.publish().then((() => {
+        this.setState({ published: true });
+      }).bind(this));
+    }
+  }
 
   render() {
+    const isPublished = this.state.published;
+    
     return (
-      <form onSubmit={ this.onSave.bind(this) }>
-        <h4> Ändrar galleri: { this.state.gallery.id } </h4>
-        <label>Namn på galleri:</label>
-        <input className="u-full-width" type="text" value={ this.state.name } onChange={ this.onChangeName.bind(this) } placeholder="namn" />
-        <label>Beskrivning utav gallery:</label>
-        <textarea className="u-full-width" value={ this.state.description } onChange={ this.onChangeDescription.bind(this) }/>
-        <button type="submit" className="button-primary">Spara</button>
-        <Link to="/admin/gallery">Tillbaka</Link>
-      </form>
+      <div>
+        <form onSubmit={ this.onSave.bind(this) }>
+          <h4> Ändrar galleri: { this.state.gallery.id } </h4>
+          <label>Namn på galleri:</label>
+          <input className="u-full-width" type="text" value={ this.state.name } onChange={ this.onChangeName.bind(this) } placeholder="namn" />
+          <label>Beskrivning utav gallery:</label>
+          <textarea className="u-full-width" value={ this.state.description } onChange={ this.onChangeDescription.bind(this) }/>
+          <button type="submit" className="button-primary">Spara</button>
+          <Link to="/admin/gallery">Tillbaka</Link>
+          
+          <br/>
+          { !isPublished ? <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }> Publicera </button> : null }
+        </form>
+        <hr/>
+        <GalleryImagesView galleryId={ this.state.gallery.id } imageList={ this.state.imageList } />
+      </div>
     );
   }
 }

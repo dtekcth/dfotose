@@ -22,9 +22,31 @@ class Gallery {
     return this.data.description;
   }
   
+  @computed get published() {
+    return this.data.published;
+  }
+  
+  @computed get thumbnailPreview() {
+    return `/v1/gallery/${this.data._id}/thumbnail-preview`;
+  }
+  
   @action update(data) {
     _.assign(this.data, data);
     return this.save();
+  }
+  
+  @action publish() {
+    return axios.post(`/v1/gallery/${this.id}/publish`, {})
+      .then((() => {
+        this.data.published = true;
+      }).bind(this));
+  }
+  
+  @action unpublish() {
+    return axios.post(`/v1/gallery/${this.id}/unpublish`, {})
+      .then((() => {
+        this.data.published = true;
+      }).bind(this));
   }
   
   @action save() {

@@ -9,6 +9,7 @@ const imageSchema = new Schema({
   galleryId: {type: String},
   
   thumbnail: {type: String},
+  preview: {type:String},
   fullSize: {type: String},
   
   created_at: {type: Date, default: Date.now}

@@ -1,15 +1,16 @@
 import React from "react";
 import {Router, Route, IndexRoute, Link, browserHistory} from "react-router";
 import {observer} from "mobx-react";
+import DevTool from 'mobx-react-devtools';
 
 import Header from "./components/Header";
-import ImageUpload from "./components/ImageUpload";
 import LoginView from './components/LoginView';
+import GalleryList from './components/GalleryList';
 
 import AdminIndex from './components/admin/Index';
-import GalleryListView from './components/admin/GalleryListView';
-import NewGalleryView from './components/admin/NewGalleryView';
-import EditGalleryView from './components/admin/EditGalleryView';
+import AdminGalleryListView from './components/admin/GalleryListView';
+import AdminNewGalleryView from './components/admin/NewGalleryView';
+import AdminEditGalleryView from './components/admin/EditGalleryView';
 
 import uiState from './UiState';
 
@@ -42,7 +43,7 @@ class Home extends React.Component {
     return (
       <div>
         { uiState.user.isLoggedIn ? <p> Du är inloggad som { uiState.user.cid } </p> : null }
-        <ImageUpload />
+        <GalleryList galleries={ uiState.galleryStore } />
       </div>
     );
   }
@@ -93,13 +94,14 @@ class App extends React.Component {
             <Route path="admin" component={ Admin }>
               <IndexRoute component={ AdminHome } />
               <Route path="gallery">
-                <IndexRoute component={ GalleryListView } />
-                <Route path="new" component={ NewGalleryView } />
-                <Route path="edit/:id" component={ EditGalleryView } />
+                <IndexRoute component={ AdminGalleryListView } />
+                <Route path="new" component={ AdminNewGalleryView } />
+                <Route path="edit/:id" component={ AdminEditGalleryView } />
               </Route>
             </Route>
           </Route>
         </Router>
+        <DevTool />
       </div>
     );
   }

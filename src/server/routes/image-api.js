@@ -58,16 +58,42 @@ router.get('/image/:galleryId', (req, res) => {
 });
 
 // Return a specific image using an id
-router.get('/image/:id', (req, res) => {
+router.get('/image/:id/fullSize', (req, res) => {
   const id = req.params.id;
-  
+
   Image.findById(id, (err, image) => {
     if (err) {
       res.status(500).send(err);
       throw err;
     }
 
-    res.send(image);
+    res.sendFile(image.fullSize);
+  });
+});
+
+router.get('/image/:id/thumbnail', (req, res) => {
+  const id = req.params.id;
+
+  Image.findById(id, (err, image) => {
+    if (err) {
+      res.status(500).send(err);
+      throw err;
+    }
+
+    res.sendFile(image.thumbnail);
+  });
+});
+
+router.get('/image/:id/preview', (req, res) => {
+  const id = req.params.id;
+
+  Image.findById(id, (err, image) => {
+    if (err) {
+      res.status(500).send(err);
+      throw err;
+    }
+
+    res.sendFile(image.preview);
   });
 });
 
@@ -97,6 +123,7 @@ function handleImages(req, res, galleryId) {
 
     createDirectoryIfNeeded(galleryPath);
     createDirectoryIfNeeded(path.resolve(galleryPath, "thumbnails"));
+    createDirectoryIfNeeded(path.resolve(galleryPath, "previews"));
 
     fs.move(image.path, fullSizeImagePath, (err) => {
       if (err) {
@@ -105,12 +132,23 @@ function handleImages(req, res, galleryId) {
 
       const thumbnail = path.resolve(galleryPath, "thumbnails", `${filename}.${extension}`);
       sharp(fullSizeImagePath)
-        .resize(null, 600)
+        .resize(null, 200)
         .toFile(thumbnail, (err) => {
           if (err) {
             Logger.error(`Could not save thumbnail for image ${filename}`);
           } else {
             Logger.info(`Saved thumbnail ${thumbnail}`);
+          }
+        });
+      
+      const preview = path.resolve(galleryPath, "previews", `${filename}.${extension}`);
+      sharp(fullSizeImagePath)
+        .resize(null, 600)
+        .toFile(preview, (err) => {
+          if (err) {
+            Logger.error(`Could not save preview for image ${filename}`);
+          } else {
+            Logger.info(`Saved preview ${preview}`);
           }
         });
 
@@ -119,6 +157,7 @@ function handleImages(req, res, galleryId) {
         authorCid: userCid,
         galleryId: galleryId,
         thumbnail: thumbnail,
+        preview: preview,
         fullSize: fullSizeImagePath
       });
 
@@ -149,7 +188,7 @@ router.post('/image', LoggedInAsDfotoRequired, upload.array('photos'), (req, res
 //  - Author is always the logged-in User
 //  - The images will be added to the gallery
 //    automatically.
-router.put('/image/:galleryId', LoggedInAsDfotoRequired, (req, res) => {
+router.post('/image/:galleryId', LoggedInAsDfotoRequired, upload.array('photos'), (req, res) => {
   const galleryId = req.params.galleryId;
 
   // Validate the gallery
@@ -159,6 +198,7 @@ router.put('/image/:galleryId', LoggedInAsDfotoRequired, (req, res) => {
       throw err;
     }
     
+    Logger.info(`Preparing upload of files to gallery ${galleryId}`);
     handleImages(req, res, galleryId);
     res.status(202).send();
   });
