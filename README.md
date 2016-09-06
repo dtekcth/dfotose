@@ -10,21 +10,18 @@ Detta behöver endast göras server-side.
 
 UI:
 - hantera gallerier
-    - lägga till
     - ta bort
     - sätta taggar
-    - göra publikt / ej publikt
     - visible för endast inloggade
-- ladda upp bilder till galleri
 - vy för att kolla på en bild
 - vy för att kolla på ett galleri
-- vy för att kolla på alla gallerier (standard, paginated)
-- sök-function bland taggar
+- vy för att kolla på alla gallerier
+  - lägg till pagination så är det klart
+- sök-funktion bland taggar
 
 BACKEND:
 - databas-migrations-script
 - gallerier:
     - visible för endast inloggade
-    - taggar
 - bilder:
     - taggar
