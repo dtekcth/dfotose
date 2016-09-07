@@ -24,6 +24,12 @@ class ImageView extends React.Component {
     this.state = {
       imageId: props.imageId
     };
+    
+    window.onpopstate = (event => {
+      const imageId = _.get(event, 'state.imageId', this.state.imageId);
+      console.log(imageId);
+      this.setState({ imageId: event.state.imageId });
+    }).bind(this);
   }
 
   openNextImage(event) {
@@ -55,7 +61,7 @@ class ImageView extends React.Component {
   }
   
   openImage(nextId) {
-    window.history.pushState(null, null, `/gallery/${this.props.galleryId}/image/${nextId}`);
+    window.history.pushState({ imageId: nextId }, null, `/gallery/${this.props.galleryId}/image/${nextId}`);
     this.setState({imageId: nextId});
   }
   
