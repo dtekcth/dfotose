@@ -17,3 +17,5 @@
 /src/config/config.yml
 
 /.idea
+
+.DS_Store
