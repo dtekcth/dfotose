@@ -13,6 +13,7 @@ import AdminIndex from './components/admin/Index';
 import AdminGalleryListView from './components/admin/GalleryListView';
 import AdminNewGalleryView from './components/admin/NewGalleryView';
 import AdminEditGalleryView from './components/admin/EditGalleryView';
+import AdminMembersView from './components/admin/MembersView';
 
 import uiState from './UiState';
 
@@ -131,6 +132,9 @@ class App extends React.Component {
                 <IndexRoute component={ AdminGalleryListView } />
                 <Route path="new" component={ AdminNewGalleryView } />
                 <Route path="edit/:id" component={ AdminEditGalleryView } />
+              </Route>
+              <Route path="members">
+                <IndexRoute component={ () => <AdminMembersView userStore={ uiState.userStore } /> } />
               </Route>
             </Route>
           </Route>
