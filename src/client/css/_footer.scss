@@ -1,0 +1,24 @@
+.footer {
+  margin: 0;
+  padding: 0 0 40px;
+
+  @media (min-width: 650px) {
+    margin-top: 50px;
+  }
+
+  .footer-content {
+    min-height: 150px;
+    background: #454545;
+
+    padding: 30px 40px 50px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    * {
+      color: #fafafa;
+    }
+  }
+}
