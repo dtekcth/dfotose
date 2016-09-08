@@ -26,6 +26,10 @@ class Gallery {
     return this.data.published;
   }
   
+  @computed get shootDate() {
+    return this.data.shootDate;
+  }
+  
   @computed get thumbnailPreview() {
     return `/v1/gallery/${this.data._id}/thumbnail-preview`;
   }

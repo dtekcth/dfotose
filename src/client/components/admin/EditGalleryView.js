@@ -23,6 +23,7 @@ class EditGalleryView extends React.Component {
       name: gallery.name,
       description: gallery.description,
       published: gallery.published,
+      date: gallery.shootDate,
       imageList: imageList
     };
   }
@@ -35,12 +36,17 @@ class EditGalleryView extends React.Component {
     this.setState({ description: event.target.value });
   }
 
+  onChangeDate(event) {
+    this.setState({ date: event.target.value });
+  }
+
   onSave(event) {
     event.preventDefault();
 
     const newGalleryData = {
       name: this.state.name,
-      description: this.state.description
+      description: this.state.description,
+      shootDate: this.state.date
     };
     
     this.state.gallery.update(newGalleryData)
@@ -75,6 +81,8 @@ class EditGalleryView extends React.Component {
           <input className="u-full-width" type="text" value={ this.state.name } onChange={ this.onChangeName.bind(this) } placeholder="namn" />
           <label>Beskrivning utav gallery:</label>
           <textarea className="u-full-width" value={ this.state.description } onChange={ this.onChangeDescription.bind(this) }/>
+          <label>Datum för galleri:</label>
+          <input className="u-full-width" type="text" value={ this.state.date } onChange={ this.onChangeDate.bind(this) } placeholder="yyyy-mm-dd" />
           <button type="submit" className="button-primary">Spara</button>
           <Link to="/admin/gallery">Tillbaka</Link>
           

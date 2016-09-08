@@ -82,7 +82,8 @@ router.put('/gallery/:id', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
   Gallery.findOneAndUpdate({ _id: id }, {
     $set: {
       name: galleryData.name,
-      description: galleryData.description
+      description: galleryData.description,
+      shootDate: galleryData.shootDate
     }
   }, (err) => {
     abortOnError(err, res);

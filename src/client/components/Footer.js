@@ -1,5 +1,4 @@
 import React from "react";
-import {Link} from "react-router";
 
 import {observer} from 'mobx-react';
 
@@ -13,7 +12,8 @@ class Footer extends React.Component {
           <p>DFoto är Datateknologsektionens fotoförening. 
             Vår ambition är att genom foto och film föreviga alla arrangemang Datateknologen går på.
             Allt ifrån iDrotts legendariska aktiviteter, till D6s storslagna fester och Deltas episka pubar.</p>
-            <h3>Vi ses genom kameralinsen!</h3>
+          <p> Du kan komma i kontakt med oss genom att maila <a href="mailto:dfoto@dtek.se">dfoto@dtek.se</a>!</p>
+          <h3>Vi ses genom kameralinsen!</h3>
         </div>
       </div>
     );

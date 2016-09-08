@@ -43,18 +43,37 @@
         }
       }
 
-      .name {
+      .title {
         display: flex;
+        flex-direction: row;
         align-items: center;
-        flex-direction: column;
 
         width: 100%;
-        margin: 0;
+        height: 35px;
         border-radius: 0 0 5px 5px;
 
-        span {
-          font-size: 22px;
-          color: #333;
+        position: relative;
+        bottom: 32px;
+        margin: 0 0 -32px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fafafa;
+
+        .text {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          width: 100%;
+
+          span.name {
+            font-size: 18px;
+          }
+
+          span.date {
+            font-size: 12px;
+            align-self: flex-end;
+            margin-left: auto;
+            margin-right: 5px;
+          }
         }
       }
     }

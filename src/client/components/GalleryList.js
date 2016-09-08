@@ -14,7 +14,12 @@ class Gallery extends React.Component {
       <div className="gallery-card">
         <Link to={ galleryViewLink }>
           <img src={ thumbnailPreview } />
-          <div className="name"><span>{ gallery.name }</span></div>
+          <div className="title">
+            <div className="text">
+              <span className="name">{ gallery.name }</span>
+              <span className="date">{ gallery.shootDate } </span>
+            </div>
+          </div>
         </Link>
       </div>
     )

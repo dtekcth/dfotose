@@ -10,7 +10,8 @@ class NewGalleryView extends React.Component {
     
     this.state = {
       name: '',
-      description: ''
+      description: '',
+      date: ''
     }
   }
   
@@ -20,6 +21,10 @@ class NewGalleryView extends React.Component {
   
   onChangeDescription(event) {
     this.setState({ description: event.target.value });
+  }
+
+  onChangeDate(event) {
+    this.setState({ date: event.target.value });
   }
   
   onSave(event) {
@@ -36,10 +41,14 @@ class NewGalleryView extends React.Component {
     return (
       <form onSubmit={ this.onSave.bind(this) }>
         <h4> Nytt galleri </h4>
+        <p> <b>NOTERA:</b>Tänk på att inte ha för långt namn på ditt galleri! </p>
+        
         <label>Namn på galleri:</label>
         <input className="u-full-width" type="text" value={ this.state.name } onChange={ this.onChangeName.bind(this) } placeholder="namn" />
         <label>Beskrivning utav gallery:</label>
         <textarea className="u-full-width" value={ this.state.description } onChange={ this.onChangeDescription.bind(this) }/>
+        <label>Datum för galleri:</label>
+        <input className="u-full-width" type="text" value={ this.state.date } onChange={ this.onChangeDate.bind(this) } placeholder="yyyy-mm-dd" />
         <button type="submit" className="button-primary">Spara</button>
         <Link to="/admin/gallery">Tillbaka</Link>
       </form>
