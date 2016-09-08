@@ -13,7 +13,6 @@ export default class StickyHeader extends React.Component {
 
   onStickyChange() {
     this.setState({isVisible: !this.state.isVisible});
-    console.log('New sticky state: ' + this.state.isVisible);
   }
 
   render() {
