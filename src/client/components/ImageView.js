@@ -22,12 +22,13 @@ class ImageView extends React.Component {
     super(props);
     
     this.state = {
+      initialImageId: props.imageId,
       imageId: props.imageId
     };
+    window.history.replaceState({ imageId: props.imageId }, null, `/gallery/${props.galleryId}/image/${props.imageId}`);
     
     window.onpopstate = (event => {
-      const imageId = _.get(event, 'state.imageId', this.state.imageId);
-      console.log(imageId);
+      const imageId = _.get(event, 'state.imageId', this.state.initialImageId);
       this.setState({ imageId: event.state.imageId });
     }).bind(this);
   }
@@ -68,10 +69,15 @@ class ImageView extends React.Component {
   render() {
     const images = this.props.images;
     const imageId = this.state.imageId;
+    console.log(imageId);
     const currentImage = _.find(images, image => image.id == imageId);
     
     if (images.length <= 0) {
       return (<p>Väntar på att bilden skall laddas ..</p>);
+    }
+    
+    if (currentImage == undefined) {
+      return (<p>Kunde inte ladda bilden.</p>);
     }
     
     function clickFullSize(fullSize) {
