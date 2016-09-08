@@ -63,3 +63,25 @@
     }
   }
 }
+
+.sticky-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: #fa8e42;
+  color: #fafafa;
+  border-radius: 0 0 2px 2px;
+  min-height: 30px;
+
+  span {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+  }
+}
+
+.sticky-header:hover {
+  cursor: pointer;
+}

@@ -1,40 +1,30 @@
 import _ from 'lodash';
 import React from "react";
 import {Link} from "react-router";
+import {animateScroll} from 'react-scroll';
 
 import {observer} from 'mobx-react';
 import uiState from '../UiState';
 
-const LiExt = ({showCondition, conditionalClasses, children}) => {
-  const classNames = _.map(conditionalClasses, conditionalClass => {
-    const {condition, className} = conditionalClass;
-
-    return condition ? className : "";
-  });
-
-  return (
-    (showCondition) ?
-      <li className={ classNames.join(' ') }>
-        {children}
-      </li>
-      :
-      null
-  )
-};
-
 @observer
 class Header extends React.Component {
+  onClickAbout(event) {
+    event.preventDefault();
+    
+    animateScroll.scrollToBottom();
+  }
+  
   render() {
     return (
       <div className="header">
         <div className="header-content">
-          <img src="/assets/images/logo.png"/>
+          <Link to="/"><img src="/assets/images/logo.png"/></Link>
           <ul>
             <li>
               <Link to="/"> Bilder </Link>
             </li>
             <li>
-              <Link to="/about"> Om oss </Link>
+              <a onClick={ this.onClickAbout } href="#about"> Om oss </a>
             </li>
             { !uiState.user.isLoggedIn ?
               <li>
