@@ -16,4 +16,4 @@ krb5_conf="""[libdefaults]
 echo "WARNING: overwriting /etc/krb5.conf"
 echo "NOTE: old is backed up at /etc/krb5.conf.bak"
 mv /etc/krb5.conf{,.bak}
-echo -e "$krb5_conf" > /etc/krb5.conf
+echo "$krb5_conf" > /etc/krb5.conf
