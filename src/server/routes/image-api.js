@@ -5,12 +5,17 @@ import multer from 'multer';
 import fs from 'fs-extra';
 import path from 'path';
 import sharp from 'sharp';
+import bodyParser from 'body-parser';
 
 import {LoggedInAsDfotoRequired} from './auth-api.js';
 import Logger from '../logger';
 import config from '../config';
+import {abortOnError} from '../utils';
+
+const jsonParser = bodyParser.json();
 
 import Image from '../model/image';
+import ImageTag from '../model/image-tag';
 import Gallery from '../model/gallery';
 
 const router = Router();
@@ -94,6 +99,41 @@ router.get('/image/:id/preview', (req, res) => {
     }
 
     res.sendFile(image.preview);
+  });
+});
+
+router.get('/image/:id/tags', (req, res) => {
+  const id = req.params.id;
+  ImageTag.find({ imageId: id }, (err, imageTags) => {
+    abortOnError(err, res);
+    
+    res.send(imageTags);
+  });
+});
+
+router.post('/image/:id/tags', jsonParser, (req, res) => {
+  const imageId = req.params.id;
+  const {tagName} = req.body;
+
+  const imageTagData = {
+    imageId: imageId,
+    tagName: tagName
+  };
+
+  var newTag = new ImageTag(imageTagData);
+  newTag.save((err) => {
+    abortOnError(err, res);
+    res.status(202).end();
+  });
+});
+
+router.get('/image/tags/:tagName/search', (req, res) => {
+  const tagName = req.params.tagName;
+  
+  ImageTag.find({ tagName: tagName }, (err, imageTags) => {
+    abortOnError(err, res);
+    
+    res.send(imageTags);
   });
 });
 
