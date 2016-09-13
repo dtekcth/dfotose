@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router';
 import {observer} from 'mobx-react';
+import moment from 'moment';
 
 @observer
 class Gallery extends React.Component {
@@ -9,6 +10,7 @@ class Gallery extends React.Component {
     
     const thumbnailPreview = gallery.thumbnailPreview;
     const galleryViewLink = `/gallery/${gallery.id}`;
+    const date = moment(gallery.shootDate).format('YYYY-MM-DD');
     
     return (
       <div className="gallery-card">
@@ -17,7 +19,7 @@ class Gallery extends React.Component {
           <div className="title">
             <div className="text">
               <span className="name">{ gallery.name }</span>
-              <span className="date">{ gallery.shootDate } </span>
+              <span className="date">{ date } </span>
             </div>
           </div>
         </Link>

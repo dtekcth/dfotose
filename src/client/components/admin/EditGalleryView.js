@@ -3,6 +3,7 @@ import React from 'react';
 import {Link} from 'react-router';
 import {browserHistory} from 'react-router';
 import {observer} from 'mobx-react';
+import moment from 'moment';
 
 import uiState from '../../UiState';
 import GalleryImagesView from './GalleryImagesView';
@@ -17,13 +18,14 @@ class EditGalleryView extends React.Component {
     const gallery = _.find(galleries, gallery => gallery.id == id);
     
     var imageList = uiState.imageStore.getImagesForGallery(gallery.id);
+    const date = moment(gallery.shootDate).format("YYYY-MM-DD");
     
     this.state = {
       gallery: gallery,
       name: gallery.name,
       description: gallery.description,
       published: gallery.published,
-      date: gallery.shootDate,
+      date: date,
       imageList: imageList
     };
   }
@@ -82,7 +84,7 @@ class EditGalleryView extends React.Component {
           <label>Beskrivning utav gallery:</label>
           <textarea className="u-full-width" value={ this.state.description } onChange={ this.onChangeDescription.bind(this) }/>
           <label>Datum för galleri:</label>
-          <input className="u-full-width" type="text" value={ this.state.date } onChange={ this.onChangeDate.bind(this) } placeholder="yyyy-mm-dd" />
+          <input className="u-full-width" type="date" value={ this.state.date } onChange={ this.onChangeDate.bind(this) } placeholder="yyyy-mm-dd" />
           <button type="submit" className="button-primary">Spara</button>
           <Link to="/admin/gallery">Tillbaka</Link>
           

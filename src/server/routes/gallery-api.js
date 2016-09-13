@@ -15,7 +15,7 @@ export default router;
 
 // Return all published galleries
 router.get('/gallery', (req, res) => {
-  Gallery.find({ published: true }).sort('-created_at').limit(30).exec((err, galleries) => {
+  Gallery.find({ published: true }).sort('-shootDate').limit(30).exec((err, galleries) => {
     abortOnError(err, res);
     res.send(galleries);
   });
@@ -23,7 +23,7 @@ router.get('/gallery', (req, res) => {
 
 // Return _all_ galleries, even unpublished
 router.get('/gallery/all', LoggedInAsDfotoRequired, (err, res) => {
-  Gallery.find({}).sort('-created_at').exec((err, galleries) => {
+  Gallery.find({}).sort('-shootDate').exec((err, galleries) => {
     abortOnError(err, res);
     res.send(galleries);
   });

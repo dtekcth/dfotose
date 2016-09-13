@@ -48,7 +48,7 @@ class NewGalleryView extends React.Component {
         <label>Beskrivning utav gallery:</label>
         <textarea className="u-full-width" value={ this.state.description } onChange={ this.onChangeDescription.bind(this) }/>
         <label>Datum för galleri:</label>
-        <input className="u-full-width" type="text" value={ this.state.date } onChange={ this.onChangeDate.bind(this) } placeholder="yyyy-mm-dd" />
+        <input className="u-full-width" type="date" value={ this.state.date } onChange={ this.onChangeDate.bind(this) } placeholder="yyyy-mm-dd" />
         <button type="submit" className="button-primary">Spara</button>
         <Link to="/admin/gallery">Tillbaka</Link>
       </form>

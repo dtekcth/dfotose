@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import {observer} from 'mobx-react';
+import moment from 'moment';
 
 import ImageList from './ImageList';
 import LoadingSpinner from './LoadingSpinner';
@@ -35,11 +36,12 @@ class GalleryView extends React.Component {
     
     const images = this.state.imageList.images.toJS();
     const showSpinner = this.state.showSpinner;
+    const date = moment(gallery.shootDate).format("YYYY-MM-DD");
     
     return (
       <div className="gallery-view">
         <div className="title">
-          <h2>{ gallery.name }</h2>
+          <h2>{ gallery.name } - { date }</h2>
           <p>{ gallery.description }</p>
         </div>
         <LoadingSpinner visible={ showSpinner } />

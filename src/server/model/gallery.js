@@ -6,7 +6,7 @@ const gallerySchema = new Schema({
   name: {type: String, required: true},
   description: {type:String},
   published: {type:Boolean, default: false},
-  shootDate: {type:String, default: Date.now},
+  shootDate: {type:Date, default: Date.now},
 
   created_at: {type: Date, default: Date.now}
 });
