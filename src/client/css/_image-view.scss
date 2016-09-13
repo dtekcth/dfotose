@@ -2,12 +2,10 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  margin-left: 20px;
 
   .image-with-buttons {
     max-width: 800px;
-    @media (max-width: 926px) {
-      width: 80vw;
-    }
 
     .buttons {
       display: flex;
@@ -40,7 +38,7 @@
     border-radius: 10px;
   }
 
-  @media (max-width: 926px) {
+  @media (max-width: 1135px) {
     flex-direction: column;
     justify-content: center;
     align-items: center;
