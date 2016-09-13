@@ -2,11 +2,32 @@ import _ from 'lodash';
 import axios from 'axios';
 import {computed,action,observable} from 'mobx';
 
-export class Image {
+export class ImageTag {
   @observable data;
 
   constructor(data) {
     this.data = data;
+  }
+
+  @computed get tagName() {
+    return this.data.tagName;
+  }
+}
+
+export class Image {
+  @observable data;
+  @observable tags;
+
+  constructor(data) {
+    this.data = data;
+    this.tags = [];
+    
+    axios.get(`/v1/image/${data._id}/tags`)
+      .then((response => {
+        this.tags = _.map(response.data, data => {
+          return new ImageTag(data);
+        });
+      }).bind(this));
   }
   
   @computed get id() {

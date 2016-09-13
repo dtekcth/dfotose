@@ -85,6 +85,10 @@ class ImageView extends React.Component {
       return (<LoadingSpinner visible={ true } />);
     }
     
+    const tags = _.map(currentImage.tags, tag => {
+      return <span key={ tag.tagName }>{tag.tagName}</span>;
+    });
+    
     function clickFullSize(fullSize) {
       return (event) => {
         event.preventDefault();
@@ -108,7 +112,7 @@ class ImageView extends React.Component {
           <span><b>Bild-Id</b>: {currentImage.id}</span>
           <a href={ currentImage.fullSize } onClick={ clickFullSize(currentImage.fullSize) } target="_blank">Öppna bilden i full storlek</a>
           
-          <span><b>Taggar</b>: plats-för-taggar</span>
+          <span><b>Taggar</b>: {tags}</span>
         </div>
       </div>
     );
