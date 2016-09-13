@@ -84,8 +84,8 @@ class GalleryStore {
     })
   }
 
-  @action addGallery(name, description) {
-    return axios.post('/v1/gallery', { name: name, description: description }, { responseType: 'json' })
+  @action addGallery(name, description, date) {
+    return axios.post('/v1/gallery', { name: name, description: description, date: date }, { responseType: 'json' })
       .then((response => {
         const newGallery = new Gallery(response.data);
         this.galleries.push(newGallery);

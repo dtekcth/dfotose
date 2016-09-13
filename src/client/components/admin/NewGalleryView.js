@@ -30,8 +30,8 @@ class NewGalleryView extends React.Component {
   onSave(event) {
     event.preventDefault();
     
-    const {name,description} = this.state;
-    uiState.galleryStore.addGallery(name, description)
+    const {name,description,date} = this.state;
+    uiState.galleryStore.addGallery(name, description, date)
       .then(() => {
         browserHistory.push('/admin/gallery');
       });
