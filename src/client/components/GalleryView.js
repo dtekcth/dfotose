@@ -37,9 +37,11 @@ class GalleryView extends React.Component {
     const showSpinner = this.state.showSpinner;
     
     return (
-      <div>
-        <h2>{ gallery.name }</h2>
-        <p>{ gallery.description }</p>
+      <div className="gallery-view">
+        <div className="title">
+          <h2>{ gallery.name }</h2>
+          <p>{ gallery.description }</p>
+        </div>
         <LoadingSpinner visible={ showSpinner } />
         <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } />
       </div>

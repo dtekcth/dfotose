@@ -104,11 +104,11 @@ class ImageView extends React.Component {
         </div>
         
         <div className="details">
-          <span>Fotograf: {currentImage.author}</span>
-          <span>Bild-Id: {currentImage.id}</span>
+          <span><b>Fotograf</b>: {currentImage.author}</span>
+          <span><b>Bild-Id</b>: {currentImage.id}</span>
           <a href={ currentImage.fullSize } onClick={ clickFullSize(currentImage.fullSize) } target="_blank">Öppna bilden i full storlek</a>
           
-          <span>Taggar: plats-för-taggar</span>
+          <span><b>Taggar</b>: plats-för-taggar</span>
         </div>
       </div>
     );

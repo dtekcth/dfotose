@@ -3,12 +3,6 @@
   flex-direction: row;
   flex-wrap: wrap;
 
-  @media (max-width: 650px) {
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-  }
-
   .gallery-card {
     margin: 5px;
 
@@ -17,7 +11,7 @@
     transition: 0.3s;
 
     @media (max-width: 650px) {
-      width: 75vw;
+      width: 95vw;
     }
 
     a {
@@ -39,7 +33,7 @@
         height: 225px;
 
         @media (max-width: 650px) {
-          width: 75vw;
+          width: 95vw;
         }
       }
 
@@ -66,6 +60,7 @@
 
           span.name {
             font-size: 18px;
+            margin-left: 5px;
           }
 
           span.date {
@@ -82,5 +77,15 @@
   .gallery-card:hover {
     box-shadow: 0 5px 11px #999;
     cursor: pointer;
+
+    .title {
+      background: #000;
+    }
+  }
+
+  @media (max-width: 650px) {
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
   }
 }
