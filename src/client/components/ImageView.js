@@ -3,6 +3,8 @@ import React from 'react';
 import {Link} from 'react-router';
 import {observer} from 'mobx-react';
 
+import LoadingSpinner from './LoadingSpinner';
+
 @observer
 class Image extends React.Component {
   render() {
@@ -10,7 +12,7 @@ class Image extends React.Component {
     
     return (
       <div className="image-container">
-        <img onClick={this.props.onClick} className="primary-image" src={ image.preview } />
+        <img onLoad={ this.props.onLoaded } onClick={this.props.onClick} className="primary-image" src={ image.preview } />
       </div>
     );
   }
@@ -63,21 +65,24 @@ class ImageView extends React.Component {
   
   openImage(nextId) {
     window.history.pushState({ imageId: nextId }, null, `/gallery/${this.props.galleryId}/image/${nextId}`);
-    this.setState({imageId: nextId});
+    this.setState({imageId: nextId, loaded: false});
+  }
+  
+  onImageLoad(event) {
+    this.setState({ loaded: true });
   }
   
   render() {
     const images = this.props.images;
     const imageId = this.state.imageId;
-    console.log(imageId);
     const currentImage = _.find(images, image => image.id == imageId);
     
     if (images.length <= 0) {
-      return (<p>Väntar på att bilden skall laddas ..</p>);
+      return (<LoadingSpinner visible={ true } />);
     }
     
     if (currentImage == undefined) {
-      return (<p>Kunde inte ladda bilden.</p>);
+      return (<LoadingSpinner visible={ true } />);
     }
     
     function clickFullSize(fullSize) {
@@ -90,7 +95,8 @@ class ImageView extends React.Component {
     return (
       <div className="image-view">
         <div className="image-with-buttons">
-          <Image onClick={ this.openNextImage.bind(this) } image={ currentImage } />
+          <LoadingSpinner visible={ !this.state.loaded } />
+          <Image onLoaded={ this.onImageLoad.bind(this) } onClick={ this.openNextImage.bind(this) } image={ currentImage } />
           <div className="buttons">
             <a href="#" onClick={ this.openPrevImage.bind(this) }>Föregående</a>
             <a href="#" onClick={ this.openNextImage.bind(this) }>Nästa</a>

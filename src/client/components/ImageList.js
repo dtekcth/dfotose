@@ -11,7 +11,7 @@ class ImageCard extends React.Component {
     return (
       <div className="image-card">
         <Link to={ imageViewLink }>
-          <img src={ thumbnail } />
+          <img onLoad={ this.props.onLoaded } src={ thumbnail } />
         </Link>
       </div>
     );
@@ -20,9 +20,40 @@ class ImageCard extends React.Component {
 
 @observer
 class ImageList extends React.Component {
+  constructor(props) {
+    super(props);
+
+    const images = props.images;
+    const totalImageCount = (images == undefined) ? 0 : images.length;
+    
+    this.state = {
+      totalImageCount: totalImageCount,
+      imageLoadedCount: 0
+    }
+  }
+
+  componentWillReceiveProps(newProps, oldProps) {
+    const images = newProps.images;
+    if (images != undefined) {
+      const totalImageCount = (images == undefined) ? 0 : images.length;
+      this.setState({
+        totalImageCount: totalImageCount
+      });
+    }
+  }
+
+  onImageLoaded() {
+    const newCount = this.state.imageLoadedCount + 1;
+    this.setState({ imageLoadedCount: newCount });
+    
+    if (newCount >= this.state.totalImageCount && this.props.onAllLoaded != undefined) {
+      this.props.onAllLoaded();
+    }
+  }
+
   render() {
     const images = _.map(this.props.images, (image => {
-      return (<ImageCard key={ image.id } image={ image } />);
+      return (<ImageCard onLoaded={ this.onImageLoaded.bind(this) } key={ image.id } image={ image } />);
     }).bind(this));
     
     return (

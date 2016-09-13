@@ -3,6 +3,7 @@ import React from 'react';
 import {observer} from 'mobx-react';
 
 import ImageList from './ImageList';
+import LoadingSpinner from './LoadingSpinner';
 
 import uiState from '../UiState';
 
@@ -14,8 +15,13 @@ class GalleryView extends React.Component {
     const id = _.get(props, 'params.id');
 
     this.state = {
-      imageList: uiState.imageStore.getImagesForGallery(id)
+      imageList: uiState.imageStore.getImagesForGallery(id),
+      showSpinner: true
     };
+  }
+  
+  onAllImagesLoaded() {
+    this.setState({ showSpinner: false });
   }
   
   render() {
@@ -27,11 +33,15 @@ class GalleryView extends React.Component {
       return (<p>Galleriet finns inte</p>);
     }
     
+    const images = this.state.imageList.images.toJS();
+    const showSpinner = this.state.showSpinner;
+    
     return (
       <div>
         <h2>{ gallery.name }</h2>
         <p>{ gallery.description }</p>
-        <ImageList images={ this.state.imageList.images.toJS() } />
+        <LoadingSpinner visible={ showSpinner } />
+        <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } />
       </div>
     )
   }
