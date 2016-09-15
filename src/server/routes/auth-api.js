@@ -2,6 +2,7 @@ import _ from 'lodash';
 import {Router} from 'express';
 import bodyParser from 'body-parser';
 import krb5 from 'kerberos';
+import {inHTMLData} from 'xss-filters';
 
 import User from '../model/user';
 
@@ -72,6 +73,7 @@ router.post('/auth/login', jsonParser, (req, res) => {
 router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
   const cid = req.params.cid;
   const {fullname} = req.body;
+  const filteredFullname = inHTMLData(fullname);
   
   const currentlyIsDFotoMember = _.get(req.session, 'user.dfotoMember', false);
   const dfotoMember = _.get(req.body, 'dfotoMember', currentlyIsDFotoMember);
@@ -79,7 +81,7 @@ router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
   // Only allow dfoto-members to elevate other dfotos
   const {isDfotoMember} = req.session.user;
   const updated = {
-    fullname: fullname,
+    fullname: filteredFullname,
     dfotoMember: (dfotoMember && isDfotoMember)
   };
   
