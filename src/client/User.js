@@ -2,9 +2,10 @@ import _ from 'lodash';
 import {observable, action, computed} from 'mobx';
 
 import axios from 'axios';
+import UiState from './UiState';
 
 class User {
-  @observable data = { user: null };
+  @observable data = null;
   
   constructor() {
     this.firstCheck();
@@ -13,7 +14,7 @@ class User {
   @action firstCheck() {
     axios.get('/auth/user', null, { responseType: 'json' })
       .then((response => {
-        this.data.user = response.data;
+        this.data = response.data;
       }).bind(this))
       .catch((err) => {
         console.log(err);
@@ -24,27 +25,36 @@ class User {
     return axios.post('/auth/login', { cid: cid, password: password }, { responseType: 'json' })
       .then((response => {
         this.data.user = response.data;
+        UiState.refresh();
       }).bind(this));
   }
   
   @computed get current() {
-    return this.data.user;
+    return this.data.toJS();
+  }
+  
+  @action setFullName(fullName) {
+    return axios.put(`/auth/user/${this.cid}`, {
+      fullname: fullName
+    }).then((() => {
+      this.data.fullname = fullName;
+    }).bind(this));
   }
   
   @computed get isLoggedIn() {
-    return this.data.user != null;
+    return this.data != null;
   }
   
   @computed get dfotoMember() {
-    return _.get(this.data, 'user.dfotoMember', false);
+    return _.get(this.data, 'dfotoMember', false);
   }
   
   @computed get cid() {
-    return _.get(this.data, 'user.cid', '');
+    return _.get(this.data, 'cid', '');
   }
   
   @computed get fullName() {
-    return _.get(this.data, 'user.fullname');
+    return _.get(this.data, 'fullname');
   }
 }
 

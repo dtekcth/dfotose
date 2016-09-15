@@ -72,7 +72,9 @@ router.post('/auth/login', jsonParser, (req, res) => {
 router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
   const cid = req.params.cid;
   const {fullname} = req.body;
-  const dfotoMember = _.get(req.body, 'dfotoMember', false);
+  
+  const currentlyIsDFotoMember = _.get(req.session, 'user.dfotoMember', false);
+  const dfotoMember = _.get(req.body, 'dfotoMember', currentlyIsDFotoMember);
   
   // Only allow dfoto-members to elevate other dfotos
   const {isDfotoMember} = req.session.user;

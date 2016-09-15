@@ -12,8 +12,10 @@ class Gallery extends React.Component {
     return (
       <Link to={ editLink }>
         <li>
-          <p className="name">{ gallery.name }</p>
-          <p>{ gallery.description } </p>
+          <div>
+            <p className="name">{ gallery.name }</p>
+            <p>{ gallery.description } </p>
+          </div>
           <button type="button" className="button button-danger" onClick={ this.props.onRemove }>Ta bort</button>
         </li>
       </Link>

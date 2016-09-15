@@ -71,20 +71,20 @@ const Admin = ({children}) => {
 };
 
 const AdminHome = () => {
-  return (<AdminIndex />);
+  return (<AdminIndex user={ uiState.user } />);
 };
 
 @observer
 class ImageContainer extends React.Component {
   constructor(props) {
     super(props);
-    
+
     const galleryId = _.get(props, 'routeParams.galleryId');
     const id = _.get(props, 'routeParams.id');
 
     const galleries = uiState.galleryStore.galleries;
     const gallery = _.find(galleries, gallery => gallery.id == galleryId);
-    
+
     this.state = {
       gallery: gallery,
       galleryId: galleryId,
@@ -92,7 +92,7 @@ class ImageContainer extends React.Component {
       imageList: uiState.imageStore.getImagesForGallery(galleryId)
     };
   }
-  
+
   render() {
     return (<ImageView imageId={ this.state.imageId } images={ this.state.imageList.images.toJS() } galleryId={ this.state.galleryId } />);
   }

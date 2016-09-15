@@ -13,6 +13,7 @@ class UiState {
   
   @action refresh() {
     this.galleryStore = new GalleryStore();
+    this.userStore = new UserStore();
   }
 }
 

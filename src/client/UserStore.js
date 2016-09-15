@@ -2,6 +2,8 @@ import _ from 'lodash';
 import axios from 'axios';
 import {computed, action, observable} from 'mobx';
 
+import UiState from './UiState';
+
 class User {
   @observable data;
   
@@ -35,10 +37,13 @@ class UserStore {
   @observable users = [];
   
   constructor() {
-    axios.get('/auth/users')
-      .then((response => {
-        this.loadUsers(response.data);
-      }).bind(this));
+    // Only load if we're logged in as dfoto
+    if (UiState.user.dfotoMember) {
+      axios.get('/auth/users')
+        .then((response => {
+          this.loadUsers(response.data);
+        }).bind(this));
+    }
   }
   
   @action loadUsers(userDatas) {

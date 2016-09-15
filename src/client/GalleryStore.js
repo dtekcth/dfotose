@@ -3,6 +3,8 @@ import _ from 'lodash';
 import axios from 'axios';
 import {computed, action,observable} from 'mobx';
 
+import UiState from './UiState';
+
 class Gallery {
   @observable data;
   
