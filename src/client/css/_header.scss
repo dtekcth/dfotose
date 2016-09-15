@@ -13,7 +13,7 @@
     margin-right: 45px;
     margin-left: 45px;
 
-    @media (max-width: 650px) {
+    @media (max-width: 926px) {
       flex-direction: column;
       align-items: center;
       margin: 0;
@@ -21,7 +21,7 @@
 
     img {
       height: 120px;
-      @media (max-width: 650px) {
+      @media (max-width: 450px) {
         width: 75vw;
       }
     }
@@ -46,7 +46,7 @@
         }
       }
 
-      @media (max-width: 650px) {
+      @media (max-width: 926px) {
         padding: 15px;
 
         li:first-child {
@@ -62,9 +62,15 @@
 
     .info {
       color: #333;
-      margin-bottom: 15px;
       align-self: flex-end;
-      margin-left: auto;
+      margin: 0 auto;
+      max-width: 450px;
+
+      @media(max-width: 926px) {
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+      }
     }
   }
 }

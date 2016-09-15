@@ -34,7 +34,6 @@ class Header extends React.Component {
           </ul>
           
           <div className="info">
-            { uiState.user.isLoggedIn ? <span>Du är inloggad som { uiState.user.cid }</span> : null }
             <TagSearchBar />
           </div>
         </div>
