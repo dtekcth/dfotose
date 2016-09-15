@@ -11,7 +11,7 @@ class ImageCard extends React.Component {
 
     return (
       <div className="image-card">
-        <LazyLoad height={ 155 } offset={ 750 }>
+        <LazyLoad height={ 155 } offset={ 750 } debounce={ 100 }>
           <Link to={ imageViewLink }>
               <img onLoad={ this.props.onLoaded } src={ thumbnail } />
           </Link>
