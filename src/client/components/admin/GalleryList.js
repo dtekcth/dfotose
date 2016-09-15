@@ -16,6 +16,7 @@ class Gallery extends React.Component {
         <li>
           <p className="name">{ gallery.name }</p>
           <p>{ gallery.description } </p>
+          <button className="pull-right">Ta bort</button>
         </li>
       </Link>
     );
@@ -28,8 +29,13 @@ class GalleryList extends React.Component {
     return (<Gallery key={ gallery.id } gallery={ gallery }/>);
   }
   
+  onPublishedSearchChange(event) {
+    this.setState({ publishedSearchString: event.target.value });
+  }
+  
   render() {
     const allGalleries = this.props.galleries.Galleries.toJS();
+    const publishedSearchString = _.get(this.state, 'publishedSearchString', '').toLowerCase();
     
     const unpublishedGalleries = _.chain(allGalleries)
       .filter({ published: false })
@@ -38,6 +44,9 @@ class GalleryList extends React.Component {
     
     const publishedGalleries = _.chain(allGalleries)
       .filter({ published: true })
+      .filter(gallery => {
+        return gallery.name.toLowerCase().startsWith(publishedSearchString);
+      })
       .map(this.renderGallery)
       .value();
     
@@ -50,6 +59,9 @@ class GalleryList extends React.Component {
         </ul>
         
         <h3>Publicerade gallerier ({publishedGalleries.length} st)</h3>
+        <div>
+          Sök: <input className="u-full-width" type="text" placeholder="sök bland publicerade gallerier" onChange={ this.onPublishedSearchChange.bind(this) } />
+        </div>
         <ul className="editable-gallery-list">
           {publishedGalleries}
         </ul>
