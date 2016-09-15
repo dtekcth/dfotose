@@ -1,6 +1,7 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import modRewrite from 'connect-modrewrite';
+import helmet from 'helmet';
 
 import morgan from 'morgan';
 
@@ -36,6 +37,9 @@ const sessionMiddleware = session({
 if (process.env.NODE_ENV !== "production") {
   Webpack(app);
 }
+
+// Basic security module
+app.use(helmet());
 
 app.use(modRewrite([
   '^\/(?!(v1|auth|assets|favicon\.ico|robots\.txt)).*$ /index.html'
