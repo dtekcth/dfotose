@@ -14,7 +14,7 @@
     margin: 2px;
 
     img {
-      /* using fixed height+width due to the variety of dimensions .. */
+      /* using fixed height due to the variety of dimensions .. */
       height: 155px;
 
       @media (max-width: 650px) {

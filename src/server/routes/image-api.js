@@ -6,6 +6,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import sharp from 'sharp';
 import bodyParser from 'body-parser';
+import xssFilters from 'xss-filters';
 
 import {LoggedInAsDfotoRequired} from './auth-api.js';
 import Logger from '../logger';
@@ -113,7 +114,9 @@ router.get('/image/:id/tags', (req, res) => {
 
 router.post('/image/:id/tags', jsonParser, (req, res) => {
   const imageId = req.params.id;
-  const {tagName} = req.body;
+
+  const {unfilteredTagName} = req.body;
+  const {tagName} = xssFilters.inHTMLData(unfilteredTagName);
 
   const imageTagData = {
     imageId: imageId,
@@ -127,17 +130,17 @@ router.post('/image/:id/tags', jsonParser, (req, res) => {
     // Now add a duplicate to the images list of tags
     Image.findById(imageId, (err, image) => {
       abortOnError(err, res);
-      
+
       image.tags.push(tagName);
       const newImageTags = image.tags;
-      
+
       Image.findOneAndUpdate({ _id: imageId }, {
         $set: {
           tags: newImageTags
         }
       }, (err) => {
         abortOnError(err, res);
-        
+
         console.log(`Added tag ${tagName} to image ${imageId}`);
         res.status(202).end();
       });
