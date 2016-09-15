@@ -126,7 +126,6 @@ export function LoggedInAsDfotoRequired(req, res, next) {
   if (loggedIn && isDfoto) {
     next();
   } else {
-    Logger.info(`Rejected, isDfoto: ${isDfoto}, loggedIn: ${loggedIn}`);
     res.status(403).end();
   }
 }
