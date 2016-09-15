@@ -5,13 +5,15 @@ const Schema = mongoose.Schema;
 const imageSchema = new Schema({
   filename: {type: String, required: true, unique: true},
   authorCid: {type: String, required: true},
-  
+
   galleryId: {type: String},
-  
+
   thumbnail: {type: String},
   preview: {type:String},
   fullSize: {type: String},
-  
+
+  tags: [String],
+
   created_at: {type: Date, default: Date.now}
 });
 

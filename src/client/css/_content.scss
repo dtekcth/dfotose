@@ -1,14 +1,6 @@
 .content {
   margin: 0 auto;
 
-  & > * {
-    margin-left: 5px;
-
-    @media(max-width: 926px) {
-      margin-left: 0;
-    }
-  }
-
   .row {
     margin-top: 20px;
   }

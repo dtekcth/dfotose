@@ -106,7 +106,7 @@ router.get('/image/:id/tags', (req, res) => {
   const id = req.params.id;
   ImageTag.find({ imageId: id }, (err, imageTags) => {
     abortOnError(err, res);
-    
+
     res.send(imageTags);
   });
 });
@@ -123,16 +123,34 @@ router.post('/image/:id/tags', jsonParser, (req, res) => {
   var newTag = new ImageTag(imageTagData);
   newTag.save((err) => {
     abortOnError(err, res);
-    res.status(202).end();
+
+    // Now add a duplicate to the images list of tags
+    Image.findById(imageId, (err, image) => {
+      abortOnError(err, res);
+      
+      image.tags.push(tagName);
+      const newImageTags = image.tags;
+      
+      Image.findOneAndUpdate({ _id: imageId }, {
+        $set: {
+          tags: newImageTags
+        }
+      }, (err) => {
+        abortOnError(err, res);
+        
+        console.log(`Added tag ${tagName} to image ${imageId}`);
+        res.status(202).end();
+      });
+    });
   });
 });
 
 router.get('/image/tags/:tagName/search', (req, res) => {
   const tagName = req.params.tagName;
-  
+
   ImageTag.find({ tagName: tagName }, (err, imageTags) => {
     abortOnError(err, res);
-    
+
     res.send(imageTags);
   });
 });
@@ -180,7 +198,7 @@ function handleImages(req, res, galleryId) {
             Logger.info(`Saved thumbnail ${thumbnail}`);
           }
         });
-      
+
       const preview = path.resolve(galleryPath, "previews", `${filename}.${extension}`);
       sharp(fullSizeImagePath)
         .resize(null, 800)
@@ -220,7 +238,7 @@ function handleImages(req, res, galleryId) {
 //    gallery when uploaded
 router.post('/image', LoggedInAsDfotoRequired, upload.array('photos'), (req, res) => {
   handleImages(req, res, 'undefined');
-  
+
   res.status(202).send();
 });
 
@@ -237,7 +255,7 @@ router.post('/image/:galleryId', LoggedInAsDfotoRequired, upload.array('photos')
       res.status(500).send(err);
       throw err;
     }
-    
+
     Logger.info(`Preparing upload of files to gallery ${galleryId}`);
     handleImages(req, res, galleryId);
     res.status(202).send();
@@ -255,9 +273,9 @@ router.delete('/image/:id', LoggedInAsDfotoRequired, (req, res) => {
       res.status(500).send(err);
       throw err;
     }
-    
+
     Logger.info(`User ${req.session.user.cid} removed image ${id}`);
-    
+
     res.status(202).send();
   });
 });

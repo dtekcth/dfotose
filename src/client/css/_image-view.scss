@@ -36,6 +36,14 @@
     margin-left: 20px;
     padding: 10px;
     border-radius: 10px;
+
+    .new-tag-form {
+      padding-top: 15px;
+
+      button {
+        margin-left: 5px;
+      }
+    }
   }
 
   @media (max-width: 1135px) {

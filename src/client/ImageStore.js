@@ -2,32 +2,11 @@ import _ from 'lodash';
 import axios from 'axios';
 import {computed,action,observable} from 'mobx';
 
-export class ImageTag {
-  @observable data;
-
-  constructor(data) {
-    this.data = data;
-  }
-
-  @computed get tagName() {
-    return this.data.tagName;
-  }
-}
-
 export class Image {
   @observable data;
-  @observable tags;
 
   constructor(data) {
     this.data = data;
-    this.tags = [];
-    
-    axios.get(`/v1/image/${data._id}/tags`)
-      .then((response => {
-        this.tags = _.map(response.data, data => {
-          return new ImageTag(data);
-        });
-      }).bind(this));
   }
   
   @computed get id() {
@@ -57,6 +36,24 @@ export class Image {
   @computed get preview() {
     return `/v1/image/${this.data._id}/preview`;
   }
+  
+  @computed get tags() {
+    return this.data.tags.toJS();
+  }
+  
+  @action addTag(tagName) {
+    const imageId = this.data._id;
+    
+    const imageTag = {
+      imageId: imageId,
+      tagName: tagName
+    };
+    
+    return axios.post(`/v1/image/${imageId}/tags`, imageTag)
+      .then((() => {
+        this.data.tags.push(tagName);
+      }).bind(this));
+  }
 }
 
 export class ImageGalleryList {
@@ -66,10 +63,6 @@ export class ImageGalleryList {
   constructor(galleryId) {
     this.galleryId = galleryId;
     this.fetchImages();
-  }
-  
-  @computed get imageThumbnails() {
-    return _.map(this.images, image => image.thumbnail);
   }
   
   fetchImages() {

@@ -3,13 +3,15 @@ import React from 'react';
 import {Link} from 'react-router';
 import {observer} from 'mobx-react';
 
+import keydown, {Keys} from 'react-keydown';
+
 import LoadingSpinner from './LoadingSpinner';
 
 @observer
 class Image extends React.Component {
   render() {
     const image = this.props.image;
-    
+
     return (
       <div className="image-container">
         <img onLoad={ this.props.onLoaded } onClick={this.props.onClick} className="primary-image" src={ image.preview } />
@@ -22,25 +24,28 @@ class Image extends React.Component {
 class ImageView extends React.Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       initialImageId: props.imageId,
-      imageId: props.imageId
+      imageId: props.imageId,
+      newTag: ''
     };
     window.history.replaceState({ imageId: props.imageId }, null, `/gallery/${props.galleryId}/image/${props.imageId}`);
-    
+
     window.onpopstate = (event => {
       const imageId = _.get(event, 'state.imageId', this.state.initialImageId);
       this.setState({ imageId: event.state.imageId });
     }).bind(this);
   }
 
+
+  @keydown(Keys.right)
   openNextImage(event) {
     event.preventDefault();
-    
+
     const images = this.props.images;
     const imageId = this.state.imageId;
-    
+
     const index = _.findIndex(images, {id: imageId});
     const nextIndex = index + 1;
     const insideBounds = nextIndex < images.length && nextIndex >= 0;
@@ -49,9 +54,10 @@ class ImageView extends React.Component {
     this.openImage(nextId);
   }
 
+  @keydown(Keys.left)
   openPrevImage(event) {
     event.preventDefault();
-    
+
     const images = this.props.images;
     const imageId = this.state.imageId;
 
@@ -62,57 +68,77 @@ class ImageView extends React.Component {
     const nextId = insideBounds ? images[nextIndex].id : images[images.length - 1].id;
     this.openImage(nextId);
   }
-  
+
   openImage(nextId) {
     window.history.pushState({ imageId: nextId }, null, `/gallery/${this.props.galleryId}/image/${nextId}`);
     this.setState({imageId: nextId, loaded: false});
   }
-  
+
   onImageLoad(event) {
     this.setState({ loaded: true });
   }
-  
+
+  onChangeTag(event) {
+    this.setState({newTag: event.target.value});
+  }
+
+  onAddTag(event) {
+    event.preventDefault();
+
+    const newTagName = this.state.newTag;
+    const images = this.props.images;
+    const imageId = this.state.imageId;
+    const currentImage = _.find(images, image => image.id == imageId);
+
+    currentImage.addTag(newTagName)
+      .then(() => {
+      });
+
+    this.setState({newTag: ''});
+  }
+
   render() {
     const images = this.props.images;
     const imageId = this.state.imageId;
     const currentImage = _.find(images, image => image.id == imageId);
-    
+
     if (images.length <= 0) {
       return (<LoadingSpinner visible={ true } />);
     }
-    
+
     if (currentImage == undefined) {
       return (<LoadingSpinner visible={ true } />);
     }
-    
-    const tags = _.map(currentImage.tags, tag => {
-      return <span key={ tag.tagName }>{tag.tagName}</span>;
-    });
-    
+
     function clickFullSize(fullSize) {
       return (event) => {
         event.preventDefault();
         window.open(fullSize);
       };
     }
-    
+
     return (
       <div className="image-view">
         <div className="image-with-buttons">
-          <LoadingSpinner visible={ !this.state.loaded } />
           <Image onLoaded={ this.onImageLoad.bind(this) } onClick={ this.openNextImage.bind(this) } image={ currentImage } />
           <div className="buttons">
             <a href="#" onClick={ this.openPrevImage.bind(this) }>Föregående</a>
             <a href="#" onClick={ this.openNextImage.bind(this) }>Nästa</a>
           </div>
         </div>
-        
+
+        <LoadingSpinner visible={ !this.state.loaded } />
         <div className="details">
           <span><b>Fotograf</b>: {currentImage.author}</span>
           <span><b>Bild-Id</b>: {currentImage.id}</span>
           <a href={ currentImage.fullSize } onClick={ clickFullSize(currentImage.fullSize) } target="_blank">Öppna bilden i full storlek</a>
-          
-          <span><b>Taggar</b>: {tags}</span>
+
+          <div className="tags"><b>Taggar</b>: {currentImage.tags.join(', ')}</div>
+
+          <form onSubmit={ this.onAddTag.bind(this) } className="new-tag-form">
+            <input type="text" name="newTag" placeholder="ny tagg" value={ this.state.newTag } onChange={ this.onChangeTag.bind(this) } />
+            <button type="submit" className="button">Lägg till</button>
+          </form>
         </div>
       </div>
     );

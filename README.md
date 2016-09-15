@@ -10,7 +10,6 @@ Detta behöver endast göras server-side.
 
 UI:
 - hantera gallerier
-    - ta bort
     - visible för endast inloggade
 - vy för att kolla på alla gallerier
   - lägg till pagination så är det klart
