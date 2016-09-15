@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
+import LazyLoad from 'react-lazyload';
 import {Link} from 'react-router';
 import {observer} from 'mobx-react';
 
@@ -7,12 +8,14 @@ class ImageCard extends React.Component {
   render() {
     const thumbnail = this.props.image.thumbnail;
     const imageViewLink = `/gallery/${this.props.image.galleryId}/image/${this.props.image.id}`;
-    
+
     return (
       <div className="image-card">
-        <Link to={ imageViewLink }>
-          <img onLoad={ this.props.onLoaded } src={ thumbnail } />
-        </Link>
+        <LazyLoad height={ 155 } offset={ 750 }>
+          <Link to={ imageViewLink }>
+              <img onLoad={ this.props.onLoaded } src={ thumbnail } />
+          </Link>
+        </LazyLoad>
       </div>
     );
   }
@@ -25,7 +28,7 @@ class ImageList extends React.Component {
 
     const images = props.images;
     const totalImageCount = (images == undefined) ? 0 : images.length;
-    
+
     this.state = {
       totalImageCount: totalImageCount,
       imageLoadedCount: 0
@@ -45,17 +48,14 @@ class ImageList extends React.Component {
   onImageLoaded() {
     const newCount = this.state.imageLoadedCount + 1;
     this.setState({ imageLoadedCount: newCount });
-    
-    if (newCount >= this.state.totalImageCount && this.props.onAllLoaded != undefined) {
-      this.props.onAllLoaded();
-    }
+    this.props.onAllLoaded();
   }
 
   render() {
     const images = _.map(this.props.images, (image => {
       return (<ImageCard onLoaded={ this.onImageLoaded.bind(this) } key={ image.id } image={ image } />);
     }).bind(this));
-    
+
     return (
       <div className="image-list">
         { images }

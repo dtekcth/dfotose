@@ -15,10 +15,11 @@
 
     img {
       /* using fixed height+width due to the variety of dimensions .. */
-      width: 250px;
+      height: 155px;
 
       @media (max-width: 650px) {
         width: 75vw;
+        height: auto;
       }
 
       border-radius: 5px;
