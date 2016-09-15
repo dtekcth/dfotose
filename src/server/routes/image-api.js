@@ -7,6 +7,7 @@ import path from 'path';
 import sharp from 'sharp';
 import bodyParser from 'body-parser';
 import {inHTMLData} from 'xss-filters';
+import mongoose from 'mongoose';
 
 import {LoggedInAsDfotoRequired} from './auth-api.js';
 import Logger from '../logger';
@@ -153,8 +154,20 @@ router.get('/image/tags/:tagName/search', (req, res) => {
 
   ImageTag.find({ tagName: tagName }, (err, imageTags) => {
     abortOnError(err, res);
+    
+    // imageTags contains all of the ids of images we need to send
+    // to the client
+    const imageObjectIds = _.map(imageTags, tag => {
+      return mongoose.Types.ObjectId(tag.imageId);
+    });
 
-    res.send(imageTags);
+    Image.find({ '_id': {
+      $in: imageObjectIds
+    }}, (err, images) => {
+      abortOnError(err, res);
+
+      res.send(images);
+    });
   });
 });
 

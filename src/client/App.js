@@ -12,6 +12,7 @@ import LoginView from './components/LoginView';
 import GalleryList from './components/GalleryList';
 import GalleryView from './components/GalleryView';
 import ImageView from './components/ImageView';
+import TagSearchView from './components/TagSearchView';
 
 import AdminIndex from './components/admin/Index';
 import AdminGalleryListView from './components/admin/GalleryListView';
@@ -115,6 +116,7 @@ class App extends React.Component {
             <Route path="login" component={ Login }/>
             <Route path="gallery/:id" component={ GalleryViewContainer } />
             <Route path="gallery/:galleryId/image/:id" component={ ImageContainer } />
+            <Route path="image/search/:tag" component={ TagSearchView } />
 
             <Route path="admin" component={ Admin }>
               <IndexRoute component={ AdminHome } />

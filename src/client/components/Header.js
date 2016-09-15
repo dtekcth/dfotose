@@ -1,9 +1,9 @@
-import _ from 'lodash';
 import React from "react";
 import {Link} from "react-router";
 import {animateScroll} from 'react-scroll';
-
 import {observer} from 'mobx-react';
+
+import TagSearchBar from './TagSearchBar';
 import uiState from '../UiState';
 
 @observer
@@ -26,11 +26,6 @@ class Header extends React.Component {
             <li>
               <a onClick={ this.onClickAbout } href="#about"> Om oss </a>
             </li>
-            { !uiState.user.isLoggedIn ?
-              <li>
-                <Link to="/login"> Logga in </Link>
-              </li>
-            : null }
             { uiState.user.isLoggedIn && uiState.user.dfotoMember ?
               <li>
                 <Link to="/admin">Admin </Link>
@@ -40,6 +35,7 @@ class Header extends React.Component {
           
           <div className="info">
             { uiState.user.isLoggedIn ? <span>Du är inloggad som { uiState.user.cid }</span> : null }
+            <TagSearchBar />
           </div>
         </div>
       </div>

@@ -1,0 +1,15 @@
+.tag-search-view {
+  margin-left: 5px;
+
+  h2 {
+    .tag {
+      font-style: italic;
+      text-decoration: underline;
+    }
+  }
+}
+
+.tag-search-bar {
+  display: flex;
+  flex-direction: row;
+}

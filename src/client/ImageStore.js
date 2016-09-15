@@ -90,9 +90,32 @@ export class ImageGalleryList {
   }
 }
 
+export class ImagesForTagList {
+  @observable images = [];
+  @observable tag = null;
+  
+  constructor(tag) {
+    this.tag = tag;
+    this.fetchImages();
+  }
+
+  fetchImages() {
+    axios.get(`/v1/image/tags/${this.tag}/search`)
+      .then((response => {
+        this.images = _.map(response.data, data => {
+          return new Image(data);
+        });
+      }).bind(this));
+  }
+}
+
 export class ImageStore {
   @action getImagesForGallery(galleryId) {
     return new ImageGalleryList(galleryId);
+  }
+  
+  @action getImagesForTag(tag) {
+    return new ImagesForTagList(tag);
   }
 }
 
