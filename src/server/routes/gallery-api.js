@@ -127,7 +127,7 @@ router.post('/gallery/:id/unpublish', LoggedInAsDfotoRequired, (req, res) => {
 router.delete('/gallery/:id', LoggedInAsDfotoRequired, (req, res) => {
   const id = req.params.id;
   
-  Gallery.deleteOne({ _id: id }, (err) => {
+  Gallery.remove({ _id: id }, (err) => {
     abortOnError(err);
     res.status(202).end();
   });

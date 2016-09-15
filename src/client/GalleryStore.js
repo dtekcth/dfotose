@@ -66,6 +66,16 @@ class GalleryStore {
   @observable galleries = [];
 
   constructor() {
+    this.reload();
+  }
+  
+  @action loadGalleries(galleryDatas) {
+    this.galleries = _.map(galleryDatas, data => {
+      return new Gallery(data);
+    })
+  }
+  
+  @action reload() {
     axios.get('/v1/gallery/all')
       .then((response => {
         this.loadGalleries(response.data);
@@ -76,12 +86,6 @@ class GalleryStore {
             this.loadGalleries(response.data);
           }).bind(this));
       });
-  }
-  
-  @action loadGalleries(galleryDatas) {
-    this.galleries = _.map(galleryDatas, data => {
-      return new Gallery(data);
-    })
   }
 
   @action addGallery(name, description, date) {
@@ -95,9 +99,7 @@ class GalleryStore {
   @action removeGallery(galleryId) {
     const gallery = _.find(this.galleries, gallery => gallery.id == galleryId);
     return gallery.remove().then(() => {
-      this.galleries = _.filter(this.galleries, gallery => {
-        return gallery._id != galleryId;
-      });
+      this.reload();
     })
   }
   
