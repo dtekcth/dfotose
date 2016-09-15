@@ -42,7 +42,7 @@ if (process.env.NODE_ENV !== "production") {
 app.use(helmet());
 
 app.use(modRewrite([
-  '^\/(?!(v1|auth|assets|favicon\.ico|robots\.txt)).*$ /index.html'
+  '^\/(?!(v1|auth|assets|favicon\.ico|robots\.txt|bundle.js)).*$ /index.html'
 ]));
 
 app.use('/', express.static(__dirname + '/public'));
