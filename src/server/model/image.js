@@ -13,8 +13,9 @@ const imageSchema = new Schema({
   fullSize: {type: String},
 
   tags: [String],
-  
+
   shotAt: {type: Date, default: Date.now},
+  exifData: Schema.Types.Mixed,
 
   created_at: {type: Date, default: Date.now}
 });

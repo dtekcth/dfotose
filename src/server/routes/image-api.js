@@ -260,7 +260,8 @@ function handleImages(req, res, galleryId) {
           thumbnail: thumbnail,
           preview: preview,
           fullSize: fullSizeImagePath,
-          shotAt: shotAt
+          shotAt: shotAt,
+          exifData: exif
         });
 
         newImage.save((err) => {
