@@ -42,7 +42,8 @@ class GalleryView extends React.Component {
       <div className="gallery-view">
         <div className="title">
           <h2>{ gallery.name } - { date }</h2>
-          <p>{ gallery.description }</p>
+          <p>{ images.length } bilder.<br/> 
+             { gallery.description }</p>
         </div>
         <LoadingSpinner visible={ showSpinner } />
         <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } />
