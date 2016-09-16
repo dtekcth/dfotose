@@ -64,9 +64,22 @@ const Login = () => {
 
 const Admin = ({children}) => {
   return (
-    <div>
+    <div className="site-content">
       <h2> Admin </h2>
       { children }
+    </div>
+  );
+};
+
+const About = () => {
+  return (
+    <div className="site-content about-us">
+      <h2>Om oss</h2>
+      <p>DFoto är Datateknologsektionens fotoförening.
+        Vår ambition är att genom foto och film föreviga alla arrangemang Datateknologen går på.
+        Allt ifrån iDrotts legendariska aktiviteter, till D6s storslagna fester och Deltas episka pubar.</p>
+      <p> Du kan komma i kontakt med oss genom att maila <a href="mailto:dfoto@dtek.se">dfoto@dtek.se</a>!</p>
+      <h3>Vi ses genom kameralinsen!</h3>
     </div>
   );
 };
@@ -114,6 +127,7 @@ class App extends React.Component {
           <Route path="/" component={ Site }>
             <IndexRoute component={ Home }/>
             <Route path="login" component={ Login }/>
+            <Route path="about" component={ About }/>
             <Route path="gallery/:id" component={ GalleryViewContainer } />
             <Route path="gallery/:galleryId/image/:id" component={ ImageContainer } />
             <Route path="image/search/:tag" component={ TagSearchView } />

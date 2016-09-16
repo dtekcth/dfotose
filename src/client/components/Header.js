@@ -8,12 +8,6 @@ import uiState from '../UiState';
 
 @observer
 class Header extends React.Component {
-  onClickAbout(event) {
-    event.preventDefault();
-    
-    animateScroll.scrollToBottom();
-  }
-  
   render() {
     return (
       <div className="header">
@@ -24,7 +18,7 @@ class Header extends React.Component {
               <Link to="/"> Bilder </Link>
             </li>
             <li>
-              <a onClick={ this.onClickAbout } href="#about"> Om oss </a>
+              <Link to="/about"> Om oss </Link>
             </li>
             { uiState.user.isLoggedIn && uiState.user.dfotoMember ?
               <li>

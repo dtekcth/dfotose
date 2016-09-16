@@ -119,7 +119,7 @@ router.post('/image/:id/tags', jsonParser, (req, res) => {
   const imageId = req.params.id;
 
   const {tagName} = req.body;
-  const filteredTagName = inHTMLData(tagName);
+  const filteredTagName = inHTMLData(tagName).toLowerCase();
 
   const imageTagData = {
     imageId: imageId,
@@ -152,7 +152,7 @@ router.post('/image/:id/tags', jsonParser, (req, res) => {
 });
 
 router.get('/image/tags/:tagName/search', (req, res) => {
-  const tagName = req.params.tagName;
+  const tagName = req.params.tagName.toLowerCase();
 
   ImageTag.find({ tagName: tagName }, (err, imageTags) => {
     abortOnError(err, res);
