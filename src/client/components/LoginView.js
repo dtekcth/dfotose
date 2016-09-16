@@ -8,23 +8,23 @@ import uiState from '../UiState';
   static propTypes = {
     user: React.PropTypes.object.isRequired
   };
-  
+
   constructor() {
     super();
-    
+
     this.state = {
       cid: '',
       password: ''
     };
   }
-  
+
   login(event) {
     event.preventDefault();
-    
+
     this.props.user.login(this.state.cid, this.state.password)
       .then(() => {
         uiState.refresh();
-        
+
         if (uiState.user.dfotoMember) {
           browserHistory.push('/admin');
         } else {
@@ -32,15 +32,15 @@ import uiState from '../UiState';
         }
       });
   }
-  
+
   onChangeCid(event) {
     this.setState({ cid: event.target.value });
   }
-  
+
   onChangePassword(event) {
     this.setState({ password: event.target.value });
   }
-  
+
   render() {
     const loginForm = (
       <form onSubmit={ this.login.bind(this) }>
@@ -52,7 +52,7 @@ import uiState from '../UiState';
         <button type="submit">Logga In</button>
       </form>
     );
-    
+
     const user = this.props.user;
     return (
       <div>

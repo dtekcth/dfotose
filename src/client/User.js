@@ -24,13 +24,13 @@ class User {
   @action login(cid, password) {
     return axios.post('/auth/login', { cid: cid, password: password }, { responseType: 'json' })
       .then((response => {
-        this.data.user = response.data;
+        this.data = response.data;
         UiState.refresh();
       }).bind(this));
   }
   
   @computed get current() {
-    return this.data.toJS();
+    return this.data;
   }
   
   @action setFullName(fullName) {
