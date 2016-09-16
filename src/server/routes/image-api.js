@@ -8,6 +8,8 @@ import sharp from 'sharp';
 import bodyParser from 'body-parser';
 import {inHTMLData} from 'xss-filters';
 import mongoose from 'mongoose';
+import exifParser from 'exif-parser';
+import moment from 'moment';
 
 import {LoggedInAsDfotoRequired} from './auth-api.js';
 import Logger from '../logger';
@@ -54,7 +56,7 @@ fs.mkdirs(config.storage.path, (err) => {
 router.get('/image/:galleryId', (req, res) => {
   const galleryId = req.params.galleryId;
 
-  Image.find({galleryId: galleryId}, (err, images) => {
+  Image.find({galleryId: galleryId}).sort('shotAt').exec((err, images) => {
     if (err) {
       res.status(500).send(err);
       throw err;
@@ -154,7 +156,7 @@ router.get('/image/tags/:tagName/search', (req, res) => {
 
   ImageTag.find({ tagName: tagName }, (err, imageTags) => {
     abortOnError(err, res);
-    
+
     // imageTags contains all of the ids of images we need to send
     // to the client
     const imageObjectIds = _.map(imageTags, tag => {
@@ -177,6 +179,27 @@ function createDirectoryIfNeeded(dir) {
   } catch(err) {
     fs.mkdirSync(dir);
   }
+}
+
+function readExifData(imagePath, cb) {
+  fs.open(imagePath, 'r', (status, fd) => {
+    if (status) {
+      Logger.error(`Could not open ${imagePath} for reading`);
+      return;
+    }
+
+    var buffer = new Buffer(65635); // 64kb buffer
+    fs.read(fd, buffer, 0, 65635, 0, (err, bytesRead) => {
+      if (err) {
+        Logger.error(`Could not read EXIF data from ${imagePath}`);
+        return;
+      }
+
+      var parser = exifParser.create(buffer);
+      const parsed = parser.parse();
+      cb(parsed);
+    });
+  });
 }
 
 function handleImages(req, res, galleryId) {
@@ -226,23 +249,30 @@ function handleImages(req, res, galleryId) {
           }
         });
 
-      var newImage = new Image({
-        filename: filename,
-        authorCid: userCid,
-        galleryId: galleryId,
-        thumbnail: thumbnail,
-        preview: preview,
-        fullSize: fullSizeImagePath
+      readExifData(fullSizeImagePath, (exif) => {
+        const shotAtUnformatted = _.get(exif, 'tags.ModifyDate');
+        const shotAt = moment(shotAtUnformatted, 'YYYY:MM:DD h:mm:ss').format();
+
+        var newImage = new Image({
+          filename: filename,
+          authorCid: userCid,
+          galleryId: galleryId,
+          thumbnail: thumbnail,
+          preview: preview,
+          fullSize: fullSizeImagePath,
+          shotAt: shotAt
+        });
+
+        newImage.save((err) => {
+          if (err) {
+            Logger.error(err);
+            throw err;
+          }
+
+          Logger.info(`Saved image ${filename}`);
+        });
       });
 
-      newImage.save((err) => {
-        if (err) {
-          Logger.error(err);
-          throw err;
-        }
-
-        Logger.info(`Saved image ${filename}`);
-      });
     });
   });
 

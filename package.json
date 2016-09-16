@@ -46,6 +46,7 @@
     "body-parser": "^1.15.1",
     "connect-modrewrite": "^0.9.0",
     "connect-redis": "^3.1.0",
+    "exif-parser": "^0.1.9",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "fs-extra": "^0.30.0",
