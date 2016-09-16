@@ -51,7 +51,7 @@ export default class UploadImagesForm extends React.Component {
 
     const progressBar = (
       <div>
-        <p>{percentDone}% done</p>
+        <p>Laddar upp: {percentDone}% klart.</p>
       </div>
     );
 
