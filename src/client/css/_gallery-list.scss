@@ -1,3 +1,19 @@
+.gallery-pagination {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  margin: 0 auto;
+  max-width: 350px;
+
+  padding: 25px 25px 0;
+
+  a:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+}
+
 .gallery-list {
   display: flex;
   flex-direction: row;

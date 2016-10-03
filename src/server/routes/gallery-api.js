@@ -15,17 +15,60 @@ export default router;
 
 // Return all published galleries
 router.get('/gallery', (req, res) => {
-  Gallery.find({ published: true }).sort('-shootDate').limit(30).exec((err, galleries) => {
+  Gallery.find({ published: true }).sort('-shootDate').exec((err, galleries) => {
+    abortOnError(err, res);
+    res.send(galleries);
+  });
+});
+
+// Return all published galleries with a limit
+router.get('/gallery/limit/:limit', (req, res) => {
+  const {limit} = req.params;
+  Gallery.find({ published: true }).sort('-shootDate').limit(limit).exec((err, galleries) => {
     abortOnError(err, res);
     res.send(galleries);
   });
 });
 
 // Return _all_ galleries, even unpublished
-router.get('/gallery/all', LoggedInAsDfotoRequired, (err, res) => {
+router.get('/gallery/all', LoggedInAsDfotoRequired, (req, res) => {
   Gallery.find({}).sort('-shootDate').exec((err, galleries) => {
     abortOnError(err, res);
     res.send(galleries);
+  });
+});
+
+// Return all galleries (only published) _after_ a certain date
+// this to enable pagination in the frontend.
+router.get('/gallery/after/:startDate/limit/:limit', (req, res) => {
+  const {startDate, limit} = req.params;
+  Gallery.find({ published: true, shootDate: { $lt: startDate }})
+    .sort('-shootDate')
+    .limit(limit)
+    .exec((err, galleries) => {
+      abortOnError(err, res);
+      res.send(galleries);
+    });
+});
+
+// Return all galleries (only published) _before_ a certain date
+// this to enable pagination in the frontend.
+router.get('/gallery/before/:startDate/limit/:limit', (req, res) => {
+  const {startDate, limit} = req.params;
+  Gallery.find({ published: true, shootDate: { $gt: startDate }})
+    .sort('-shootDate')
+    .limit(limit)
+    .exec((err, galleries) => {
+      abortOnError(err, res);
+      res.send(galleries);
+    });
+});
+
+// Return the count of all galleries
+router.get('/gallery/count', (req, res) => {
+  Gallery.count({ published: true }, (err, count) => {
+    abortOnError(err, res);
+    res.send({ count: count });
   });
 });
 

@@ -8,9 +8,5 @@ Detta behöver endast göras server-side.
 
 **TODO**:
 
-UI:
-- vy för att kolla på alla gallerier
-  - lägg till pagination så är det klart
-
 BACKEND:
 - databas-migrations-script
