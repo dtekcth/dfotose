@@ -100,7 +100,8 @@ class ImageView extends React.Component {
   render() {
     const images = this.props.images;
     const imageId = this.state.imageId;
-    const currentImage = _.find(images, image => image.id == imageId);
+    const currentImageIndex = _.findIndex(images, image => image.id == imageId);
+    const currentImage = _.nth(images, currentImageIndex);
 
     if (images.length <= 0) {
       return (<LoadingSpinner visible={ true } />);
@@ -123,11 +124,17 @@ class ImageView extends React.Component {
           <Image onLoaded={ this.onImageLoad.bind(this) } onClick={ this.openNextImage.bind(this) } image={ currentImage } />
           <div className="buttons">
             <a href="#" onClick={ this.openPrevImage.bind(this) }>Föregående</a>
+            <span>bild { currentImageIndex+1 } / { images.length } </span>
             <a href="#" onClick={ this.openNextImage.bind(this) }>Nästa</a>
           </div>
+
+          { !this.state.loaded ?
+              <div className="image-loading-spinner">
+                <LoadingSpinner visible={ !this.state.loaded } />
+              </div>
+              : null }
         </div>
 
-        <LoadingSpinner visible={ !this.state.loaded } />
         <div className="details">
           <span><b>Fotograf</b>: {currentImage.author}</span>
           <span><b>Bild-Id</b>: {currentImage.id}</span>

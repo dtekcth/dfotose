@@ -7,16 +7,26 @@
   .image-with-buttons {
     max-width: 800px;
 
+    .image-loading-spinner {
+      position: absolute;
+      z-index: 2;
+      top: 40vh;
+      left: 40vw;
+
+      background: #fefefe;
+      padding: 25px 40px;
+      border-radius: 25px;
+
+      @media(min-width: 960px) {
+        left: 20vw;
+      }
+    }
+
     .buttons {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       max-width: 100%;
-
-      a:last-child {
-        align-self: flex-end;
-        margin-left: auto;
-      }
     }
 
     .primary-image {
