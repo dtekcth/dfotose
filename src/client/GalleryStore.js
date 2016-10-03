@@ -68,7 +68,7 @@ class Gallery {
 class GalleryStore {
   @observable galleries = [];
 
-  PAGE_SIZE = 2;
+  PAGE_SIZE = 15;
   @observable currentPageNumber = 1;
   @observable maxPageNumber = 1;
 
