@@ -68,7 +68,7 @@ class Gallery {
 class GalleryStore {
   @observable galleries = [];
 
-  PAGE_SIZE = 1;
+  PAGE_SIZE = 30;
   @observable currentPageNumber = 1;
   @observable maxPageNumber = 1;
 
@@ -124,7 +124,7 @@ class GalleryStore {
   }
 
   @action addGallery(name, description, date) {
-    return axios.post('/v1/gallery', { name: name, description: description, date: date }, { responseType: 'json' })
+    return axios.post('/v1/gallery', { name: name, description: description, shootDate: date }, { responseType: 'json' })
       .then((response => {
         const newGallery = new Gallery(response.data);
         this.galleries.push(newGallery);
