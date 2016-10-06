@@ -68,7 +68,7 @@ class Gallery {
 class GalleryStore {
   @observable galleries = [];
 
-  PAGE_SIZE = 30;
+  PAGE_SIZE = 1;
   @observable currentPageNumber = 1;
   @observable maxPageNumber = 1;
 
@@ -120,7 +120,6 @@ class GalleryStore {
 
     axios.get('/v1/gallery/count').then((response => {
       this.maxPageNumber = Math.ceil(response.data.count / this.PAGE_SIZE);
-      console.log(response);
     }).bind(this));
   }
 

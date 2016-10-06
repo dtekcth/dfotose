@@ -56,7 +56,7 @@ router.get('/gallery/after/:startDate/limit/:limit', (req, res) => {
 router.get('/gallery/before/:startDate/limit/:limit', (req, res) => {
   const {startDate, limit} = req.params;
   Gallery.find({ published: true, shootDate: { $gt: startDate }})
-    .sort('-shootDate')
+    .sort('shootDate')
     .limit(limit)
     .exec((err, galleries) => {
       abortOnError(err, res);
