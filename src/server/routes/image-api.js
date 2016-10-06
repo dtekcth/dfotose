@@ -195,9 +195,13 @@ function readExifData(imagePath, cb) {
         return;
       }
 
-      var parser = exifParser.create(buffer);
-      const parsed = parser.parse();
-      cb(parsed);
+      try {
+        var parser = exifParser.create(buffer);
+        const parsed = parser.parse();
+        cb(parsed);
+      } catch(ex) {
+        cb({});
+      }
     });
   });
 }
@@ -251,7 +255,8 @@ function handleImages(req, res, galleryId) {
 
       readExifData(fullSizeImagePath, (exif) => {
         const shotAtUnformatted = _.get(exif, 'tags.ModifyDate');
-        const shotAt = moment(shotAtUnformatted, 'YYYY:MM:DD h:mm:ss').format();
+        const shotAt = shotAtUnformatted ? moment(shotAtUnformatted, 'YYYY:MM:DD h:mm:ss').format()
+                                         : moment();
 
         var newImage = new Image({
           filename: filename,
