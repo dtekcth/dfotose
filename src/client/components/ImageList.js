@@ -9,9 +9,11 @@ class ImageCard extends React.Component {
     const thumbnail = this.props.image.thumbnail;
     const imageViewLink = `/gallery/${this.props.image.galleryId}/image/${this.props.image.id}`;
 
+    const placeHolder = <img />;
+
     return (
       <div className="image-card">
-        <LazyLoad height={ 155 } offset={ 750 } debounce={ 100 }>
+        <LazyLoad height={ 200 } offset={ 450 } throttle={ 150 } placeholder={ placeHolder } >
           <Link to={ imageViewLink }>
               <img onLoad={ this.props.onLoaded } src={ thumbnail } />
           </Link>
