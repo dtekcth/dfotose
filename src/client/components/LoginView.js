@@ -55,7 +55,7 @@ import uiState from '../UiState';
 
     const user = this.props.user;
     return (
-      <div>
+      <div className="login-content">
         { user.isLoggedIn ? <p>Redan inloggad som { user.current.cid } </p> : loginForm }
       </div>
     );
