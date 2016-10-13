@@ -3,6 +3,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   margin-left: 5px;
+  max-width: 1300px;
 
   @media (max-width: 650px) {
     flex-direction: column;
