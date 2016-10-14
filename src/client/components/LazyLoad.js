@@ -32,10 +32,7 @@ function isVisible(component) {
   const windowInnerHeight = window.innerHeight || document.documentElement.clientHeight;
   const {offset, height} = component.props;
 
-  console.log(node.id);
-  console.log(rect);
-
-  return (top - offset <= windowInnerHeight);
+  return (top - offset <= windowInnerHeight) && (top + height >= 0);
 }
 
 export default class LazyLoad extends React.Component {
@@ -57,18 +54,21 @@ export default class LazyLoad extends React.Component {
   }
 
   componentDidMount() {
-    setTimeout((() => {
-      if (lazyLoadComponents.length == 0) {
-        if (lazyLoadHandler == null) {
-          lazyLoadHandler = _.throttle(onLazyLoadCheck, 150);
-        }
-
-        on(window, 'scroll', lazyLoadHandler);
+    if (lazyLoadComponents.length == 0) {
+      if (lazyLoadHandler == null) {
+        lazyLoadHandler = _.throttle(onLazyLoadCheck, 150);
       }
 
-      lazyLoadComponents.push(this);
+      on(window, 'scroll', lazyLoadHandler);
+    }
+
+    lazyLoadComponents.push(this);
+
+    const init = () => {
       checkVisible(this);
-    }).bind(this), 500);
+    };
+
+    setTimeout(init.bind(this), 500);
   }
 
   componentWillUnmount() {
