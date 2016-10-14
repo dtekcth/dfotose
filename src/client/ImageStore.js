@@ -60,11 +60,11 @@ export class ImageGalleryList {
   @observable images = [];
   @observable galleryId = null;
   
-  constructor(galleryId) {
+  constructor(galleryId, images) {
     this.galleryId = galleryId;
-    this.fetchImages();
+    this.images = images;
   }
-  
+
   fetchImages() {
     return axios.get(`/v1/image/${this.galleryId}`)
       .then((response => {
@@ -73,7 +73,7 @@ export class ImageGalleryList {
         });
       }).bind(this));
   }
-  
+
   @action addImages(formData, progressCallback) {
     const config = {
       progress: (event => {
@@ -110,10 +110,6 @@ export class ImagesForTagList {
 }
 
 export class ImageStore {
-  @action getImagesForGallery(galleryId) {
-    return new ImageGalleryList(galleryId);
-  }
-  
   @action getImagesForTag(tag) {
     return new ImagesForTagList(tag);
   }

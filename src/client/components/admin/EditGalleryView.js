@@ -2,31 +2,25 @@ import _ from 'lodash';
 import React from 'react';
 import {Link} from 'react-router';
 import {browserHistory} from 'react-router';
-import {observer} from 'mobx-react';
 import moment from 'moment';
 
-import uiState from '../../UiState';
 import GalleryImagesView from './GalleryImagesView';
+
+import GalleryStore from '../../GalleryStore';
+import ImageStore, {ImageGalleryList} from '../../ImageStore';
+import PreloadContainerFactory from '../PreloadContainerFactory';
 
 class EditGalleryView extends React.Component {
   constructor(props) {
     super(props);
 
-    const id = _.get(props, 'routeParams.id');
-    
-    const galleries = uiState.galleryStore.galleries;
-    const gallery = _.find(galleries, gallery => gallery.id == id);
-    
-    var imageList = uiState.imageStore.getImagesForGallery(gallery.id);
+    const gallery = this.props.gallery;
     const date = moment(gallery.shootDate).format("YYYY-MM-DD");
-    
     this.state = {
-      gallery: gallery,
       name: gallery.name,
       description: gallery.description,
       published: gallery.published,
-      date: date,
-      imageList: imageList
+      date: date
     };
   }
 
@@ -51,7 +45,7 @@ class EditGalleryView extends React.Component {
       shootDate: this.state.date
     };
     
-    this.state.gallery.update(newGalleryData)
+    this.props.gallery.update(newGalleryData)
       .then(() => {
         browserHistory.push('/admin/gallery');
       });
@@ -78,7 +72,7 @@ class EditGalleryView extends React.Component {
     return (
       <div>
         <form onSubmit={ this.onSave.bind(this) }>
-          <h4> Ändrar galleri: { this.state.gallery.id } </h4>
+          <h4> Ändrar galleri: { this.props.gallery.id } </h4>
           <label>Namn på galleri:</label>
           <input className="u-full-width" type="text" value={ this.state.name } onChange={ this.onChangeName.bind(this) } placeholder="namn" />
           <label>Beskrivning utav gallery:</label>
@@ -92,10 +86,25 @@ class EditGalleryView extends React.Component {
           { !isPublished ? <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }> Publicera </button> : null }
         </form>
         <hr/>
-        <GalleryImagesView galleryId={ this.state.gallery.id } imageList={ this.state.imageList } />
+        <GalleryImagesView galleryId={ this.props.gallery.id } imageList={ this.props.imageList } />
       </div>
     );
   }
 }
 
-export default EditGalleryView;
+const EditGalleryViewContainer = PreloadContainerFactory((props) => {
+  const galleryId = _.get(props, 'params.id');
+
+  const galleryPromise = GalleryStore.fetchGallery(galleryId);
+  const imagesPromise = ImageStore.fetchImagesInGallery(galleryId);
+
+  return Promise.all([galleryPromise, imagesPromise]).then(([gallery, images]) => {
+    return {
+      gallery: gallery,
+      galleryId: galleryId,
+      imageList: new ImageGalleryList(galleryId, images)
+    };
+  });
+}, EditGalleryView);
+
+export default EditGalleryViewContainer;

@@ -1,7 +1,6 @@
 import React from "react";
 import {Router, Route, IndexRoute, browserHistory} from "react-router";
 import {observer} from "mobx-react";
-import DevTool from 'mobx-react-devtools';
 import keydown, {Keys} from 'react-keydown';
 
 import {StickyContainer} from 'react-sticky';

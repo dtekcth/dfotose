@@ -150,6 +150,14 @@ class GalleryStore {
         return Promise.resolve(gallery);
       });
   }
+
+  static fetchAllGalleries() {
+    return axios.get('/v1/gallery/all')
+      .then((response) => {
+        const galleries = _.map(response.data, data => new Gallery(data));
+        return Promise.resolve(galleries);
+      });
+  }
 }
 
 export default GalleryStore;
