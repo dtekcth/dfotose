@@ -6,17 +6,16 @@ import moment from 'moment';
 import ImageList from './ImageList';
 import LoadingSpinner from './LoadingSpinner';
 
-import uiState from '../UiState';
+import GalleryStore from '../GalleryStore';
+import ImageStore from '../ImageStore';
+import PreloadContainerFactory from './PreloadContainerFactory';
 
 @observer
 class GalleryView extends React.Component {
   constructor(props) {
     super(props);
-    
-    const id = _.get(props, 'params.id');
 
     this.state = {
-      imageList: uiState.imageStore.getImagesForGallery(id),
       showSpinner: true
     };
   }
@@ -26,15 +25,12 @@ class GalleryView extends React.Component {
   }
   
   render() {
-    const id = _.get(this.props, 'params.id');
-    const galleries = this.props.galleryStore.galleries.toJS();
-    const gallery = _.find(galleries, gallery => gallery.id == id);
+    const {gallery, images} = this.props;
     
     if (gallery == undefined) {
       return (<p>Galleriet finns inte</p>);
     }
     
-    const images = this.state.imageList.images.toJS();
     const showSpinner = this.state.showSpinner;
     const date = moment(gallery.shootDate).format("YYYY-MM-DD");
     
@@ -52,4 +48,19 @@ class GalleryView extends React.Component {
   }
 }
 
-export default GalleryView;
+const GalleryViewContainer = PreloadContainerFactory((props) => {
+  const galleryId = _.get(props, 'params.id');
+
+  const galleryPromise = GalleryStore.fetchGallery(galleryId);
+  const imagesPromise = ImageStore.fetchImagesInGallery(galleryId);
+
+  return Promise.all([galleryPromise, imagesPromise]).then(([gallery, images]) => {
+    return {
+      gallery: gallery,
+      galleryId: galleryId,
+      images: images
+    };
+  });
+}, GalleryView);
+
+export default GalleryViewContainer;

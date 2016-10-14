@@ -111,36 +111,6 @@ const AdminHome = () => {
 };
 
 @observer
-class ImageContainer extends React.Component {
-  constructor(props) {
-    super(props);
-
-    const galleryId = _.get(props, 'routeParams.galleryId');
-    const id = _.get(props, 'routeParams.id');
-
-    const galleries = uiState.galleryStore.galleries;
-    const gallery = _.find(galleries, gallery => gallery.id == galleryId);
-
-    this.state = {
-      gallery: gallery,
-      galleryId: galleryId,
-      imageId: id,
-      imageList: uiState.imageStore.getImagesForGallery(galleryId)
-    };
-  }
-
-  render() {
-    return (<ImageView imageId={ this.state.imageId } images={ this.state.imageList.images.toJS() } galleryId={ this.state.galleryId } />);
-  }
-}
-
-class GalleryViewContainer extends React.Component {
-  render() {
-    return (<GalleryView {...this.props} galleryStore={ uiState.galleryStore } />);
-  }
-}
-
-@observer
 class App extends React.Component {
   render() {
     return (
@@ -150,8 +120,8 @@ class App extends React.Component {
             <IndexRoute component={ Home }/>
             <Route path="login" component={ Login }/>
             <Route path="about" component={ About }/>
-            <Route path="gallery/:id" component={ GalleryViewContainer } />
-            <Route path="gallery/:galleryId/image/:id" component={ ImageContainer } />
+            <Route path="gallery/:id" component={ GalleryView } />
+            <Route path="gallery/:galleryId/image/:id" component={ ImageView } />
             <Route path="image/search/:tag" component={ TagSearchView } />
 
             <Route path="admin" component={ Admin }>

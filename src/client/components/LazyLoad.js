@@ -82,7 +82,6 @@ export default class LazyLoad extends React.Component {
 
   render() {
     const {placeHolder, children} = this.props;
-    console.log('render ' + this.visible);
     return this.visible ? children : placeHolder;
   }
 }

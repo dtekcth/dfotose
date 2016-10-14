@@ -1,11 +1,14 @@
 import _ from 'lodash';
 import React from 'react';
-import {Link} from 'react-router';
 import {observer} from 'mobx-react';
 
 import keydown, {Keys} from 'react-keydown';
 
 import LoadingSpinner from './LoadingSpinner';
+
+import GalleryStore from '../GalleryStore';
+import ImageStore from '../ImageStore';
+import PreloadContainerFactory from './PreloadContainerFactory';
 
 @observer
 class Image extends React.Component {
@@ -152,6 +155,21 @@ class ImageView extends React.Component {
   }
 }
 
-export default ImageView;
+const ImageContainer = PreloadContainerFactory((props) => {
+  const galleryId = _.get(props, 'routeParams.galleryId');
+  const id = _.get(props, 'routeParams.id');
 
+  const galleryPromise = GalleryStore.fetchGallery(galleryId);
+  const imagesPromise = ImageStore.fetchImagesInGallery(galleryId);
 
+  return Promise.all([galleryPromise, imagesPromise]).then(([gallery, images]) => {
+    return {
+      gallery: gallery,
+      galleryId: galleryId,
+      imageId: id,
+      images: images
+    };
+  });
+}, ImageView);
+
+export default ImageContainer;

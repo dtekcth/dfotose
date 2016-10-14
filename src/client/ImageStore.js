@@ -66,7 +66,7 @@ export class ImageGalleryList {
   }
   
   fetchImages() {
-    axios.get(`/v1/image/${this.galleryId}`)
+    return axios.get(`/v1/image/${this.galleryId}`)
       .then((response => {
         this.images = _.map(response.data, data => {
           return new Image(data);
@@ -116,6 +116,17 @@ export class ImageStore {
   
   @action getImagesForTag(tag) {
     return new ImagesForTagList(tag);
+  }
+
+  static fetchImagesInGallery(galleryId) {
+    return axios.get(`/v1/image/${galleryId}`)
+      .then((response => {
+        const images = _.map(response.data, data => {
+          return new Image(data);
+        });
+
+        return Promise.resolve(images);
+      }).bind(this));
   }
 }
 

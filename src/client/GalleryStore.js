@@ -113,15 +113,15 @@ class GalleryStore {
   }
   
   @action reload() {
-    if (this.loadAll) {
-      this.loadGalleriesWithUrl('/v1/gallery/all');
-    } else {
-      this.loadGalleriesWithUrl(`/v1/gallery/limit/${this.PAGE_SIZE}`);
-    }
-
     axios.get('/v1/gallery/count').then((response => {
       this.maxPageNumber = Math.ceil(response.data.count / this.PAGE_SIZE);
     }).bind(this));
+
+    if (this.loadAll) {
+      return this.loadGalleriesWithUrl('/v1/gallery/all');
+    } else {
+      return this.loadGalleriesWithUrl(`/v1/gallery/limit/${this.PAGE_SIZE}`);
+    }
   }
 
   @action addGallery(name, description, date) {
@@ -141,6 +141,14 @@ class GalleryStore {
   
   @computed get Galleries() {
     return this.galleries;
+  }
+
+  static fetchGallery(galleryId) {
+    return axios.get(`/v1/gallery/${galleryId}`)
+      .then((response) => {
+        const gallery = new Gallery(response.data);
+        return Promise.resolve(gallery);
+      });
   }
 }
 
