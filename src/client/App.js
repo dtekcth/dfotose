@@ -132,7 +132,7 @@ class App extends React.Component {
                 <Route path="edit/:id" component={ AdminEditGalleryView } />
               </Route>
               <Route path="members">
-                <IndexRoute component={ () => <AdminMembersView userStore={ uiState.userStore } /> } />
+                <IndexRoute component={ AdminMembersView } />
               </Route>
             </Route>
           </Route>

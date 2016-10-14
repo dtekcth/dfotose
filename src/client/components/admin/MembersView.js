@@ -1,6 +1,12 @@
 import _ from 'lodash';
 import React from 'react';
 
+import {observable} from 'mobx';
+import {observer} from 'mobx-react';
+
+import UserStore from '../../UserStore';
+import PreloadContainerFactory from '../PreloadContainerFactory';
+
 class DFotoMember extends React.Component {
   render() {
     const member = this.props.member;
@@ -24,6 +30,7 @@ class RegularMember extends React.Component {
   }
 }
 
+@observer
 class MembersView extends React.Component {
   onSearchRegular(event) {
     const searchValue = event.target.value;
@@ -33,8 +40,8 @@ class MembersView extends React.Component {
 
   render() {
     const regularSearch = _.get(this.state, 'regularSearch', '');
+    const users = this.props.users;
 
-    const users = this.props.userStore.users.toJS();
     const dfotoMembers = _.chain(users)
       .filter({dfotoMember: true})
       .map(member => {
@@ -73,4 +80,13 @@ class MembersView extends React.Component {
   }
 }
 
-export default MembersView;
+const MembersViewContainer = PreloadContainerFactory((props) => {
+  return UserStore.fetchAllUsers()
+    .then((users) => {
+      return {
+        users: observable(users)
+      };
+    })
+}, MembersView);
+
+export default MembersViewContainer;

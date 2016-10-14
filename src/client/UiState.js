@@ -9,11 +9,9 @@ class UiState {
   @observable user = new User();
   @observable galleryStore = new GalleryStore();
   @observable imageStore = new ImageStore();
-  @observable userStore = new UserStore();
-  
+
   @action refresh() {
     this.galleryStore = new GalleryStore();
-    this.userStore = new UserStore();
   }
 }
 

@@ -2,9 +2,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import {computed, action, observable} from 'mobx';
 
-import UiState from './UiState';
-
-class User {
+export class User {
   @observable data;
   
   constructor(userData) {
@@ -34,22 +32,13 @@ class User {
 }
 
 class UserStore {
-  @observable users = [];
-  
-  constructor() {
-    // Only load if we're logged in as dfoto
-    if (UiState.user.dfotoMember) {
-      axios.get('/auth/users')
-        .then((response => {
-          this.loadUsers(response.data);
-        }).bind(this));
-    }
-  }
-  
-  @action loadUsers(userDatas) {
-    this.users = _.map(userDatas, data => {
-      return new User(data)
-    });
+  static fetchAllUsers() {
+    // Only allow if logged in as dfoto
+    return axios.get('/auth/users')
+      .then((response => {
+        const users = _.map(response.data, userData => new User(userData));
+        return Promise.resolve(users);
+      }).bind(this));
   }
 }
 
