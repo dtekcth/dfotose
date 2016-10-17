@@ -80,26 +80,6 @@ class GalleryStore {
     this.reload();
   }
 
-  @action nextPage() {
-    if (this.currentPageNumber >= this.maxPageNumber) {
-      return Promise.reject();
-    }
-
-    this.currentPageNumber = this.currentPageNumber + 1;
-    const lastShootDateLoaded = _.last(this.galleries.toJS()).data.shootDate;
-    return this.loadGalleriesWithUrl(`/v1/gallery/after/${moment(lastShootDateLoaded).format('YYYY-MM-DD')}/limit/${this.PAGE_SIZE}`);
-  }
-
-  @action previousPage() {
-    if (this.currentPageNumber <= 1) {
-      return Promise.reject();
-    }
-
-    this.currentPageNumber = this.currentPageNumber - 1;
-    const firstShootDateLoaded = _.head(this.galleries.toJS()).data.shootDate;
-    return this.loadGalleriesWithUrl(`/v1/gallery/before/${moment(firstShootDateLoaded).format('YYYY-MM-DD')}/limit/${this.PAGE_SIZE}`);
-  }
-
   loadGalleriesWithUrl(url) {
     return axios.get(url).then((response => {
       this.loadGalleries(response.data);
@@ -152,7 +132,7 @@ class GalleryStore {
   }
 
   static fetchAllGalleries() {
-    return axios.get('/v1/gallery/all')
+    return axios.get('/v1/gallery')
       .then((response) => {
         const galleries = _.map(response.data, data => new Gallery(data));
         return Promise.resolve(galleries);

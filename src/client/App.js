@@ -1,7 +1,6 @@
 import React from "react";
 import {Router, Route, IndexRoute, browserHistory} from "react-router";
 import {observer} from "mobx-react";
-import keydown, {Keys} from 'react-keydown';
 
 import {StickyContainer} from 'react-sticky';
 
@@ -53,29 +52,8 @@ class Home extends React.Component {
     super();
   }
 
-  @keydown(Keys.right)
-  nextPage(event) {
-    event.preventDefault();
-    uiState.galleryStore.nextPage().catch(() => undefined);
-  }
-
-  @keydown(Keys.left)
-  prevPage(event) {
-    event.preventDefault();
-    uiState.galleryStore.previousPage().catch(() => undefined);
-  }
-
   render() {
-    return (
-      <div>
-        <GalleryList galleries={ uiState.galleryStore.Galleries.toJS() } />
-        <div className="gallery-pagination">
-          <a onClick={ this.prevPage } type="button">Föregående</a>
-          <span>sida { uiState.galleryStore.currentPageNumber } / { uiState.galleryStore.maxPageNumber } </span>
-          <a onClick={ this.nextPage } type="button">Nästa</a>
-        </div>
-      </div>
-    );
+    return (<GalleryList />);
   }
 }
 

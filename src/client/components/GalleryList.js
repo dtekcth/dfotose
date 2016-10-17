@@ -2,6 +2,11 @@ import React from 'react';
 import {Link} from 'react-router';
 import {observer} from 'mobx-react';
 import moment from 'moment';
+import keydown, {Keys} from 'react-keydown';
+
+import PaginatedArray from '../PaginatedArray';
+import PreloadContainerFactory from './PreloadContainerFactory';
+import GalleryStore from '../GalleryStore';
 
 @observer
 class Gallery extends React.Component {
@@ -49,4 +54,44 @@ class GalleryList extends React.Component {
   }
 }
 
-export default GalleryList;
+class PaginatedGalleryList extends React.Component {
+  @keydown(Keys.right)
+  nextPage(event) {
+    event.preventDefault();
+    this.props.paginatedGalleries.nextPage();
+  }
+
+  @keydown(Keys.left)
+  prevPage(event) {
+    event.preventDefault();
+    this.props.paginatedGalleries.prevPage();
+  }
+  
+  render() {
+    const galleries = this.props.paginatedGalleries.currentPageData();
+    const currentPage = this.props.paginatedGalleries.currentPage;
+    const maxPage = this.props.paginatedGalleries.maxPage;
+    
+    return (
+      <div>
+        <GalleryList galleries={ galleries } />
+        <div className="gallery-pagination">
+          <a onClick={ this.prevPage } type="button">Föregående</a>
+          <span>sida { currentPage } / { maxPage } </span>
+          <a onClick={ this.nextPage } type="button">Nästa</a>
+        </div>
+      </div>
+    );
+  }
+}
+
+const PaginatedGalleryListContainer = PreloadContainerFactory((props) => {
+  return GalleryStore.fetchAllGalleries()
+    .then(galleries => {
+      return {
+        paginatedGalleries: new PaginatedArray(galleries, 28)
+      }
+    });
+}, PaginatedGalleryList);
+
+export default PaginatedGalleryListContainer;
