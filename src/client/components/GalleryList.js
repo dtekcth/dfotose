@@ -93,7 +93,7 @@ const PaginatedGalleryListContainer = PreloadContainerFactory((props) => {
   return GalleryStore.fetchAllGalleries()
     .then(galleries => {
       return {
-        paginatedGalleries: new PaginatedArray(galleries, 2)
+        paginatedGalleries: new PaginatedArray(galleries, 28)
       }
     });
 }, PaginatedGalleryList);
