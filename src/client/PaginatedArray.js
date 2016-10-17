@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {observable, action, computed} from 'mobx';
 
-export default class PaginatedArray {
+class PaginatedArray {
   @observable data = [];
 
   pageSize = 28;
@@ -16,7 +16,7 @@ export default class PaginatedArray {
   }
 
   @action nextPage() {
-    if (this.currentPage >= this.maxPage) {
+    if (this.currentPage == this.maxPage) {
       return Promise.reject();
     }
 
@@ -25,7 +25,7 @@ export default class PaginatedArray {
   }
 
   @action prevPage() {
-    if (this.currentPage <= 1) {
+    if (this.currentPage == 1) {
       return Promise.reject();
     }
 
@@ -33,8 +33,9 @@ export default class PaginatedArray {
     return Promise.resolve();
   }
 
-  @computed currentPageData() {
-    return this.data[this.currentPage];
+  @computed get currentPageData() {
+    return this.data[this.currentPage-1];
   }
 }
 
+export default PaginatedArray;

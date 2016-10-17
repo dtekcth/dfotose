@@ -55,30 +55,34 @@ class GalleryList extends React.Component {
 }
 
 class PaginatedGalleryList extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
   @keydown(Keys.right)
   nextPage(event) {
     event.preventDefault();
-    this.props.paginatedGalleries.nextPage();
+    this.props.paginatedGalleries.nextPage().then((() => this.forceUpdate()).bind(this)).catch(() => undefined);
   }
 
   @keydown(Keys.left)
   prevPage(event) {
     event.preventDefault();
-    this.props.paginatedGalleries.prevPage();
+    this.props.paginatedGalleries.prevPage().then((() => this.forceUpdate()).bind(this)).catch(() => undefined);
   }
-  
+
   render() {
-    const galleries = this.props.paginatedGalleries.currentPageData();
+    const galleries = this.props.paginatedGalleries.currentPageData;
     const currentPage = this.props.paginatedGalleries.currentPage;
     const maxPage = this.props.paginatedGalleries.maxPage;
-    
+
     return (
       <div>
         <GalleryList galleries={ galleries } />
         <div className="gallery-pagination">
-          <a onClick={ this.prevPage } type="button">Föregående</a>
+          <a onClick={ this.prevPage.bind(this) } type="button">Föregående</a>
           <span>sida { currentPage } / { maxPage } </span>
-          <a onClick={ this.nextPage } type="button">Nästa</a>
+          <a onClick={ this.nextPage.bind(this) } type="button">Nästa</a>
         </div>
       </div>
     );
@@ -89,7 +93,7 @@ const PaginatedGalleryListContainer = PreloadContainerFactory((props) => {
   return GalleryStore.fetchAllGalleries()
     .then(galleries => {
       return {
-        paginatedGalleries: new PaginatedArray(galleries, 28)
+        paginatedGalleries: new PaginatedArray(galleries, 2)
       }
     });
 }, PaginatedGalleryList);
