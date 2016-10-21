@@ -41,7 +41,6 @@ class ImageView extends React.Component {
     }).bind(this);
   }
 
-
   @keydown(Keys.right)
   openNextImage(event) {
     event.preventDefault();
@@ -167,7 +166,8 @@ const ImageContainer = PreloadContainerFactory((props) => {
       gallery: gallery,
       galleryId: galleryId,
       imageId: id,
-      images: images
+      images: images,
+      ...props
     };
   });
 }, ImageView);

@@ -21,7 +21,7 @@ class PaginatedArray {
     }
 
     this.currentPage = this.currentPage + 1;
-    return Promise.resolve();
+    return Promise.resolve(this.currentPage);
   }
 
   @action prevPage() {
@@ -30,7 +30,13 @@ class PaginatedArray {
     }
 
     this.currentPage = this.currentPage - 1;
-    return Promise.resolve();
+    return Promise.resolve(this.currentPage);
+  }
+
+  @action setPage(page) {
+    if (page <= this.maxPage && page >= 1) {
+      this.currentPage = page;
+    }
   }
 
   @computed get currentPageData() {

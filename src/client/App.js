@@ -46,17 +46,6 @@ const Site = ({children}) => {
   )
 };
 
-@observer
-class Home extends React.Component {
-  constructor() {
-    super();
-  }
-
-  render() {
-    return (<GalleryList />);
-  }
-}
-
 const Login = () => {
   return (<LoginView user={ uiState.user }/>);
 };
@@ -94,9 +83,10 @@ class App extends React.Component {
       <div>
         <Router history={ browserHistory }>
           <Route path="/" component={ Site }>
-            <IndexRoute component={ Home }/>
+            <IndexRoute component={ GalleryList }/>
             <Route path="login" component={ Login }/>
             <Route path="about" component={ About }/>
+            <Route path="gallery/page/:pageNumber" component={ GalleryList } />
             <Route path="gallery/:id" component={ GalleryView } />
             <Route path="gallery/:galleryId/image/:id" component={ ImageView } />
             <Route path="image/search/:tag" component={ TagSearchView } />

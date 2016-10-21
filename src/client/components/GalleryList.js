@@ -55,20 +55,45 @@ class GalleryList extends React.Component {
 }
 
 class PaginatedGalleryList extends React.Component {
+  static propTypes = {
+    paginatedGalleries: React.PropTypes.object.isRequired
+  };
+
   constructor(props) {
     super(props);
+
+    const pageNumber = _.get(props, 'routeParams.pageNumber', 1);
+    window.history.replaceState({ pageNumber: pageNumber }, null,  `/gallery/page/${pageNumber}`);
+    if (pageNumber != 1) {
+      this.props.paginatedGalleries.setPage(pageNumber);
+    }
+
+    window.onpopstate = (event => {
+      const pageNumber = _.get(event, 'state.pageNumber', 1);
+      this.props.paginatedGalleries.setPage(pageNumber);
+      this.forceUpdate();
+    }).bind(this);
   }
 
   @keydown(Keys.right)
   nextPage(event) {
     event.preventDefault();
-    this.props.paginatedGalleries.nextPage().then((() => this.forceUpdate()).bind(this)).catch(() => undefined);
+    this.props.paginatedGalleries.nextPage()
+      .then(this.loadPage.bind(this))
+      .catch(() => undefined);
   }
 
   @keydown(Keys.left)
   prevPage(event) {
     event.preventDefault();
-    this.props.paginatedGalleries.prevPage().then((() => this.forceUpdate()).bind(this)).catch(() => undefined);
+    this.props.paginatedGalleries.prevPage()
+      .then(this.loadPage.bind(this))
+      .catch(() => undefined);
+  }
+
+  loadPage(pageNumber) {
+    window.history.pushState({ pageNumber: pageNumber }, null, `/gallery/page/${pageNumber}`);
+    this.forceUpdate()
   }
 
   render() {
@@ -93,7 +118,8 @@ const PaginatedGalleryListContainer = PreloadContainerFactory((props) => {
   return GalleryStore.fetchAllGalleries()
     .then(galleries => {
       return {
-        paginatedGalleries: new PaginatedArray(galleries, 28)
+        paginatedGalleries: new PaginatedArray(galleries, 1),
+        ...props
       }
     });
 }, PaginatedGalleryList);
