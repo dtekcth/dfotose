@@ -1,6 +1,5 @@
 import React from "react";
 import {Link} from "react-router";
-import {animateScroll} from 'react-scroll';
 import {observer} from 'mobx-react';
 
 import TagSearchBar from './TagSearchBar';
