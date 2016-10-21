@@ -3,7 +3,6 @@ import {observable, action} from 'mobx';
 import User from './User';
 import GalleryStore from './GalleryStore';
 import ImageStore from './ImageStore';
-import UserStore from './UserStore';
 
 class UiState {
   @observable user = new User();

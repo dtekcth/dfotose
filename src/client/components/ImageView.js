@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import {observer} from 'mobx-react';
+import {Link} from 'react-router';
 
 import keydown, {Keys} from 'react-keydown';
 
@@ -123,10 +124,14 @@ class ImageView extends React.Component {
     return (
       <div className="image-view">
         <div className="image-with-buttons">
+
           <Image onLoaded={ this.onImageLoad.bind(this) } onClick={ this.openNextImage.bind(this) } image={ currentImage } />
           <div className="buttons">
             <a href="#" onClick={ this.openPrevImage.bind(this) }>Föregående</a>
-            <span>bild { currentImageIndex+1 } / { images.length } </span>
+            <div className="middle">
+              <span>bild { currentImageIndex+1 } / { images.length } </span>
+              <Link to={ "/gallery/" + this.props.galleryId }>Tillbaka till galleriet </Link>
+            </div>
             <a href="#" onClick={ this.openNextImage.bind(this) }>Nästa</a>
           </div>
 
