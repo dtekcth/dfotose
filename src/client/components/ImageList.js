@@ -1,7 +1,5 @@
 import _ from 'lodash';
 import React from 'react';
-//import LazyLoad from 'react-lazyload';
-import {Link} from 'react-router';
 import {observer} from 'mobx-react';
 
 import LazyLoad from './LazyLoad';
@@ -9,16 +7,14 @@ import LazyLoad from './LazyLoad';
 class ImageCard extends React.Component {
   render() {
     const thumbnail = this.props.image.thumbnail;
-    const imageViewLink = `/gallery/${this.props.image.galleryId}/image/${this.props.image.id}`;
 
     const placeHolder = <img id={ this.props.image.id } />;
 
     return (
       <div className="image-card">
         <LazyLoad height={ 200 } offset={ 250 } placeHolder={ placeHolder } >
-          <Link to={ imageViewLink }>
-              <img onLoad={ this.props.onLoaded } src={ thumbnail } />
-          </Link>
+            <img onLoad={ this.props.onLoaded } src={ thumbnail }
+                onClick={ this.props.onClick } />
         </LazyLoad>
       </div>
     );
@@ -57,7 +53,8 @@ class ImageList extends React.Component {
 
   render() {
     const images = _.map(this.props.images, (image => {
-      return (<ImageCard onLoaded={ this.onImageLoaded.bind(this) } key={ image.id } image={ image } />);
+      return (<ImageCard onLoaded={ this.onImageLoaded.bind(this) } key={ image.id } image={ image }
+              onClick={ () => this.props.onImageClick(image) } />);
     }).bind(this));
 
     return (

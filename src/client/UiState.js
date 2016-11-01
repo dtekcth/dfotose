@@ -9,6 +9,17 @@ class UiState {
   @observable galleryStore = new GalleryStore();
   @observable imageStore = new ImageStore();
 
+  @observable oldScrollPosition = 0;
+  @observable lastGalleryIdViewed = '';
+
+  @action updateScrollPosition(scrollPosition) {
+    this.oldScrollPosition = scrollPosition;
+  }
+
+  @action updateLastGalleryIdViewed(galleryId) {
+    this.lastGalleryIdViewed = galleryId;
+  }
+
   @action refresh() {
     this.galleryStore = new GalleryStore();
   }

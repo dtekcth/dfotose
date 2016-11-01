@@ -1,13 +1,16 @@
 import _ from 'lodash';
 import React from 'react';
+import {browserHistory} from 'react-router';
 import {observer} from 'mobx-react';
 import moment from 'moment';
+import {animateScroll} from 'react-scroll';
 
 import ImageList from './ImageList';
 import LoadingSpinner from './LoadingSpinner';
 
 import GalleryStore from '../GalleryStore';
 import ImageStore from '../ImageStore';
+import UiState from '../UiState';
 import PreloadContainerFactory from './PreloadContainerFactory';
 
 @observer
@@ -19,9 +22,28 @@ class GalleryView extends React.Component {
       showSpinner: true
     };
   }
-  
+
   onAllImagesLoaded() {
-    this.setState({ showSpinner: false });
+    if (this.state.showSpinner) {
+      this.setState({showSpinner: false});
+
+      if (UiState.oldScrollPosition != 0 && UiState.lastGalleryIdViewed == this.props.gallery.id) {
+        animateScroll.scrollTo(UiState.oldScrollPosition, {
+          duration: 50,
+          delay: 100,
+          smooth: false
+        });
+      }
+    }
+  }
+
+  onImageClick(image) {
+    const imageViewLink = `/gallery/${image.galleryId}/image/${image.id}`;
+    const top  = window.pageYOffset || document.documentElement.scrollTop;
+
+    UiState.updateScrollPosition(top);
+    UiState.updateLastGalleryIdViewed(image.galleryId);
+    browserHistory.push(imageViewLink);
   }
   
   render() {
@@ -42,7 +64,7 @@ class GalleryView extends React.Component {
              { gallery.description }</p>
         </div>
         <LoadingSpinner visible={ showSpinner } />
-        <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } />
+        <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } onImageClick={ this.onImageClick.bind(this) } />
       </div>
     )
   }
