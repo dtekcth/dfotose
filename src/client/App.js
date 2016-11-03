@@ -76,6 +76,16 @@ const AdminHome = () => {
   return (<AdminIndex user={ uiState.user } />);
 };
 
+const NotFound = () => {
+  return (
+    <div className="not-found">
+      <img src="/assets/images/404.jpg" />
+      <h1> 404 </h1>
+      <p>Lika full som Isak?</p>
+    </div>
+  );
+};
+
 @observer
 class App extends React.Component {
   render() {
@@ -102,6 +112,7 @@ class App extends React.Component {
                 <IndexRoute component={ AdminMembersView } />
               </Route>
             </Route>
+            <Route path="*" component={ NotFound } />
           </Route>
         </Router>
       </div>
