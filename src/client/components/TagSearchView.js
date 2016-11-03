@@ -1,4 +1,5 @@
 import React from 'react';
+import {browserHistory} from 'react-router';
 import {observer} from 'mobx-react';
 
 import ImageList from './ImageList';
@@ -30,6 +31,11 @@ class TagSearchView extends React.Component {
     }
   }
 
+  onImageClick(image) {
+    const imageViewLink = `/gallery/${image.galleryId}/image/${image.id}`;
+    browserHistory.push(imageViewLink);
+  }
+
   onAllImagesLoaded() {
     this.setState({ showSpinner: false });
   }
@@ -44,7 +50,7 @@ class TagSearchView extends React.Component {
       <div className="tag-search-view">
         <h2>Taggsökning: <span className="tag">{ tag }</span></h2>
         { !hasResults ? <p>Inga resultat hittade.</p> : <LoadingSpinner visible={ showSpinner } /> }
-        <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } />
+        <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } onImageClick={ this.onImageClick.bind(this) } />
       </div>
     )
   }
