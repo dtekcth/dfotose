@@ -77,11 +77,24 @@ const AdminHome = () => {
 };
 
 const NotFound = () => {
+  const imagesWithText = [
+    { path: '/assets/images/404-hasse.jpg', text: 'Like lite brösthår som Hasse?' },
+    { path: '/assets/images/404-isak.jpg', text: 'Lika full som Isak?' },
+    { path: '/assets/images/404-miranda.jpg', text: 'Nergången är det nya svarta, som Miranda..' },
+    { path: '/assets/images/404-tove.jpg', text: 'Tove approves, mer fylla' },
+    { path: '/assets/images/404-martin.jpg', text: 'Ser du lika dåligt som Martin?' },
+    { path: '/assets/images/404-sebbe.gif', text: 'Lika imponerande som Sebbe?' }
+  ];
+
+  const shuffled = _.shuffle(imagesWithText);
+  const picked = _.head(shuffled);
+
   return (
     <div className="not-found">
-      <img src="/assets/images/404.jpg" />
+      <img src={ picked.path } />
       <h1> 404 </h1>
-      <p>Lika full som Isak?</p>
+      <p>{ picked.text }</p>
+      <small>Sidan kunde alltså inte hittas...</small>
     </div>
   );
 };
