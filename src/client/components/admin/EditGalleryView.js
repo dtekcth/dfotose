@@ -54,7 +54,7 @@ class EditGalleryView extends React.Component {
   onPublishToggle(event) {
     event.preventDefault();
     
-    const isPublished = this.state.gallery.published;
+    const isPublished = this.props.gallery.published;
     if (isPublished) {
       this.props.gallery.unpublish().then((() => {
         this.setState({ published: false });
