@@ -56,11 +56,11 @@ class EditGalleryView extends React.Component {
     
     const isPublished = this.state.gallery.published;
     if (isPublished) {
-      this.state.gallery.unpublish().then((() => {
+      this.props.gallery.unpublish().then((() => {
         this.setState({ published: false });
       }).bind(this));
     } else {
-      this.state.gallery.publish().then((() => {
+      this.props.gallery.publish().then((() => {
         this.setState({ published: true });
       }).bind(this));
     }
