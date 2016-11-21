@@ -254,9 +254,10 @@ function handleImages(req, res, galleryId) {
         });
 
       readExifData(fullSizeImagePath, (exif) => {
-        const shotAtUnformatted = _.get(exif, 'tags.ModifyDate');
-        const shotAt = shotAtUnformatted ? moment(shotAtUnformatted, 'YYYY:MM:DD h:mm:ss').format()
+        const shotAtUnformatted = _.get(exif, 'tags.DateTimeOriginal');
+        const shotAt = shotAtUnformatted ? moment(shotAtUnformatted)
                                          : moment();
+        console.log(shotAt);
 
         var newImage = new Image({
           filename: filename,
