@@ -257,7 +257,6 @@ function handleImages(req, res, galleryId) {
         const shotAtUnformatted = _.get(exif, 'tags.DateTimeOriginal');
         const shotAt = shotAtUnformatted ? moment(shotAtUnformatted)
                                          : moment();
-        console.log(shotAt);
 
         var newImage = new Image({
           filename: filename,
