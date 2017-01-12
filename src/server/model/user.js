@@ -8,6 +8,8 @@ const userSchema = new Schema({
   fullname: {type: String},
   dfotoMember: {type: Boolean, default: false},
 
+  role: {type: String, required: false, default: 'None'},
+
   created_at: {type: Date, default: Date.now},
   updated_at: {type: Date, default: Date.now}
 });
