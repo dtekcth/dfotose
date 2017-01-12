@@ -16,13 +16,13 @@ export class User {
   @computed get fullname() {
     return this.data.fullname;
   }
-  
-  @computed get dfotoMember() {
-    return this.data.dfotoMember;
+
+  @computed get role() {
+    return this.data.role;
   }
-  
-  @action setDfotoMember(isMember) {
-    this.data.dfotoMember = isMember;
+
+  @action setRole(roleName) {
+    this.data.role = roleName;
     return this.save();
   }
   
