@@ -74,14 +74,12 @@ router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
   const cid = req.params.cid;
   const {fullname} = req.body;
   const filteredFullname = inHTMLData(fullname);
-  
-  const currentlyIsDFotoMember = _.get(req.session, 'user.dfotoMember', false);
-  const dfotoMember = _.get(req.body, 'dfotoMember', currentlyIsDFotoMember);
+  const dfotoMember = _.get(req.body, 'dfotoMember', loggedInIsDfoto());
   
   // Only allow dfoto-members to elevate other dfotos
   const updated = {
     fullname: filteredFullname,
-    dfotoMember: (dfotoMember && currentlyIsDFotoMember)
+    dfotoMember: (loggedInIsDfoto() && dfotoMember)
   };
   
   User.findOneAndUpdate({ cid: cid }, { $set: updated }, (err) => {
@@ -123,10 +121,15 @@ export function LoggedInRequired(req, res, next) {
   }
 }
 
+function loggedInIsDfoto() {
+  const userRole = _.get(req, 'session.user.role', 'None');
+  return _.get(req, 'session.user.dfotoMember', false) || userRole == 'DFoto' || userRole == 'Admin';
+}
+
 export function LoggedInAsDfotoRequired(req, res, next) {
   const loggedIn = isLoggedIn(req);
-  const isDfoto = _.get(req, 'session.user.dfotoMember', false);
-  if (loggedIn && isDfoto) {
+
+  if (loggedIn && loggedInIsDfoto()) {
     next();
   } else {
     res.status(403).end();

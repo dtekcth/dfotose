@@ -37,7 +37,7 @@ export const UserRoles = [
 
   // DFotoMember can do everything but access other users
   {
-    name: 'DFotoMember',
+    name: 'DFoto',
     restrictions: (
       Restrictions.READ_GALLERY
       | Restrictions.WRITE_GALLERY
