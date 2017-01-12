@@ -74,12 +74,9 @@ router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
   const cid = req.params.cid;
   const {fullname} = req.body;
   const filteredFullname = inHTMLData(fullname);
-  const dfotoMember = _.get(req.body, 'dfotoMember', loggedInIsDfoto());
-  
-  // Only allow dfoto-members to elevate other dfotos
+
   const updated = {
-    fullname: filteredFullname,
-    dfotoMember: (loggedInIsDfoto() && dfotoMember)
+    fullname: filteredFullname
   };
   
   User.findOneAndUpdate({ cid: cid }, { $set: updated }, (err) => {
