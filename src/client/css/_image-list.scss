@@ -36,3 +36,13 @@
     }
   }
 }
+
+.admin-image-list {
+  tr.marked {
+    background: #ccc;
+  }
+
+  tr:hover {
+    background: #aaa;
+  }
+}

@@ -4,6 +4,7 @@ import {computed,action,observable} from 'mobx';
 
 export class Image {
   @observable data;
+  @observable marked = false;
 
   constructor(data) {
     this.data = data;
@@ -39,6 +40,18 @@ export class Image {
   
   @computed get tags() {
     return this.data.tags.toJS();
+  }
+
+  @computed get isMarked() {
+    return this.marked;
+  }
+
+  @action mark() {
+    this.marked = true;
+  }
+
+  @action unmark() {
+    this.marked = false;
   }
   
   @action addTag(tagName) {
@@ -87,6 +100,23 @@ export class ImageGalleryList {
       .then((() => {
         this.fetchImages();
       }).bind(this));
+  }
+
+  @action removeMarkedImages() {
+    const markedImages = _.filter(this.images, {isMarked: true});
+
+    const removePromises = _.map(markedImages, image => {
+      return axios.delete(`/v1/image/${image.id}`);
+    });
+
+    Promise.all(removePromises)
+      .then(() => {
+        this.images = _.filter(this.images, {isMarked: false});
+      })
+      .catch(err => {
+        console.log(err);
+        alert('Could not remove images! ' + err);
+      });
   }
 }
 
