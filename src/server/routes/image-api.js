@@ -11,7 +11,8 @@ import mongoose from 'mongoose';
 import exifParser from 'exif-parser';
 import moment from 'moment';
 
-import {LoggedInAsDfotoRequired} from './auth-api.js';
+import {Restrictions} from '../model/user-roles';
+import {requireRestrictions} from './auth-api.js';
 import Logger from '../logger';
 import config from '../config';
 import {abortOnError} from '../utils';
@@ -288,9 +289,10 @@ function handleImages(req, res, galleryId) {
 // Upload images
 //  - The images will not be attached to any
 //    gallery when uploaded
-router.post('/image', LoggedInAsDfotoRequired, upload.array('photos'), (req, res) => {
+router.post('/image',
+  requireRestrictions(Restrictions.WRITE_IMAGES | Restrictions.WRITE_GALLERY)
+  , upload.array('photos'), (req, res) => {
   handleImages(req, res, 'undefined');
-
   res.status(202).send();
 });
 
@@ -298,7 +300,9 @@ router.post('/image', LoggedInAsDfotoRequired, upload.array('photos'), (req, res
 //  - Author is always the logged-in User
 //  - The images will be added to the gallery
 //    automatically.
-router.post('/image/:galleryId', LoggedInAsDfotoRequired, upload.array('photos'), (req, res) => {
+router.post('/image/:galleryId',
+  requireRestrictions(Restrictions.WRITE_IMAGES)
+  , upload.array('photos'), (req, res) => {
   const galleryId = req.params.galleryId;
 
   // Validate the gallery
@@ -317,7 +321,9 @@ router.post('/image/:galleryId', LoggedInAsDfotoRequired, upload.array('photos')
 // Delete a specific image
 //  - Note: this automatically removes all gallery
 //          associations.
-router.delete('/image/:id', LoggedInAsDfotoRequired, (req, res) => {
+router.delete('/image/:id',
+  requireRestrictions(Restrictions.WRITE_IMAGES | Restrictions.WRITE_GALLERY),
+  (req, res) => {
   const id = req.params.id;
 
   Image.findByIdAndRemove(id, (err, image) => {

@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 /*
  Roles has names and each role has a restriction of what
  the role can modify/create/access:
@@ -67,4 +69,9 @@ export const UserRoles = [
     )
   }
 ];
+
+export function getRestrictionsForRole(roleName) {
+  const role = _.find(UserRoles, {name: roleName});
+  return _.get(role, 'restrictions', 0);
+}
 

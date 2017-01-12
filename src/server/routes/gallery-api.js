@@ -1,7 +1,8 @@
 import {Router} from 'express';
 import bodyParser from 'body-parser';
 
-import {LoggedInAsDfotoRequired} from './auth-api.js';
+import {Restrictions} from '../model/user-roles';
+import {requireRestrictions} from './auth-api.js';
 import Logger from '../logger';
 import {abortOnError} from '../utils';
 
@@ -31,7 +32,10 @@ router.get('/gallery/limit/:limit', (req, res) => {
 });
 
 // Return _all_ galleries, even unpublished
-router.get('/gallery/all', LoggedInAsDfotoRequired, (req, res) => {
+router.get('/gallery/all',
+  // WRITE_IMAGES -> then you can add to unpublished galleries and read these
+  requireRestrictions(Restrictions.WRITE_IMAGES),
+  (req, res) => {
   Gallery.find({}).sort('-shootDate').exec((err, galleries) => {
     abortOnError(err, res);
     res.send(galleries);
@@ -101,7 +105,9 @@ router.get('/gallery/:id/thumbnail-preview', (req, res) => {
 // Create an entirely new gallery
 //    - Possibly associate with an event or
 //      to restrict it to one gallery per event.
-router.post('/gallery', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
+router.post('/gallery',
+  requireRestrictions(Restrictions.WRITE_GALLERY),
+  jsonParser, (req, res) => {
   const galleryData = req.body;
 
   var newGallery = Gallery(galleryData);
@@ -118,7 +124,9 @@ router.post('/gallery', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
 //  - Should not be able to modify authors
 //      as they should be set automatically and
 //      removed automatically.
-router.put('/gallery/:id', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
+router.put('/gallery/:id',
+  requireRestrictions(Restrictions.WRITE_GALLERY),
+  jsonParser, (req, res) => {
   const galleryData = req.body;
   const id = req.params.id;
 
@@ -136,7 +144,9 @@ router.put('/gallery/:id', LoggedInAsDfotoRequired, jsonParser, (req, res) => {
 });
 
 // Publish a gallery
-router.post('/gallery/:id/publish', LoggedInAsDfotoRequired, (req, res) => {
+router.post('/gallery/:id/publish',
+  requireRestrictions(Restrictions.PUBLISH_GALLERY),
+  (req, res) => {
   const id = req.params.id;
 
   Gallery.findOneAndUpdate({_id: id}, {
@@ -151,7 +161,9 @@ router.post('/gallery/:id/publish', LoggedInAsDfotoRequired, (req, res) => {
 });
 
 // Unpublish a gallery
-router.post('/gallery/:id/unpublish', LoggedInAsDfotoRequired, (req, res) => {
+router.post('/gallery/:id/unpublish',
+  requireRestrictions(Restrictions.PUBLISH_GALLERY),
+  (req, res) => {
   const id = req.params.id;
 
   Gallery.findOneAndUpdate({_id: id}, {
@@ -167,7 +179,9 @@ router.post('/gallery/:id/unpublish', LoggedInAsDfotoRequired, (req, res) => {
 
 // Remove an entire gallery
 //  should not be used ever imho.
-router.delete('/gallery/:id', LoggedInAsDfotoRequired, (req, res) => {
+router.delete('/gallery/:id',
+  requireRestrictions(Restrictions.WRITE_GALLERY),
+  (req, res) => {
   const id = req.params.id;
   
   Gallery.remove({ _id: id }, (err) => {
