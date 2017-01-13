@@ -6,6 +6,8 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   cid: {type: String, required: true, unique: true},
   fullname: {type: String},
+
+  // DEPRECATED - DO NOT USE
   dfotoMember: {type: Boolean, default: false},
 
   role: {type: String, required: false, default: 'None'},
