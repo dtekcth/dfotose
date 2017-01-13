@@ -22,7 +22,6 @@ const jsonParser = bodyParser.json();
 import Image from '../model/image';
 import ImageTag from '../model/image-tag';
 import Gallery from '../model/gallery';
-import User from '../model/user';
 
 const router = Router();
 export default router;
@@ -105,31 +104,6 @@ router.get('/image/:id/preview', (req, res) => {
     }
 
     res.sendFile(image.preview);
-  });
-});
-
-router.get('/image/:id/author', (req, res) => {
-  const id = req.params.id;
-
-  Image.findById(id, (err, image) => {
-    if (err) {
-      res.status(500).end(err);
-      throw err;
-    }
-
-    User.findOne({ cid: image.authorCid }, (err, user) => {
-      if (err) {
-        res.status(500).end(err);
-        throw err;
-      }
-
-      const fullName = _.get(user, 'fullname');
-      const author = {
-        name: fullName ? fullName : user.cid
-      };
-
-      res.send(author);
-    });
   });
 });
 
@@ -296,6 +270,10 @@ function handleImages(req, res, galleryId) {
           exifData: exif
         });
 
+        if (_.has(req.session, 'user.fullname')) {
+          newImage.author = _.get(req.session, 'user.fullname', '');
+        }
+
         newImage.save((err) => {
           if (err) {
             Logger.error(err);
@@ -343,6 +321,26 @@ router.post('/image/:galleryId',
     res.status(202).send();
   });
 });
+
+// Updates the author retroactively on all images
+// uploaded by a certain user
+export function updateAuthorOfImagesUploadedByCid(cid, author) {
+  const updated = { author: author };
+
+  Image.find({ authorCid: cid }, (err, images) => {
+    _.forEach(images, image => {
+      Image.findOneAndUpdate(
+        { _id: image._id },
+        { $set : updated },
+        (err, image) => {
+          if (err) {
+            throw err;
+          }
+        }
+      );
+    });
+  });
+}
 
 // Delete a specific image
 //  - Note: this automatically removes all gallery

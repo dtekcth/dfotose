@@ -7,6 +7,8 @@ import {inHTMLData} from 'xss-filters';
 import User from '../model/user';
 import {Restrictions, getRestrictionsForRole} from '../model/user-roles';
 
+import {updateAuthorOfImagesUploadedByCid} from './image-api';
+
 import Logger from '../logger';
 import {abortOnError} from '../utils';
 const Kerberos = new krb5.Kerberos();
@@ -123,6 +125,8 @@ router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
     if (req.session.user.cid === cid) {
       _.merge(req.session.user, updated);
     }
+
+    updateAuthorOfImagesUploadedByCid(cid, filteredFullname);
     
     res.status(202).end();
   });

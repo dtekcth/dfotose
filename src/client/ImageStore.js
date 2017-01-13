@@ -19,7 +19,7 @@ export class Image {
   }
 
   @computed get author() {
-    return this.data.authorCid;
+    return _.get(this.data, 'author', this.data.authorCid);
   }
 
   @computed get filename() {
