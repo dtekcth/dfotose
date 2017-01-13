@@ -54,7 +54,7 @@ class AdminIndex extends React.Component {
           <button type="button">Hantera gallerier</button>
         </Link>
         <Link to="/admin/members">
-          <button type="button">Hantera dfoto medlemmar</button>
+          <button type="button">Hantera medlemmar</button>
         </Link>
       </div>
     );
