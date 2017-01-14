@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const imageSchema = new Schema({
   filename: {type: String, required: true, unique: true},
 
-  authorCid: {type: String, required: true},
+  authorCid: {type: String, required: true, index: true},
   author: {type: String, required: false},
 
   galleryId: {type: String},

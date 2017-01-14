@@ -45,7 +45,7 @@ router.post('/auth/login', jsonParser, (req, res) => {
   const {cid, password} = req.body;
   Kerberos.authUserKrb5Password(cid, password, '', (err, ok) => {
     abortOnError(err, res);
-    
+
     if (ok) {
       User.find({ cid: cid }, (err, results) => {
         abortOnError(err, res);
@@ -55,7 +55,7 @@ router.post('/auth/login', jsonParser, (req, res) => {
           const user = {
             cid: cid, fullname: ''
           };
-          
+
           User(user).save((err) => {
             abortOnError(err, res);
             req.session.user = user;
@@ -88,7 +88,12 @@ router.post('/auth/login', jsonParser, (req, res) => {
   });
 });
 
-// Change User-data
+/* Change User-data
+
+  NOTE: this supports setting the restrictions of other users
+        as well as the current user; but only if Restrictions.WRITE_USERS
+        is met.
+ */
 router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
   const cid = req.params.cid;
   const {fullname} = req.body;
@@ -114,7 +119,7 @@ router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
 
     updated.role = _.get(req.body, 'role', 'None');
   }
-  
+
   User.findOneAndUpdate({ cid: cid }, { $set: updated }, (err) => {
     if (err) {
       res.status(500).send(err);
@@ -127,7 +132,7 @@ router.put('/auth/user/:cid', LoggedInRequired, jsonParser, (req, res) => {
     }
 
     updateAuthorOfImagesUploadedByCid(cid, filteredFullname);
-    
+
     res.status(202).end();
   });
 });
@@ -166,6 +171,9 @@ export function hasRestrictions(req, restrictions) {
   return ((roleRestrictions & restrictions) != 0);
 }
 
+// Middleware for express to ensure
+//  that a certain set of restrictions is met before serving
+//  the request.
 export function requireRestrictions(restrictions) {
   return (req, res, next) => {
     if (hasRestrictions(req, restrictions)) {

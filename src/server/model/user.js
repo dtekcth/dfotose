@@ -7,7 +7,8 @@ const userSchema = new Schema({
   cid: {type: String, required: true, unique: true},
   fullname: {type: String},
 
-  // DEPRECATED - DO NOT USE
+  // @deprecated do not use!
+  //  FIXME: remove this in the future when it is no longer needed
   dfotoMember: {type: Boolean, default: false},
 
   role: {type: String, required: false, default: 'None'},
