@@ -1,4 +1,7 @@
 import _ from 'lodash';
+import mongoose from 'mongoose';
+
+const Schema = mongoose.Schema;
 
 /*
  Roles has names and each role has a restriction of what
@@ -75,3 +78,11 @@ export function getRestrictionsForRole(roleName) {
   return _.get(role, 'restrictions', 0);
 }
 
+// Used for when a user has yet to login
+const userEligibleForRoleSchema = new Schema({
+  cid: {type: String, required: true, unique: true},
+  role: {type: String, required: true}
+});
+
+const UserEligibleForRole = mongoose.model('UserEligibleForRole', userEligibleForRoleSchema);
+export default UserEligibleForRole;

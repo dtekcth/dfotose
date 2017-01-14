@@ -8,6 +8,7 @@ import User from '../model/user';
 import {Restrictions, getRestrictionsForRole} from '../model/user-roles';
 
 import {updateAuthorOfImagesUploadedByCid} from './image-api';
+import {fetchInitialRole, removeElevatedIfExists} from './user-role-api';
 
 import Logger from '../logger';
 import {abortOnError} from '../utils';
@@ -52,14 +53,25 @@ router.post('/auth/login', jsonParser, (req, res) => {
 
         // first time login ?
         if (_.isEmpty(results)) {
-          const user = {
-            cid: cid, fullname: ''
-          };
+          // In case somebody marked this user to receive
+          // elevated permissions upon first login
+          fetchInitialRole(cid, role => {
+            const user = {
+              cid: cid,
+              fullname: '',
+              role: role
+            };
 
-          User(user).save((err) => {
-            abortOnError(err, res);
-            req.session.user = user;
-            res.send(user);
+            User(user).save((err) => {
+              abortOnError(err, res);
+
+              req.session.user = user;
+              Logger.info(`${cid} logged in first time, initialized with role ${role}`);
+
+              removeElevatedIfExists(cid);
+
+              res.send(user);
+            });
           });
         } else {
           const user = _.head(results);

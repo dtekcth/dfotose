@@ -25,7 +25,7 @@ import uiState from '../UiState';
       .then(() => {
         uiState.refresh();
 
-        if (uiState.user.dfotoMember) {
+        if (uiState.user.role != 'None') {
           browserHistory.push('/admin');
         } else {
           browserHistory.push('/');

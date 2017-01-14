@@ -19,13 +19,13 @@ class Header extends React.Component {
             <li>
               <Link to="/about"> Om oss </Link>
             </li>
-            { uiState.user.isLoggedIn && uiState.user.dfotoMember ?
+            { uiState.user.isLoggedIn && uiState.user.role != 'None' ?
               <li>
                 <Link to="/admin">Admin </Link>
               </li>
             : null }
           </ul>
-          
+
           <div className="info">
             <TagSearchBar />
           </div>

@@ -12,7 +12,7 @@ class AdminIndex extends React.Component {
       fullname: props.user.fullName
     };
   }
-  
+
   componentWillReceiveProps(newProps, oldProps) {
     this.setState({ fullname: newProps.user.fullName });
   }
@@ -31,7 +31,7 @@ class AdminIndex extends React.Component {
   }
 
   render() {
-    if (!this.props.user.isLoggedIn || !this.props.user.dfotoMember) {
+    if (!this.props.user.isLoggedIn || this.props.user.role == 'None') {
       return (<p>Du får inte vara här.</p>);
     }
 

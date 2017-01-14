@@ -14,6 +14,7 @@ import Webpack from './webpack';
 import imageRouter from './routes/image-api';
 import galleryRouter from './routes/gallery-api';
 import authRouter from './routes/auth-api';
+import userRoleRouter from './routes/user-role-api';
 
 import config from './config';
 
@@ -56,6 +57,7 @@ const baseUrl = '/v1';
 app.use(authRouter);
 app.use(baseUrl, imageRouter);
 app.use(baseUrl, galleryRouter);
+app.use(baseUrl, userRoleRouter);
 
 app.listen(config.port, () => {
   console.log(`Listening :${config.port}`);
