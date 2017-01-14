@@ -19,6 +19,9 @@ $> git clone https://github.com/dtekcth/dfotose
 $> cd dfotose
 $> npm install
 ...
+$> cp src/config/config.yml{.sample,}
+$> vim src/config/config.yml
+...
 $> gulp
 ...
 ```
