@@ -35,7 +35,7 @@ class PaginatedArray {
 
   @action setPage(page) {
     if (page <= this.maxPage && page >= 1) {
-      this.currentPage = page;
+      this.currentPage = parseInt(page, 10);
     }
   }
 
