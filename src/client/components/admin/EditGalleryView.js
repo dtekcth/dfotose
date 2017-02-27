@@ -44,16 +44,16 @@ class EditGalleryView extends React.Component {
       description: this.state.description,
       shootDate: this.state.date
     };
-    
+
     this.props.gallery.update(newGalleryData)
       .then(() => {
         browserHistory.push('/admin/gallery');
       });
   }
-  
+
   onPublishToggle(event) {
     event.preventDefault();
-    
+
     const isPublished = this.props.gallery.published;
     if (isPublished) {
       this.props.gallery.unpublish().then((() => {
@@ -68,7 +68,7 @@ class EditGalleryView extends React.Component {
 
   render() {
     const isPublished = this.state.published;
-    
+
     return (
       <div>
         <form onSubmit={ this.onSave.bind(this) }>
@@ -81,9 +81,15 @@ class EditGalleryView extends React.Component {
           <input className="u-full-width" type="date" value={ this.state.date } onChange={ this.onChangeDate.bind(this) } placeholder="yyyy-mm-dd" />
           <button type="submit" className="button-primary">Spara</button>
           <Link to="/admin/gallery">Tillbaka</Link>
-          
+
           <br/>
-          { !isPublished ? <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }> Publicera </button> : null }
+          { !isPublished ?
+            <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }>
+              Publicera </button>
+            :
+            <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }>
+              O-Publicera </button>
+          }
         </form>
         <hr/>
         <GalleryImagesView galleryId={ this.props.gallery.id } imageList={ this.props.imageList } />
