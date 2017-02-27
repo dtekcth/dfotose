@@ -56,6 +56,10 @@ class EditGalleryView extends React.Component {
 
     const isPublished = this.props.gallery.published;
     if (isPublished) {
+      if (!confirm('Vill du verkligen ta bort den som publikt album?')) {
+        return;
+      }
+
       this.props.gallery.unpublish().then((() => {
         this.setState({ published: false });
       }).bind(this));
