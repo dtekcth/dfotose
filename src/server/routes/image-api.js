@@ -235,6 +235,7 @@ function handleImages(req, res, galleryId) {
       const thumbnail = path.resolve(galleryPath, "thumbnails", `${filename}.${extension}`);
       sharp(fullSizeImagePath)
         .resize(300, 200)
+        .crop(sharp.strategy.entropy)
         .toFile(thumbnail, (err) => {
           if (err) {
             Logger.error(`Could not save thumbnail for image ${filename}`);
