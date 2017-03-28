@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {Router} from 'express';
 import bodyParser from 'body-parser';
 
@@ -24,8 +25,10 @@ router.get('/gallery', (req, res) => {
 
 // Return all published galleries with a limit
 router.get('/gallery/limit/:limit', (req, res) => {
-  const {limit} = req.params;
-  Gallery.find({ published: true }).sort('-shootDate').limit(limit).exec((err, galleries) => {
+  const limit = _.get(req.params, 'limit', 28);
+  const nLimit = Number(limit);
+
+  Gallery.find({ published: true }).sort('-shootDate').limit(nLimit).exec((err, galleries) => {
     abortOnError(err, res);
     res.send(galleries);
   });
@@ -46,9 +49,11 @@ router.get('/gallery/all',
 // this to enable pagination in the frontend.
 router.get('/gallery/after/:startDate/limit/:limit', (req, res) => {
   const {startDate, limit} = req.params;
+  const nLimit = Number(limit);
+
   Gallery.find({ published: true, shootDate: { $lt: startDate }})
     .sort('-shootDate')
-    .limit(limit)
+    .limit(nLimit)
     .exec((err, galleries) => {
       abortOnError(err, res);
       res.send(galleries);
@@ -59,9 +64,11 @@ router.get('/gallery/after/:startDate/limit/:limit', (req, res) => {
 // this to enable pagination in the frontend.
 router.get('/gallery/before/:startDate/limit/:limit', (req, res) => {
   const {startDate, limit} = req.params;
+  const nLimit = Number(limit);
+
   Gallery.find({ published: true, shootDate: { $gt: startDate }})
     .sort('shootDate')
-    .limit(limit)
+    .limit(nLimit)
     .exec((err, galleries) => {
       abortOnError(err, res);
       res.send(galleries);
@@ -79,7 +86,7 @@ router.get('/gallery/count', (req, res) => {
 // Return a specific gallery
 router.get('/gallery/:id', (req, res) => {
   const id = req.params.id;
-  
+
   Gallery.findById(id, (err, gallery) => {
     abortOnError(err, res);
     res.send(gallery);
@@ -93,7 +100,7 @@ router.get('/gallery/:id/thumbnail-preview', (req, res) => {
 
   Image.findOne({galleryId: id}, (err, image) => {
     abortOnError(err, res);
-    
+
     if (image !== null) {
       res.sendFile(image.thumbnail);
     } else {
@@ -110,7 +117,7 @@ router.post('/gallery',
   jsonParser, (req, res) => {
   const galleryData = req.body;
 
-  var newGallery = Gallery(galleryData);
+  let newGallery = Gallery(galleryData);
   newGallery.save((err) => {
     abortOnError(err, res);
 
@@ -138,7 +145,7 @@ router.put('/gallery/:id',
     }
   }, (err) => {
     abortOnError(err, res);
-    
+
     res.status(202).end();
   });
 });
@@ -155,7 +162,7 @@ router.post('/gallery/:id/publish',
     }
   }, (err) => {
     abortOnError(err, res);
-    
+
     res.status(202).end();
   });
 });
@@ -172,7 +179,7 @@ router.post('/gallery/:id/unpublish',
     }
   }, (err) => {
     abortOnError(err, res);
-    
+
     res.status(202).end();
   });
 });
@@ -183,7 +190,7 @@ router.delete('/gallery/:id',
   requireRestrictions(Restrictions.WRITE_GALLERY),
   (req, res) => {
   const id = req.params.id;
-  
+
   Gallery.remove({ _id: id }, (err) => {
     abortOnError(err);
     res.status(202).end();
