@@ -6,11 +6,11 @@ import UiState from './UiState';
 
 class User {
   @observable data = null;
-  
+
   constructor() {
     this.firstCheck();
   }
-  
+
   @action firstCheck() {
     axios.get('/auth/user', null, { responseType: 'json' })
       .then((response => {
@@ -28,11 +28,23 @@ class User {
         UiState.refresh();
       }).bind(this));
   }
-  
+
+  @action logout() {
+    if (this.data == null) {
+      return Promise.reject();
+    }
+
+    return axios.get('/auth/logout')
+      .then((response => {
+        this.data = null;
+        UiState.refresh();
+      }).bind(this));
+  }
+
   @computed get current() {
     return this.data;
   }
-  
+
   @action setFullName(fullName) {
     return axios.put(`/auth/user/${this.cid}`, {
       fullname: fullName
@@ -40,19 +52,19 @@ class User {
       this.data.fullname = fullName;
     }).bind(this));
   }
-  
+
   @computed get isLoggedIn() {
     return this.data != null;
   }
-  
+
   @computed get dfotoMember() {
     return _.get(this.data, 'dfotoMember', false);
   }
-  
+
   @computed get cid() {
     return _.get(this.data, 'cid', '');
   }
-  
+
   @computed get fullName() {
     return _.get(this.data, 'fullname');
   }

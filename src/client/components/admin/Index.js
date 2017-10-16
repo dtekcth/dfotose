@@ -30,6 +30,10 @@ class AdminIndex extends React.Component {
     this.setState({fullname: event.target.value});
   }
 
+  logout(event) {
+    this.props.user.logout();
+  }
+
   render() {
     if (!this.props.user.isLoggedIn || this.props.user.role == 'None') {
       return (<p>Du får inte vara här.</p>);
@@ -49,6 +53,7 @@ class AdminIndex extends React.Component {
           { saveSuccess ? <span>Sparat!</span> : null }
           <p> Det är detta namnet som syns på dina bilder, om du inte har satt något namn syns ditt cid.</p>
         </form>
+        <button onClick={this.logout.bind(this)}>Logga ut</button>
         <hr/>
         <Link to="/admin/gallery">
           <button type="button">Hantera gallerier</button>
