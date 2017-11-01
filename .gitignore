@@ -22,4 +22,5 @@
 
 /storage
 
-/yarn.lock
+/*.lock
+/package-lock.json
