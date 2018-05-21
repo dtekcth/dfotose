@@ -17,9 +17,9 @@ class Image extends React.Component {
     const image = this.props.image;
 
     return (
-      <div className="image-container">
+        <div className="image-container">
         <img onLoad={ this.props.onLoaded } onClick={this.props.onClick} className="primary-image" src={ image.preview } />
-      </div>
+        </div>
     );
   }
 }
@@ -122,38 +122,39 @@ class ImageView extends React.Component {
     }
 
     return (
-      <div className="image-view">
+        <div className="image-view">
         <div className="image-with-buttons">
 
-          <Image onLoaded={ this.onImageLoad.bind(this) } onClick={ this.openNextImage.bind(this) } image={ currentImage } />
-          <div className="buttons">
-            <a href="#" onClick={ this.openPrevImage.bind(this) }>Föregående</a>
-            <div className="middle">
-              <span>bild { currentImageIndex+1 } / { images.length } </span>
-              <Link to={ "/gallery/" + this.props.galleryId }>Tillbaka till galleriet </Link>
-            </div>
-            <a href="#" onClick={ this.openNextImage.bind(this) }>Nästa</a>
-          </div>
-
-          { !this.state.loaded ?
-              <div className="image-loading-spinner">
-                <LoadingSpinner visible={ !this.state.loaded } />
-              </div>
-              : null }
+        <Image onLoaded={ this.onImageLoad.bind(this) } onClick={ this.openNextImage.bind(this) } image={ currentImage } />
+        <div className="buttons">
+        <a href="#" onClick={ this.openPrevImage.bind(this) }>Föregående</a>
+        <div className="middle">
+        <span>bild { currentImageIndex+1 } / { images.length } </span>
+        <Link to={ "/gallery/" + this.props.galleryId }>Tillbaka till galleriet </Link>
         </div>
+        <a href="#" onClick={ this.openNextImage.bind(this) }>Nästa</a>
+        </div>
+
+      { !this.state.loaded ?
+        <div className="image-loading-spinner">
+        <LoadingSpinner visible={ !this.state.loaded } />
+        </div>
+        : null }
+      </div>
 
         <div className="details">
-          <span><b>Fotograf</b>: {currentImage.author}</span>
-          <span><b>Bild-Id</b>: {currentImage.id}</span>
-          <a href={ currentImage.fullSize } onClick={ clickFullSize(currentImage.fullSize) } target="_blank">Öppna bilden i full storlek</a>
+        <span><b>Fotograf</b>: {currentImage.author}</span>
+        <span><b>Bild-Id</b>: {currentImage.id}</span>
+        <a href={ currentImage.fullSize } onClick={ clickFullSize(currentImage.fullSize) } target="_blank">Öppna bilden i full storlek</a>
+        {/* GDPR
+            <div className="tags"><b>Taggar</b>: {currentImage.tags.join(', ')}</div>
 
-          <div className="tags"><b>Taggar</b>: {currentImage.tags.join(', ')}</div>
-
-          <form onSubmit={ this.onAddTag.bind(this) } className="new-tag-form">
+            <form onSubmit={ this.onAddTag.bind(this) } className="new-tag-form">
             <input type="text" name="newTag" placeholder="ny tagg" value={ this.state.newTag } onChange={ this.onChangeTag.bind(this) } />
             <button type="submit" className="button">Lägg till</button>
-          </form>
-        </div>
+            </form>
+            </div>
+         */}
       </div>
     );
   }
