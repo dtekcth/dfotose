@@ -3,6 +3,9 @@
   //background-color: #2e2e2e;
   margin: 0 auto;
   border-bottom: 2px solid #eee;
+  @media screen and (max-width: 1215px) {max-width: 915px;}
+  @media screen and (max-width: 915px) {max-width: 610px;}
+  @media screen and (max-width: 610px) {max-width: 300px;}
 
   .header-content {
     display: flex;
@@ -10,7 +13,7 @@
     justify-content: left;
     align-items: center;
 
-    max-width: 1245px;
+    max-width: 1215px;
     margin: auto;
     //margin-right: 45px;
     //margin-left: 45px;
@@ -97,19 +100,4 @@
 
 .sticky-header:hover {
   cursor: pointer;
-}
-@media screen and (max-width: 1245px) {
-  .header {
-    max-width: 935px;
-  }
-}
-@media screen and (max-width: 935px) {
-  .header {
-    max-width: 620px;
-  }
-}
-@media screen and (max-width: 620px) {
-  .header {
-    max-width: 500px;
-  }
 }
