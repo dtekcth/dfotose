@@ -28,10 +28,12 @@
 }
 .gallery-list {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4,300px);
+  justify-content: center;
   grid-gap: 5px;
-  max-width: 1245px;
-  margin: 0 auto;
+  @media screen and (max-width: 1245px) {
+    grid-template-columns: repeat(auto-fill, 300px);
+  }
 
   .gallery-card {
     display: inline-block;
@@ -90,24 +92,5 @@
         }
       }
     }
-  }
-}
-// USE MEDIA QUERIES
-@media screen and (max-width: 1245px) {
-  .gallery-list {
-    grid-template-columns: repeat(3,1fr);
-    max-width: 935px;
-  }
-}
-@media screen and (max-width: 935px) {
-  .gallery-list {
-    grid-template-columns: repeat(2,1fr);
-    max-width: 620px;
-  }
-}
-@media screen and (max-width: 620px) {
-  .gallery-list {
-    grid-template-columns: repeat(1,1fr);
-    max-width: 300px;
   }
 }

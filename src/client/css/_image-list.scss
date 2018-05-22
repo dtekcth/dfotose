@@ -1,10 +1,11 @@
 .image-list {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 300px);
     grid-gap: 5px;
-    margin: 0 auto;
-    max-width: 1245px;
-
+    justify-content: center;
+    @media (max-width: 1245px) {
+      grid-template-columns: repeat(auto-fill, 300px);
+    }
 
     .image-card {
         margin: 5px;
@@ -43,23 +44,3 @@
     }
 }
 
-// USE MEDIA QUERIES
-@media screen and (max-width: 1245px) {
-    .image-list {
-        grid-template-columns: repeat(3,1fr);
-        max-width: 935px;
-    }
-}
-@media screen and (max-width: 935px) {
-    .image-list {
-        grid-template-columns: repeat(2,1fr);
-        max-width: 620px;
-    }
-}
-@media screen and (max-width: 650px) {
-    .image-list {
-        grid-template-columns: repeat(1,1fr);
-        max-width: 300px;
-        align: center;
-    }
-}
