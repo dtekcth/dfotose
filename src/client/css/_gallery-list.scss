@@ -93,4 +93,12 @@
       }
     }
   }
+  .gallery-card:hover {
+    box-shadow: 0 5px 11px #999;
+    cursor: pointer;
+    
+    .title {
+      background: #000;
+    }
+  }
 }
