@@ -44,14 +44,15 @@
     width: 300px;
     height: 200px;
 
-    @media (max-width: 450px) {
-      // width: 95vw;
-    }
-
     a {
       margin: 0;
       text-decoration: none;
+      overflow: hidden;
 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       img {
         margin: 0;
         padding: 0;
@@ -61,12 +62,11 @@
         height: 200px;
         width: 300px;
 
-        @media (max-width: 450px) {
-          //width: 95vw;
-        }
       }
       .title {
-        position: relative;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
         height: 35px;
         width: 100%;
         border-radius: 0 0 5px 5px;
@@ -74,7 +74,7 @@
         background: rgba(0, 0, 0, .8);
         color: #fafafa;
 
-        margin: -42px 0 0 0;
+        margin: -35px 0 0 0;
 
         .text {
           justify-content: space-between;
