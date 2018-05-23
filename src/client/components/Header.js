@@ -25,11 +25,6 @@ class Header extends React.Component {
               </li>
               : null }
           </ul>
-          {/*
-           <div className="info">
-           <TagSearchBar />
-           </div>
-           */}
         </div>
       </div>
     );
