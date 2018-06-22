@@ -1,6 +1,11 @@
 .tag-search-view {
   margin-left: 5px;
+  max-width: 1215px;
+  margin: 0 auto;
 
+  @media screen and (max-width: 1215px) {max-width: 910px;}
+  @media screen and (max-width: 910px) {max-width: 605px;}
+  @media screen and (max-width: 605px) {max-width: 300px;}
   h2 {
     .tag {
       font-style: italic;

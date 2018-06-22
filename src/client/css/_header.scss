@@ -11,8 +11,7 @@
     display: flex;
     flex-direction: row;
     justify-content: left;
-    align-items: center;
-
+    align-items: flex-end;
     max-width: 1215px;
     margin: auto;
     @media (max-width: 926px) {
@@ -63,14 +62,10 @@
 
     .info {
       color: #333;
-      align-self: flex-end;
-      margin: 0 auto;
-      max-width: 450px;
-
+      margin-left: auto;
       @media(max-width: 926px) {
-        display: flex;
-        flex-direction: column;
-        width: 100vw;
+        margin-left: 0;
+        width: 75vw;
       }
     }
   }
