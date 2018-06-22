@@ -3,8 +3,8 @@
   //background-color: #2e2e2e;
   margin: 0 auto;
   border-bottom: 2px solid #eee;
-  @media screen and (max-width: 1215px) {max-width: 915px;}
-  @media screen and (max-width: 915px) {max-width: 610px;}
+  @media screen and (max-width: 1230px) {max-width: 915px;}
+  @media screen and (max-width: 920px) {max-width: 610px;}
   @media screen and (max-width: 610px) {max-width: 300px;}
 
   .header-content {
@@ -12,7 +12,7 @@
     flex-direction: row;
     justify-content: left;
     align-items: flex-end;
-    max-width: 1215px;
+    max-width: 1230px;
     margin: auto;
     @media (max-width: 926px) {
       flex-direction: column;

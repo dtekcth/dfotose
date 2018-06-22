@@ -1,25 +1,20 @@
 .gallery-pagination {
   display: flex;
   flex-direction: row;
-  
+  justify-content: center;
   margin: 0 auto;
   max-width: 350px;
 
   padding: 25px 25px 0;
 
   a:first-child {
-    flex-grow: 1;
-  }
-  span {
-    flex-grow: 1;
-    text-align: center;
+    flex-grow: 1
   }
 
   a:last-child {
     flex-grow: 1;
     text-align: right;
   }
-
 
   a:hover {
     cursor: pointer;
@@ -30,14 +25,13 @@
   display: grid;
   grid-template-columns: repeat(4,300px);
   justify-content: center;
-  grid-gap: 5px;
+  grid-gap: 10px;
   @media screen and (max-width: 1245px) {
     grid-template-columns: repeat(auto-fill, 300px);
   }
 
   .gallery-card {
     display: inline-block;
-    margin: 5px;
     box-shadow: 0 2px 4px 0 #aaa;
     border-radius: 5px;
     transition: 0.3s;
@@ -78,14 +72,20 @@
 
         .text {
           justify-content: space-between;
+          display: flex;
+          flex-direction: row;
           width: 100%;
+          white-space: nowrap;
           span.name {
-            font-size: 18px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 16px;
             margin-left: 10px;
             margin-right: 5px;
           }
           span.date {
             font-size: 12px;
+            align-self: flex-end;
             margin-left: 5px;
             margin-right: 5px;
           }
