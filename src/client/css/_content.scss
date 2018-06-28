@@ -24,8 +24,15 @@
   }
 }
 
-.about-us {
-  max-width: 650px;
+.wrapper {
+  margin: 0 auto;
+  max-width: 1245px;
+  @media screen and (max-width: 1215px) {max-width: 915px;}
+  @media screen and (max-width: 915px) {max-width: 610px;}
+
+  .about-us {
+    max-width: 650px;
+  }
 }
 
 .not-found {

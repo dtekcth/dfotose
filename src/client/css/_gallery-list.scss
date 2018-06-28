@@ -1,35 +1,42 @@
 .gallery-pagination {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-
+  justify-content: center;
   margin: 0 auto;
   max-width: 350px;
 
   padding: 25px 25px 0;
+
+  a:first-child {
+    flex-grow: 1
+  }
+
+  a:last-child {
+    flex-grow: 1;
+    text-align: right;
+  }
 
   a:hover {
     cursor: pointer;
     text-decoration: underline;
   }
 }
-
 .gallery-list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  max-width: 1300px;
+  display: grid;
+  grid-template-columns: repeat(4,300px);
+  justify-content: center;
+  grid-gap: 10px;
+  @media screen and (max-width: 1245px) {
+    grid-template-columns: repeat(auto-fill, 300px);
+  }
 
   .gallery-card {
-    margin: 5px;
-
+    display: inline-block;
     box-shadow: 0 2px 4px 0 #aaa;
     border-radius: 5px;
     transition: 0.3s;
-
-    @media (max-width: 450px) {
-      width: 95vw;
-    }
+    width: 300px;
+    height: 200px;
 
     a {
       margin: 0;
@@ -40,69 +47,58 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-
       img {
         margin: 0;
         padding: 0;
         border-radius: 5px;
         object-fit: cover;
 
-        /* using fixed height due to the variety of dimensions .. */
         height: 200px;
         width: 300px;
 
-        @media (max-width: 450px) {
-          width: 95vw;
-        }
       }
-
       .title {
         display: flex;
         flex-direction: row;
         align-items: center;
-
-        width: 100%;
         height: 35px;
+        width: 100%;
         border-radius: 0 0 5px 5px;
-
-        margin: -32px 0 0 0;
-        background: rgba(0, 0, 0, 0.8);
+        
+        background: rgba(0, 0, 0, .8);
         color: #fafafa;
 
+        margin: -35px 0 0 0;
+
         .text {
+          justify-content: space-between;
           display: flex;
           flex-direction: row;
-          justify-content: space-between;
           width: 100%;
-
+          white-space: nowrap;
           span.name {
-            font-size: 18px;
-            margin-left: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 16px;
+            margin-left: 10px;
+            margin-right: 5px;
           }
-
           span.date {
             font-size: 12px;
             align-self: flex-end;
-            margin-left: auto;
+            margin-left: 5px;
             margin-right: 5px;
           }
         }
       }
     }
   }
-
   .gallery-card:hover {
     box-shadow: 0 5px 11px #999;
     cursor: pointer;
-
+    
     .title {
       background: #000;
     }
-  }
-
-  @media (max-width: 650px) {
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
   }
 }

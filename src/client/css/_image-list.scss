@@ -1,48 +1,41 @@
 .image-list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin-left: 5px;
-  max-width: 1300px;
-
-  @media (max-width: 650px) {
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-  }
-
-  .image-card {
-    margin: 2px;
-
-    img {
-      object-fit: cover;
-
-      /* using fixed height due to the variety of dimensions .. */
-      height: 200px;
-      width: 300px;
-
-      @media (max-width: 650px) {
-        width: 95vw;
-      }
-
-      border-radius: 5px;
-      box-shadow: 0 2px 4px 0 #777;
-      transition: 0.3s;
+    display: grid;
+    grid-template-columns: repeat(4, 300px);
+    grid-gap: 5px;
+    justify-content: center;
+    @media (max-width: 1245px) {
+      grid-template-columns: repeat(auto-fill, 300px);
     }
 
-    img:hover {
-      box-shadow: 0 4px 8px 0 #777;
-      cursor: pointer;
+    .image-card {
+        display: inline-block;
+
+        img {
+            object-fit: cover;
+
+            /* using fixed height due to the variety of dimensions .. */
+            height: 200px;
+            width: 300px;
+
+            border-radius: 5px;
+            box-shadow: 0 2px 4px 0 #777;
+            transition: 0.3s;
+        }
+
+        img:hover {
+            box-shadow: 0 4px 8px 0 #777;
+            cursor: pointer;
+        }
     }
-  }
 }
 
 .admin-image-list {
-  tr.marked {
-    background: #ccc;
-  }
+    tr.marked {
+        background: #ccc;
+    }
 
-  tr:hover {
-    background: #aaa;
-  }
+    tr:hover {
+        background: #aaa;
+    }
 }
+

@@ -3,9 +3,14 @@
 
   .title {
     margin-left: 10px;
-
+    max-width: 1215px;
+    margin: 0 auto;
     p {
       font-style: italic;
     }
+    
+    @media screen and (max-width: 1215px) {max-width: 910px;}
+    @media screen and (max-width: 910px) {max-width: 605px;}
+    @media screen and (max-width: 605px) {max-width: 300px;}
   }
 }
