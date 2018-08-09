@@ -94,8 +94,8 @@ class ImageView extends React.Component {
     const currentImage = _.find(images, image => image.id == imageId);
 
     currentImage.addTag(newTagName)
-      .then(() => {
-      });
+                .then(() => {
+                });
 
     this.setState({newTag: ''});
   }
@@ -136,24 +136,18 @@ class ImageView extends React.Component {
           </div>
 
           { !this.state.loaded ?
-              <div className="image-loading-spinner">
-                <LoadingSpinner visible={ !this.state.loaded } />
-              </div>
-              : null }
+            <div className="image-loading-spinner">
+              <LoadingSpinner visible={ !this.state.loaded } />
+            </div>
+            : null }
         </div>
 
         <div className="details">
           <span><b>Fotograf</b>: {currentImage.author}</span>
           <span><b>Bild-Id</b>: {currentImage.id}</span>
           <a href={ currentImage.fullSize } onClick={ clickFullSize(currentImage.fullSize) } target="_blank">Öppna bilden i full storlek</a>
-
-          <div className="tags"><b>Taggar</b>: {currentImage.tags.join(', ')}</div>
-
-          <form onSubmit={ this.onAddTag.bind(this) } className="new-tag-form">
-            <input type="text" name="newTag" placeholder="ny tagg" value={ this.state.newTag } onChange={ this.onChangeTag.bind(this) } />
-            <button type="submit" className="button">Lägg till</button>
-          </form>
         </div>
+        
       </div>
     );
   }
@@ -176,5 +170,6 @@ const ImageContainer = PreloadContainerFactory((props) => {
     };
   });
 }, ImageView);
+
 
 export default ImageContainer;

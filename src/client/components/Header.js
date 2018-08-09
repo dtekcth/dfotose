@@ -23,12 +23,8 @@ class Header extends React.Component {
               <li>
                 <Link to="/admin">Admin </Link>
               </li>
-            : null }
+              : null }
           </ul>
-
-          <div className="info">
-            <TagSearchBar />
-          </div>
         </div>
       </div>
     );
