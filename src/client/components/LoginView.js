@@ -1,12 +1,13 @@
 import React from "react";
 import {browserHistory} from "react-router";
 import {observer} from "mobx-react";
+import PropTypes from "prop-types";
 
 import uiState from '../UiState';
 
 @observer class LoginView extends React.Component {
   static propTypes = {
-    user: React.PropTypes.object.isRequired
+    user: PropTypes.object.isRequired
   };
 
   constructor() {
