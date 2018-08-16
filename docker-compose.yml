@@ -1,0 +1,28 @@
+version: '3'
+services:
+  dfotose:
+    build: .
+    ports:
+      - 4000:4000
+    volumes:
+      - ./storage:/dfotose/storage
+      - ./uploaded-images:/dfotose/uploaded-images
+    environment:
+      - NODE_ENV=production
+    links:
+      - mongo
+      - redis
+    depends_on:
+      - mongo
+      - redis
+  redis:
+    image: "redis:alpine"
+  mongo:
+    image: "mongo:latest"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+    volumes:
+      - ./data/db:/data/db
+    ports:
+      - 27017:27017
+    command: mongod --smallfiles
