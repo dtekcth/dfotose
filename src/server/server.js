@@ -19,7 +19,7 @@ import userRoleRouter from './routes/user-role-api';
 import config from './config';
 
 mongoose.promise = global.Promise;
-mongoose.connect(`mongodb://${config.database.host}/${config.database.name}`);
+mongoose.connect(`mongodb://${config.database.host}/${config.database.name}`, { useNewUrlParser: true });
 
 const app = express();
 
