@@ -1,5 +1,5 @@
 import React from 'react';
-import {browserHistory} from 'react-router';
+import {withRouter} from 'react-router-dom';
 import {observer} from 'mobx-react';
 
 import ImageList from './ImageList';
@@ -33,7 +33,7 @@ class TagSearchView extends React.Component {
 
   onImageClick(image) {
     const imageViewLink = `/gallery/${image.galleryId}/image/${image.id}`;
-    browserHistory.push(imageViewLink);
+    this.props.history.push(imageViewLink);
   }
 
   onAllImagesLoaded() {
@@ -56,4 +56,4 @@ class TagSearchView extends React.Component {
   }
 }
 
-export default TagSearchView;
+export default withRouter(TagSearchView);

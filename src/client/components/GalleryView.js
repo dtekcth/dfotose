@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import {browserHistory} from 'react-router';
+import {withRouter} from 'react-router-dom';
 import {observer} from 'mobx-react';
 import moment from 'moment';
 import {animateScroll} from 'react-scroll';
@@ -43,7 +43,7 @@ class GalleryView extends React.Component {
 
     UiState.updateScrollPosition(top);
     UiState.updateLastGalleryIdViewed(image.galleryId);
-    browserHistory.push(imageViewLink);
+    this.props.history.push(imageViewLink);
   }
   
   render() {
@@ -85,4 +85,4 @@ const GalleryViewContainer = PreloadContainerFactory((props) => {
   });
 }, GalleryView);
 
-export default GalleryViewContainer;
+export default withRouter(GalleryViewContainer);

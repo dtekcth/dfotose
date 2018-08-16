@@ -1,5 +1,5 @@
 import React from "react";
-import {Router, Route, IndexRoute, browserHistory} from "react-router";
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import {observer} from "mobx-react";
 
 import {StickyContainer} from 'react-sticky';
@@ -27,34 +27,21 @@ const ContentContainer = ({children}) => {
   return (
     <div className="content">
       <div className="row">
-        { children }
+        {children}
       </div>
     </div>
   )
 };
 
-const Site = ({children}) => {
-  return (
-    <StickyContainer>
-      <Header user={ uiState.user } />
-      <StickyHeader />
-      <ContentContainer>
-        { children }
-      </ContentContainer>
-      <Footer />
-    </StickyContainer>
-  )
-};
-
 const Login = () => {
-  return (<LoginView user={ uiState.user }/>);
+  return (<LoginView user={uiState.user}/>);
 };
 
 const Admin = ({children}) => {
   return (
     <div className="site-content">
       <h2> Admin </h2>
-      { children }
+      {children}
     </div>
   );
 };
@@ -75,17 +62,17 @@ const About = () => {
 };
 
 const AdminHome = () => {
-  return (<AdminIndex user={ uiState.user } />);
+  return (<AdminIndex user={uiState.user}/>);
 };
 
 const NotFound = () => {
   const imagesWithText = [
-    { path: '/assets/images/404-hasse.jpg', text: 'Like lite brösthår som Hasse?' },
-    { path: '/assets/images/404-isak.jpg', text: 'Lika full som Isak?' },
-    { path: '/assets/images/404-miranda.jpg', text: 'Nergången är det nya svarta, som Miranda..' },
-    { path: '/assets/images/404-tove.jpg', text: 'Tove approves, mer fylla' },
-    { path: '/assets/images/404-martin.jpg', text: 'Ser du lika dåligt som Martin?' },
-    { path: '/assets/images/404-sebbe.gif', text: 'Lika imponerande som Sebbe?' }
+    {path: '/assets/images/404-hasse.jpg', text: 'Like lite brösthår som Hasse?'},
+    {path: '/assets/images/404-isak.jpg', text: 'Lika full som Isak?'},
+    {path: '/assets/images/404-miranda.jpg', text: 'Nergången är det nya svarta, som Miranda..'},
+    {path: '/assets/images/404-tove.jpg', text: 'Tove approves, mer fylla'},
+    {path: '/assets/images/404-martin.jpg', text: 'Ser du lika dåligt som Martin?'},
+    {path: '/assets/images/404-sebbe.gif', text: 'Lika imponerande som Sebbe?'}
   ];
 
   const shuffled = _.shuffle(imagesWithText);
@@ -93,9 +80,9 @@ const NotFound = () => {
 
   return (
     <div className="not-found">
-      <img src={ picked.path } />
+      <img src={picked.path}/>
       <h1> 404 </h1>
-      <p>{ picked.text }</p>
+      <p>{picked.text}</p>
       <small>Sidan kunde alltså inte hittas...</small>
     </div>
   );
@@ -105,32 +92,41 @@ const NotFound = () => {
 class App extends React.Component {
   render() {
     return (
-      <div>
-        <Router history={ browserHistory }>
-          <Route path="/" component={ Site }>
-            <IndexRoute component={ GalleryList }/>
-            <Route path="login" component={ Login }/>
-            <Route path="about" component={ About }/>
-            <Route path="gallery/page/:pageNumber" component={ GalleryList } />
-            <Route path="gallery/:id" component={ GalleryView } />
-            <Route path="gallery/:galleryId/image/:id" component={ ImageView } />
-            <Route path="image/search/:tag" component={ TagSearchView } />
+      <BrowserRouter>
+        <StickyContainer>
+          <Header user={uiState.user}/>
+          <StickyHeader/>
+          <ContentContainer>
+            <Switch>
+              <Route exact path="/" component={GalleryList}/>
+              <Route path="login" component={Login}/>
+              <Route path="about" component={About}/>
+              <Route path="gallery/page/:pageNumber" component={GalleryList}/>
+              <Route path="gallery/:id" component={GalleryView}/>
+              <Route path="gallery/:galleryId/image/:id" component={ImageView}/>
+              <Route path="image/search/:tag" component={TagSearchView}/>
 
-            <Route path="admin" component={ Admin }>
-              <IndexRoute component={ AdminHome } />
-              <Route path="gallery">
-                <IndexRoute component={ AdminGalleryListView } />
-                <Route path="new" component={ AdminNewGalleryView } />
-                <Route path="edit/:id" component={ AdminEditGalleryView } />
+              <Route path="admin" component={Admin}>
+                <Switch>
+                  <Route exact path="/" component={AdminHome}/>
+                  <Route path="gallery">
+                    <Switch>
+                      <Route exact path="/" component={AdminGalleryListView}/>
+                      <Route path="new" component={AdminNewGalleryView}/>
+                      <Route path="edit/:id" component={AdminEditGalleryView}/>
+                    </Switch>
+                  </Route>
+                  <Route path="members" component={AdminMembersView}/>
+                </Switch>
               </Route>
-              <Route path="members">
-                <IndexRoute component={ AdminMembersView } />
-              </Route>
-            </Route>
-            <Route path="*" component={ NotFound } />
-          </Route>
-        </Router>
-      </div>
+
+              <Route path="*" component={NotFound}/>
+            </Switch>
+          </ContentContainer>
+          <Footer/>
+        </StickyContainer>
+
+      </BrowserRouter>
     );
   }
 }
