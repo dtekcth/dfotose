@@ -6,11 +6,11 @@ default:
     secret: 'foobarwithdragons'
 
   database:
-    host: 'localhost'
+    host: 'mongo'
     name: 'dfotose'
 
   redis:
-    host: 'localhost'
+    host: 'redis'
 
   storage:
     path: './storage/images/'
