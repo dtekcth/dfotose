@@ -3,6 +3,7 @@ var webpack = require('webpack');
 
 module.exports = {
   devtool: 'eval',
+  mode: 'development',
   entry: [
     'react-hot-loader/patch',
     'webpack/hot/dev-server',
@@ -18,10 +19,10 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin()
   ],
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['.js']
   },
   module: {
-    loaders:[
+    rules:[
       {
         //test: /\.js?$/,
         test: /\.jsx?$/,
@@ -48,7 +49,7 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loaders: ["style", "css", "sass"]
+        loaders: ["style-loader", "css-loader", "sass-loader"]
       },
       {
         test: /\.json$/,
