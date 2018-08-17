@@ -25,11 +25,46 @@ $> npm install
 $> cp src/config/config.yml{.sample,}
 $> vim src/config/config.yml
 ...
+$> gulp server:build
 $> gulp
 ...
 ```
 
 Besök sidan på http://localhost:4000/ . När du ändrar i koden laddar den om sig själv by default.
+
+
+### Docker
+Du kan lätt få upp sidan genom att använda docker. Notera att sidan sätter sig i productionsläge direkt när du 
+kör docker.
+
+Först behöver du klona repot, och skapa en config-fil, se till att ändra session-secret till något gött
+och bra långt!
+
+```bash
+$> git clone https://github.com/dtekcth/dfotose
+$> cd dfotose
+...
+$> cp src/config/config.yml{.sample,}
+$> vim src/config/config.yml
+...
+```
+
+När du satt upp det behöver du installera både `docker` och `docker-compose`, googla om du inte vet hur.
+Efter detta är det lätt att slänga igång sidan:
+
+```bash
+$> docker-compose build
+...
+$> docker-compose up -d
+...
+```
+
+Sidan borde starta tillsammans med mongodb och redis i bakgrunden. Om det är en första gången setup (vilket det oftast är, annars ändra
+`docker-compose.yml` till att peka mot andra docker containers) så behöver du ge en första
+person admin access på sidan. Gör detta genom att öppna en mongo-client (e.g. `docker exec -it dfotose_mongo_1 mongo`)
+och sedan slänga in `{ cid: '<ditt cid>, role: 'Admin' }` i `usereligibleforrole` tabellen.
+
+Sidan exponeras på port 4000 by default, vilket går att ändra i `docker-compose.yml`.
 
 
 ### REST api
