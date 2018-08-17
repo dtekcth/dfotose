@@ -1,5 +1,5 @@
 import React from "react";
-import {BrowserRouter, Route, Switch} from 'react-router-dom';
+import {BrowserRouter, Route, Switch, withRouter} from 'react-router-dom';
 import {observer} from "mobx-react";
 
 import {StickyContainer} from 'react-sticky';
@@ -88,43 +88,47 @@ const NotFound = () => {
   );
 };
 
+const UnblockedStickyContainer = withRouter(StickyContainer);
+
 @observer
 class App extends React.Component {
   render() {
     return (
       <BrowserRouter>
-        <StickyContainer>
+        <UnblockedStickyContainer>
           <Header user={uiState.user}/>
           <StickyHeader/>
-          <ContentContainer>
-            <Switch>
-              <Route exact path="/" component={GalleryList}/>
-              <Route path="/login" component={Login}/>
-              <Route path="/about" component={About}/>
-              <Route path="/gallery/page/:pageNumber" component={GalleryList}/>
-              <Route path="/gallery/:id" component={GalleryView}/>
-              <Route path="/gallery/:galleryId/image/:id" component={ImageView}/>
-              <Route path="/image/search/:tag" component={TagSearchView}/>
+          <div className="content">
+            <div className="row">
+              <Switch>
+                <Route exact path="/" component={GalleryList}/>
+                <Route path="/login" component={Login}/>
+                <Route path="/about" component={About}/>
+                <Route path="/gallery/page/:pageNumber" component={GalleryList}/>
+                <Route path="/gallery/:id" component={GalleryView}/>
+                <Route path="/gallery/:galleryId/image/:id" component={ImageView}/>
+                <Route path="/image/search/:tag" component={TagSearchView}/>
 
-              <Route path="/admin" component={Admin}>
-                <Switch>
-                  <Route exact path="/" component={AdminHome}/>
-                  <Route path="/gallery">
-                    <Switch>
-                      <Route exact path="/" component={AdminGalleryListView}/>
-                      <Route path="/new" component={AdminNewGalleryView}/>
-                      <Route path="/edit/:id" component={AdminEditGalleryView}/>
-                    </Switch>
-                  </Route>
-                  <Route path="/members" component={AdminMembersView}/>
-                </Switch>
-              </Route>
+                <Route path="/admin" component={Admin}>
+                  <Switch>
+                    <Route exact path="/" component={AdminHome}/>
+                    <Route path="/gallery">
+                      <Switch>
+                        <Route exact path="/" component={AdminGalleryListView}/>
+                        <Route path="/new" component={AdminNewGalleryView}/>
+                        <Route path="/edit/:id" component={AdminEditGalleryView}/>
+                      </Switch>
+                    </Route>
+                    <Route path="/members" component={AdminMembersView}/>
+                  </Switch>
+                </Route>
 
-              <Route path="*" component={NotFound}/>
-            </Switch>
-          </ContentContainer>
+                <Route path="*" component={NotFound}/>
+              </Switch>
+            </div>
+          </div>
           <Footer/>
-        </StickyContainer>
+        </UnblockedStickyContainer>
 
       </BrowserRouter>
     );
