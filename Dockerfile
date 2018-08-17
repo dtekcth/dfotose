@@ -13,6 +13,7 @@ RUN npm install -g gulp pm2
 RUN gulp server:build
 RUN gulp config:copy
 RUN gulp client:copy
+RUN gulp client:build
 
 RUN sh setup-kerberos.sh
 

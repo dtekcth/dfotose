@@ -8,10 +8,10 @@ module.exports = {
     'react-hot-loader/patch',
     'webpack/hot/dev-server',
     'webpack-hot-middleware/client',
-    './src/client/index.js'
+    __dirname + '/src/client/index.js'
   ],
   output: {
-    path: './dist/public',
+    path: __dirname + '/dist/public',
     publicPath: '/',
     filename: 'bundle.js'
   },
