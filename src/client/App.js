@@ -99,24 +99,24 @@ class App extends React.Component {
           <ContentContainer>
             <Switch>
               <Route exact path="/" component={GalleryList}/>
-              <Route path="login" component={Login}/>
-              <Route path="about" component={About}/>
-              <Route path="gallery/page/:pageNumber" component={GalleryList}/>
-              <Route path="gallery/:id" component={GalleryView}/>
-              <Route path="gallery/:galleryId/image/:id" component={ImageView}/>
-              <Route path="image/search/:tag" component={TagSearchView}/>
+              <Route path="/login" component={Login}/>
+              <Route path="/about" component={About}/>
+              <Route path="/gallery/page/:pageNumber" component={GalleryList}/>
+              <Route path="/gallery/:id" component={GalleryView}/>
+              <Route path="/gallery/:galleryId/image/:id" component={ImageView}/>
+              <Route path="/image/search/:tag" component={TagSearchView}/>
 
-              <Route path="admin" component={Admin}>
+              <Route path="/admin" component={Admin}>
                 <Switch>
                   <Route exact path="/" component={AdminHome}/>
-                  <Route path="gallery">
+                  <Route path="/gallery">
                     <Switch>
                       <Route exact path="/" component={AdminGalleryListView}/>
-                      <Route path="new" component={AdminNewGalleryView}/>
-                      <Route path="edit/:id" component={AdminEditGalleryView}/>
+                      <Route path="/new" component={AdminNewGalleryView}/>
+                      <Route path="/edit/:id" component={AdminEditGalleryView}/>
                     </Switch>
                   </Route>
-                  <Route path="members" component={AdminMembersView}/>
+                  <Route path="/members" component={AdminMembersView}/>
                 </Switch>
               </Route>
 
