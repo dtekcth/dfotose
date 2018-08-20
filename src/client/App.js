@@ -101,27 +101,23 @@ class App extends React.Component {
           <div className="content">
             <div className="row">
               <Switch>
+                {/* User routes */}
                 <Route exact path="/" component={GalleryList}/>
-                <Route path="/login" component={Login}/>
-                <Route path="/about" component={About}/>
-                <Route path="/gallery/page/:pageNumber" component={GalleryList}/>
-                <Route path="/gallery/:id" component={GalleryView}/>
-                <Route path="/gallery/:galleryId/image/:id" component={ImageView}/>
-                <Route path="/image/search/:tag" component={TagSearchView}/>
+                <Route exact path="/login" component={Login}/>
+                <Route exact path="/about" component={About}/>
+                <Route exact path="/gallery/page/:pageNumber" component={GalleryList}/>
+                <Route exact path="/gallery/:id" component={GalleryView}/>
+                <Route exact path="/gallery/:galleryId/image/:id" component={ImageView}/>
+                <Route exact path="/image/search/:tag" component={TagSearchView}/>
 
-                <Route path="/admin" component={Admin}>
-                  <Switch>
-                    <Route exact path="/" component={AdminHome}/>
-                    <Route path="/gallery">
-                      <Switch>
-                        <Route exact path="/" component={AdminGalleryListView}/>
-                        <Route path="/new" component={AdminNewGalleryView}/>
-                        <Route path="/edit/:id" component={AdminEditGalleryView}/>
-                      </Switch>
-                    </Route>
-                    <Route path="/members" component={AdminMembersView}/>
-                  </Switch>
-                </Route>
+                {/* Admin routes */}
+                <Route exact path="/admin" component={AdminHome}/>
+                <Route path="/admin/members" component={AdminMembersView}/>
+
+                {/* Admin gallery routes */}
+                <Route exact path="/admin/gallery" component={AdminGalleryListView}/>
+                <Route exact path="/admin/gallery/new" component={AdminNewGalleryView}/>
+                <Route exact path="/admin/gallery/edit/:id" component={AdminEditGalleryView}/>
 
                 <Route path="*" component={NotFound}/>
               </Switch>

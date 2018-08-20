@@ -102,7 +102,7 @@ class EditGalleryView extends React.Component {
 }
 
 const EditGalleryViewContainer = PreloadContainerFactory((props) => {
-  const galleryId = _.get(props, 'params.id');
+  const galleryId = _.get(props, 'match.params.id');
 
   const galleryPromise = GalleryStore.fetchGallery(galleryId);
   const imagesPromise = ImageStore.fetchImagesInGallery(galleryId);

@@ -12,7 +12,7 @@ class TagSearchView extends React.Component {
   constructor(props) {
     super(props);
 
-    const tag = _.get(props, 'params.tag');
+    const tag = _.get(props, 'match.params.tag');
     this.state = {
       tag: tag,
       imageList: uiState.imageStore.getImagesForTag(tag),
@@ -22,7 +22,7 @@ class TagSearchView extends React.Component {
 
   componentWillReceiveProps(newProps) {
     if (this.props.tag != newProps.params.tag) {
-      const tag = _.get(newProps, 'params.tag');
+      const tag = _.get(newProps, 'match.params.tag');
       this.setState({
         tag: tag,
         imageList: uiState.imageStore.getImagesForTag(tag),
