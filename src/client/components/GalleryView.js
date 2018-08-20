@@ -14,6 +14,7 @@ import UiState from '../UiState';
 import PreloadContainerFactory from './PreloadContainerFactory';
 
 @observer
+@withRouter
 class GalleryView extends React.Component {
   constructor(props) {
     super(props);

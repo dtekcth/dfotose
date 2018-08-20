@@ -21,7 +21,7 @@ class TagSearchView extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (this.props.tag != newProps.params.tag) {
+    if (this.state.tag != newProps.match.params.tag) {
       const tag = _.get(newProps, 'match.params.tag');
       this.setState({
         tag: tag,
