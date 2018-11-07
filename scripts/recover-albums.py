@@ -11,12 +11,16 @@ imgpath = '/dfotose/storage/images/'
 client = MongoClient('mongo', 27017)
 db = client.dfotose
 
+newgals = []
+with open('/dfotose/scripts/newgals') as f:
+   newgals = [img.strip('\n') for img in f] 
 
-gals_in_db = {str(g['_id']) for g in db.galleries.find()}
-gals_saved = set(listdir(imgpath))
-gals_not_in_db = gals_saved.difference(gals_in_db)
+# for gal in newgals:
+#     pprint(gal)
 
-for gal in gals_not_in_db:
+for gal in newgals:
+    # db.galleries.delete_one({'name' : gal})
+
     db.galleries.insert_one({
         '_id' : ObjectId(gal),
         'description' : 'album ' + gal,
@@ -30,6 +34,8 @@ for gal in gals_not_in_db:
 
     for img in images:
         name, ext = splitext(img)
+
+        # db.images.delete_one({'filename' : name})
 
         db.images.insert_one({
             'author' : 'DFoto',
