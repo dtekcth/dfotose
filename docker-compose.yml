@@ -1,6 +1,7 @@
 version: '3'
 services:
   dfotose:
+    restart: always
     build: .
     ports:
       - 4000:4000
@@ -16,7 +17,9 @@ services:
       - redis
   redis:
     image: "redis:alpine"
+    restart: always
   mongo:
+    restart: always
     image: "mongo:latest"
     environment:
       - MONGO_DATA_DIR=/data/db
