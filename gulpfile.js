@@ -45,18 +45,8 @@ gulp.task('server:rebuild', function(next) {
 });
 
 gulp.task('client:build', function(callback) {
-    var myConfig = Object.create(webpackConfig);
-    myConfig.plugins = myConfig.plugins.concat(
-        new webpack.DefinePlugin({
-            "process.env": {
-                "NODE_ENV": JSON.stringify("production")
-            }
-        }),
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.UglifyJsPlugin()
-    );
-
-    webpack(myConfig, function(err, stats) {
+    webpackConfig.mode = 'production';
+    webpack(webpackConfig, function(err, stats) {
         if (err) throw new util.PluginError("client:build", err);
         util.log("[client:build]", stats.toString({ colors: true }));
         callback();

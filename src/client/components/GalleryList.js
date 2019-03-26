@@ -1,9 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import {Link} from 'react-router';
+import {Link} from 'react-router-dom';
 import {observer} from 'mobx-react';
 import moment from 'moment';
 import keydown, {Keys} from 'react-keydown';
+import PropTypes from 'prop-types';
 
 import PaginatedArray from '../PaginatedArray';
 import PreloadContainerFactory from './PreloadContainerFactory';
@@ -57,7 +58,7 @@ class GalleryList extends React.Component {
 
 class PaginatedGalleryList extends React.Component {
   static propTypes = {
-    paginatedGalleries: React.PropTypes.object.isRequired
+    paginatedGalleries: PropTypes.object.isRequired
   };
 
   constructor(props) {

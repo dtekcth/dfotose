@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import {browserHistory} from 'react-router';
+import {withRouter} from 'react-router-dom';
 import {observer} from 'mobx-react';
 import moment from 'moment';
 import {animateScroll} from 'react-scroll';
@@ -14,6 +14,7 @@ import UiState from '../UiState';
 import PreloadContainerFactory from './PreloadContainerFactory';
 
 @observer
+@withRouter
 class GalleryView extends React.Component {
   constructor(props) {
     super(props);
@@ -43,7 +44,7 @@ class GalleryView extends React.Component {
 
     UiState.updateScrollPosition(top);
     UiState.updateLastGalleryIdViewed(image.galleryId);
-    browserHistory.push(imageViewLink);
+    this.props.history.push(imageViewLink);
   }
   
   render() {
@@ -71,7 +72,7 @@ class GalleryView extends React.Component {
 }
 
 const GalleryViewContainer = PreloadContainerFactory((props) => {
-  const galleryId = _.get(props, 'params.id');
+  const galleryId = _.get(props, 'match.params.id');
 
   const galleryPromise = GalleryStore.fetchGallery(galleryId);
   const imagesPromise = ImageStore.fetchImagesInGallery(galleryId);
@@ -85,4 +86,4 @@ const GalleryViewContainer = PreloadContainerFactory((props) => {
   });
 }, GalleryView);
 
-export default GalleryViewContainer;
+export default withRouter(GalleryViewContainer);

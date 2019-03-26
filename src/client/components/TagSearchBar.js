@@ -1,5 +1,5 @@
 import React from "react";
-import {browserHistory} from 'react-router';
+import {withRouter} from 'react-router-dom';
 import {observer} from "mobx-react";
 
 @observer
@@ -13,7 +13,7 @@ class TagSearchBar extends React.Component {
   onSearch(event) {
     event.preventDefault();
 
-    browserHistory.push(`/image/search/${this.state.searchInput}`);
+    this.props.history.push(`/image/search/${this.state.searchInput}`);
   }
 
   onSearchInputChange(event) {
@@ -31,4 +31,4 @@ class TagSearchBar extends React.Component {
   }
 }
 
-export default TagSearchBar;
+export default withRouter(TagSearchBar);

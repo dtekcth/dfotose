@@ -1,6 +1,5 @@
 import React from 'react';
-import {Link} from 'react-router';
-import {browserHistory} from 'react-router';
+import {Link,withRouter} from 'react-router-dom';
 
 import uiState from '../../UiState';
 
@@ -33,7 +32,7 @@ class NewGalleryView extends React.Component {
     const {name,description,date} = this.state;
     uiState.galleryStore.addGallery(name, description, date)
       .then(() => {
-        browserHistory.push('/admin/gallery');
+        this.props.history.push('/admin/gallery');
       });
   }
   
@@ -56,4 +55,4 @@ class NewGalleryView extends React.Component {
   }
 }
 
-export default NewGalleryView;
+export default withRouter(NewGalleryView);

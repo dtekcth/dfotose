@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import React from 'react';
 import uiState from '../../UiState';
+import PropTypes from 'prop-types';
 
 export default class UploadImagesForm extends React.Component {
   static propTypes = {
-    galleryImageList: React.PropTypes.object
+    galleryImageList: PropTypes.object
   };
   
   constructor(props) {

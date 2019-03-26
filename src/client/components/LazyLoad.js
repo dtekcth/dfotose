@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import ReactDom from 'react-dom';
+import PropTypes from 'prop-types';
 
 const lazyLoadComponents = [];
 let lazyLoadHandler = null;
@@ -37,10 +38,10 @@ function isVisible(component) {
 
 export default class LazyLoad extends React.Component {
   static propTypes = {
-    children: React.PropTypes.node,
-    height: React.PropTypes.number.isRequired,
-    offset: React.PropTypes.number.isRequired,
-    placeHolder: React.PropTypes.node.isRequired
+    children: PropTypes.node,
+    height: PropTypes.number.isRequired,
+    offset: PropTypes.number.isRequired,
+    placeHolder: PropTypes.node.isRequired
   };
 
   constructor() {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {browserHistory} from 'react-router';
+import {withRouter} from 'react-router-dom';
 import {observer} from 'mobx-react';
 
 import ImageList from './ImageList';
@@ -12,7 +12,7 @@ class TagSearchView extends React.Component {
   constructor(props) {
     super(props);
 
-    const tag = _.get(props, 'params.tag');
+    const tag = _.get(props, 'match.params.tag');
     this.state = {
       tag: tag,
       imageList: uiState.imageStore.getImagesForTag(tag),
@@ -21,8 +21,8 @@ class TagSearchView extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (this.props.tag != newProps.params.tag) {
-      const tag = _.get(newProps, 'params.tag');
+    if (this.state.tag != newProps.match.params.tag) {
+      const tag = _.get(newProps, 'match.params.tag');
       this.setState({
         tag: tag,
         imageList: uiState.imageStore.getImagesForTag(tag),
@@ -33,7 +33,7 @@ class TagSearchView extends React.Component {
 
   onImageClick(image) {
     const imageViewLink = `/gallery/${image.galleryId}/image/${image.id}`;
-    browserHistory.push(imageViewLink);
+    this.props.history.push(imageViewLink);
   }
 
   onAllImagesLoaded() {
@@ -56,4 +56,4 @@ class TagSearchView extends React.Component {
   }
 }
 
-export default TagSearchView;
+export default withRouter(TagSearchView);

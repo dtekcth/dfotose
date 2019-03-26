@@ -5,7 +5,7 @@ export default ({visible}) => {
   const spinner = (
     <div className="loading-spinner">
       <h1>LADDAR</h1>
-      <Spinner spinnerName="wave" />
+      <Spinner name="wave" />
     </div>
   );
   

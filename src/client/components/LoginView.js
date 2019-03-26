@@ -1,12 +1,13 @@
 import React from "react";
-import {browserHistory} from "react-router";
+import {withRouter} from "react-router-dom";
 import {observer} from "mobx-react";
+import PropTypes from "prop-types";
 
 import uiState from '../UiState';
 
 @observer class LoginView extends React.Component {
   static propTypes = {
-    user: React.PropTypes.object.isRequired
+    user: PropTypes.object.isRequired
   };
 
   constructor() {
@@ -26,9 +27,9 @@ import uiState from '../UiState';
         uiState.refresh();
 
         if (uiState.user.role != 'None') {
-          browserHistory.push('/admin');
+          this.props.history.push('/admin');
         } else {
-          browserHistory.push('/');
+          this.props.history.push('/');
         }
       });
   }
@@ -62,4 +63,4 @@ import uiState from '../UiState';
   }
 }
 
-export default LoginView;
+export default withRouter(LoginView);

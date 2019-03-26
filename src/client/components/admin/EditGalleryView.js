@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import {Link} from 'react-router';
-import {browserHistory} from 'react-router';
+import {Link, withRouter} from 'react-router-dom';
 import moment from 'moment';
 
 import GalleryImagesView from './GalleryImagesView';
@@ -47,7 +46,7 @@ class EditGalleryView extends React.Component {
 
     this.props.gallery.update(newGalleryData)
       .then(() => {
-        browserHistory.push('/admin/gallery');
+        this.props.history.push('/admin/gallery');
       });
   }
 
@@ -103,7 +102,7 @@ class EditGalleryView extends React.Component {
 }
 
 const EditGalleryViewContainer = PreloadContainerFactory((props) => {
-  const galleryId = _.get(props, 'params.id');
+  const galleryId = _.get(props, 'match.params.id');
 
   const galleryPromise = GalleryStore.fetchGallery(galleryId);
   const imagesPromise = ImageStore.fetchImagesInGallery(galleryId);
@@ -117,4 +116,4 @@ const EditGalleryViewContainer = PreloadContainerFactory((props) => {
   });
 }, EditGalleryView);
 
-export default EditGalleryViewContainer;
+export default withRouter(EditGalleryViewContainer);

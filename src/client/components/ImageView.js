@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import React from 'react';
 import {observer} from 'mobx-react';
-import {Link} from 'react-router';
+
+import {Link} from 'react-router-dom';
 
 import keydown, {Keys} from 'react-keydown';
 
@@ -154,8 +155,8 @@ class ImageView extends React.Component {
 }
 
 const ImageContainer = PreloadContainerFactory((props) => {
-  const galleryId = _.get(props, 'routeParams.galleryId');
-  const id = _.get(props, 'routeParams.id');
+  const galleryId = _.get(props, 'match.params.galleryId');
+  const id = _.get(props, 'match.params.id');
 
   const galleryPromise = GalleryStore.fetchGallery(galleryId);
   const imagesPromise = ImageStore.fetchImagesInGallery(galleryId);
