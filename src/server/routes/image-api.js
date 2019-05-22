@@ -12,7 +12,7 @@ import exifParser from 'exif-parser';
 import moment from 'moment';
 
 import {Restrictions} from '../model/user-roles';
-import {requireRestrictions} from './auth-api.js';
+import {requireRestrictions, hasRestrictions} from './auth-api.js';
 import Logger from '../logger';
 import config from '../config';
 import {abortOnError} from '../utils';
@@ -67,6 +67,14 @@ router.get('/image/:galleryId', (req, res) => {
   });
 });
 
+router.get('/image/:id/details', (req,res) => {
+  const id = req.params.id;
+  Image.findById(id, (err, image) => {
+    abortOnError(err, res);
+    res.send(image);
+  });
+});
+
 // Return a specific image using an id
 router.get('/image/:id/fullSize', (req, res) => {
   const id = req.params.id;
@@ -114,6 +122,86 @@ router.get('/image/:id/tags', (req, res) => {
 
     res.send(imageTags);
   });
+});
+
+router.get('/image/:id/author', (req, res) => {
+    const id = req.params.id;
+    Image.findById(id, (err, image) => {
+        abortOnError(err, res);
+        res.send(image.author);
+    });
+})
+
+router.post('/image/:id/gallerythumbnail', (req,res) => {
+  const id = req.params.id;
+
+  const canWriteImage = hasRestrictions(
+      req,
+      Restrictions.WRITE_GALLERY | Restrictions.WRITE_IMAGES
+  );
+
+  if (!canWriteImage) {
+    res.status(403).end();
+    Logger.warn(`User ${req.session.user.cid} had insufficient permissions to change thumbnail.`);
+    return;
+  }
+
+  // Find the image that should be set as thumbnail
+  Image.findOne({_id: id}, (err, newThumb) => {
+    abortOnError(err, res);
+
+    // Remove the image that was previously thumbnail
+    Image.find({galleryId: newThumb.galleryId, isGalleryThumbnail: true}, (err, oldThumbs) => {
+      if (oldThumbs !== null && oldThumbs.length !== 0) {
+        oldThumbs.forEach(oldThumb => {
+          oldThumb.isGalleryThumbnail = false;
+          oldThumb.save();
+        });
+      }
+      else { console.log("No old thumbnail found"); }
+    });
+
+    // Set the new one as thumbnail
+    newThumb.isGalleryThumbnail = true;
+    newThumb.save();
+    console.log(`Changed gallery thumbnail to ${id} for gallery ${newThumb.galleryId}`);
+    res.status(202).end();
+
+  });
+})
+
+router.post('/image/:id/author', jsonParser, (req, res) => {
+    const imageId = req.params.id;
+    const {newCid} = req.body;
+
+    const canWriteImage = hasRestrictions(
+        req,
+        Restrictions.WRITE_GALLERY | Restrictions.WRITE_IMAGES
+    );
+
+    if (!canWriteImage) {
+      res.status(403).end();
+      Logger.warn(`User ${req.session.user.cid} had insufficient permissions to change author`);
+      return;
+    }
+
+    // First find the user so we can get the fullname
+    User.findOne({cid: newCid}, (err, user) => {
+        abortOnError(err, res);
+
+        // Next, update the image
+        Image.findOneAndUpdate({_id: imageId}, {
+          $set: {
+            authorCid: newCid,
+            author: user.fullname
+          }
+        }, (err) => {
+          abortOnError(err, res);
+
+          console.log(`Changed author to ${user.fullname} for image ${imageId}`);
+          res.status(202).end();
+        })
+    });
 });
 
 router.post('/image/:id/tags', jsonParser, (req, res) => {
@@ -235,6 +323,7 @@ function handleImages(req, res, galleryId) {
       const thumbnail = path.resolve(galleryPath, "thumbnails", `${filename}.${extension}`);
       sharp(fullSizeImagePath)
         .resize(300, 200)
+        .rotate() // rotates the image based on EXIF orientation data
         .crop(sharp.strategy.entropy)
         .toFile(thumbnail, (err) => {
           if (err) {
@@ -247,6 +336,7 @@ function handleImages(req, res, galleryId) {
       const preview = path.resolve(galleryPath, "previews", `${filename}.${extension}`);
       sharp(fullSizeImagePath)
         .resize(null, 800)
+        .rotate() // rotates the image based on EXIF orientation data
         .toFile(preview, (err) => {
           if (err) {
             Logger.error(`Could not save preview for image ${filename}`);
