@@ -18,18 +18,33 @@ const GalleryImagesView = observer(({imageList}) => {
     imageList.removeMarkedImages();
   };
 
+  const onUserChange = (image) => {
+    return (event) => {
+        const newCid = event.target.value;
+        image.changeAuthor(newCid);
+    };
+  };
+
+  const onThumbChange = (image) => {
+    return (event) => {
+      image.setGalleryThumbnail();
+      imageList.images.forEach(image => image.updateData());
+    }
+  }
+
   const images = _.map(imageList.images.toJS(), image => {
     const className = image.isMarked ? 'marked' : '';
 
     return (
-      <tr key={image.filename} className={className} onClick={onToggleImage(image).bind(this)}>
-        <td> <input type="checkbox" checked={image.isMarked} onClick={onToggleImage(image).bind(this)}/></td>
+      <tr key={image.filename} className={className} >
+        <td> <input type="checkbox" checked={image.isMarked} onChange={onToggleImage(image).bind(this)}/></td>
+        <td> <input type="radio" name="is-thumbnail" checked={image.isGalleryThumbnail} onChange={onThumbChange(image).bind(this)}/></td>
         <td> {image.filename} </td>
         <td> <img key={ image.filename } src={ image.thumbnail } /> </td>
       </tr>
     );
   });
-  
+
   return (
     <div>
       <UploadImagesForm galleryImageList={ imageList } />
@@ -42,6 +57,7 @@ const GalleryImagesView = observer(({imageList}) => {
         <thead>
           <tr>
             <th>#</th>
+            <th>thumbnail</th>
             <th>filnamn</th>
             <th>bild</th>
           </tr>
