@@ -22,9 +22,7 @@ export default class StickyHeader extends React.Component {
       <Sticky onStickyStateChange={ this.onStickyChange.bind(this) } topOffset={ 200 }
               className={ isVisible ? 'visible' : 'hidden' }>
         {() => (
-          <div onClick={ () => animateScroll.scrollToTop() } className="sticky-header">
-            <span>KLICKA HÄR FÖR ATT GÅ TILL TOPPEN</span>
-          </div>
+          <div onClick={ () => animateScroll.scrollToTop() } className="sticky-header"/>
         )}
       </Sticky>
     )
