@@ -1,9 +1,11 @@
 version: '3'
 services:
   dfotose:
+    container_name: dfotose
+    restart: unless-stopped
     build: .
     ports:
-      - 4000:4000
+      - 127.0.0.1:4000:4000
     volumes:
       - ./storage:/dfotose/storage
       - ./uploaded-images:/dfotose/uploaded-images
@@ -15,8 +17,12 @@ services:
       - mongo
       - redis
   redis:
+    container_name: dfotose-redis
     image: "redis:alpine"
+    restart: unless-stopped
   mongo:
+    container_name: dfotose-mongodb
+    restart: unless-stopped
     image: "mongo:latest"
     environment:
       - MONGO_DATA_DIR=/data/db
