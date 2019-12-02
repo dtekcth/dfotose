@@ -55,7 +55,7 @@ const About = () => {
           Vår ambition är att genom foto och film föreviga alla arrangemang Datateknologen går på.
           Allt ifrån iDrotts legendariska aktiviteter, till D6s storslagna fester och Deltas episka pubar.</p>
         <p> Du kan komma i kontakt med oss genom att maila <a href="mailto:dfoto@dtek.se">dfoto@dtek.se</a> eller 
-          skriva till vår <a href="https://www.facebook.com/dfotochalmers/">Facebooksida</a>!
+          skriva till vår <a href="https://www.facebook.com/dfotochalmers/">Facebooksida</a>.
         </p>
         <h3>Vi ses genom kameralinsen!</h3>
       </div>
@@ -69,12 +69,12 @@ const AdminHome = () => {
 
 const NotFound = () => {
   const imagesWithText = [
-    {path: '/assets/images/404-hasse.jpg', text: 'Like lite brösthår som Hasse?'},
-    {path: '/assets/images/404-isak.jpg', text: 'Lika full som Isak?'},
-    {path: '/assets/images/404-miranda.jpg', text: 'Nergången är det nya svarta, som Miranda..'},
-    {path: '/assets/images/404-tove.jpg', text: 'Tove approves, mer fylla'},
-    {path: '/assets/images/404-martin.jpg', text: 'Ser du lika dåligt som Martin?'},
-    {path: '/assets/images/404-sebbe.gif', text: 'Lika imponerande som Sebbe?'}
+    {path: '/assets/images/404-erland.jpg', text: 'Lika sögen på kaliber som Erland?'},
+    {path: '/assets/images/404-nemo.jpg', text: 'Lika högljudd som Nemo?'},
+    {path: '/assets/images/404-nora.jpg', text: 'Lika bra korvhäfvare som Nora?'},
+    {path: '/assets/images/404-samu.jpg', text: 'Lika dålig gymnast som Samu?'},
+    {path: '/assets/images/404-stas.jpg', text: 'Lika klar i skallen som Staś?'},
+    {path: '/assets/images/404-tolv.jpg', text: 'Sexigast på data?'}
   ];
 
   const shuffled = _.shuffle(imagesWithText);
