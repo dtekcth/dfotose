@@ -23,7 +23,7 @@ services:
   mongo:
     container_name: dfotose-mongodb
     restart: unless-stopped
-    image: "mongo:latest"
+    image: "mongo:4.0.1"
     environment:
       - MONGO_DATA_DIR=/data/db
     volumes:
