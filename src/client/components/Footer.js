@@ -19,7 +19,7 @@ class Footer extends React.Component {
           { uiState.user.isLoggedIn ? <span>Du är inloggad som { uiState.user.cid }</span> : null }
           <br/>
           <p>Hittar du något du inte gillar med sidan? Fixa det! <a href="https://github.com/dtekcth/dfotose">Här</a> är koden. </p>
-          <p>Copyright &copy; DFoto 2019.</p>
+          <p>Copyright &copy; DFoto {new Date().getFullYear()}.</p>
         </div>
       </div>
     );
