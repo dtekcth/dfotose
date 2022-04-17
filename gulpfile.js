@@ -31,6 +31,9 @@ gulp.task('client:copy', function() {
   gulp.src('./src/client/index.html')
     .pipe(gulp.dest(path.OUT_DIR + 'public'));
 
+  gulp.src('./src/client/robots.txt')
+    .pipe(gulp.dest(path.OUT_DIR + 'public'));
+
   gulp.src('./src/client/assets/**/*')
     .pipe(gulp.dest(path.OUT_DIR + 'public/assets'));
 });
