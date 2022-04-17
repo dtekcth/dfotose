@@ -69,12 +69,14 @@ const AdminHome = () => {
 
 const NotFound = () => {
   const imagesWithText = [
-    {path: '/assets/images/404-erland.jpg', text: 'Lika sögen på kaliber som Erland?'},
-    {path: '/assets/images/404-nemo.jpg', text: 'Lika högljudd som Nemo?'},
-    {path: '/assets/images/404-nora.jpg', text: 'Lika bra korvhäfvare som Nora?'},
-    {path: '/assets/images/404-samu.jpg', text: 'Lika dålig gymnast som Samu?'},
-    {path: '/assets/images/404-stas.jpg', text: 'Lika klar i skallen som Staś?'},
-    {path: '/assets/images/404-tolv.jpg', text: 'Sexigast på data?'}
+    {path: '/assets/images/404-lec.jpg', text: 'Rädd för Corona?'},
+    {path: '/assets/images/404-logan1.jpg', text: 'Lika bra på Frisbee som Logan?'},
+    {path: '/assets/images/404-logan2.jpg', text: 'Smartast på data?'},
+    {path: '/assets/images/404-riddle.jpg', text: 'Känner in rummet?'},
+    {path: '/assets/images/404-vilse.jpg', text: 'Ute på äventyr?'},
+    {path: '/assets/images/404-win.jpg', text: 'Alltid redo?'},
+    {path: '/assets/images/404-boris.jpg', text: 'Kidnappad?'},
+    {path: '/assets/images/404-vela.jpg', text: 'Glad i glaset?'}
   ];
 
   const shuffled = _.shuffle(imagesWithText);
