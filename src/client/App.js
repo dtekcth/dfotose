@@ -104,27 +104,29 @@ class App extends React.Component {
           <StickyHeader/>
           <div className="content">
             <div className="row">
-              <Switch>
-                {/* User routes */}
-                <Route exact path="/" component={GalleryList}/>
-                <Route exact path="/login" component={Login}/>
-                <Route exact path="/about" component={About}/>
-                <Route exact path="/gallery/page/:pageNumber" component={GalleryList}/>
-                <Route exact path="/gallery/:id" component={GalleryView}/>
-                <Route exact path="/gallery/:galleryId/image/:id" component={ImageView}/>
-                <Route exact path="/image/search/:tag" component={TagSearchView}/>
+              <div className="wrapper">
+                <Switch>
+                  {/* User routes */}
+                  <Route exact path="/" component={GalleryList}/>
+                  <Route exact path="/login" component={Login}/>
+                  <Route exact path="/about" component={About}/>
+                  <Route exact path="/gallery/page/:pageNumber" component={GalleryList}/>
+                  <Route exact path="/gallery/:id" component={GalleryView}/>
+                  <Route exact path="/gallery/:galleryId/image/:id" component={ImageView}/>
+                  <Route exact path="/image/search/:tag" component={TagSearchView}/>
 
-                {/* Admin routes */}
-                <Route exact path="/admin" component={AdminHome}/>
-                <Route path="/admin/members" component={AdminMembersView}/>
+                  {/* Admin routes */}
+                  <Route exact path="/admin" component={AdminHome}/>
+                  <Route path="/admin/members" component={AdminMembersView}/>
 
-                {/* Admin gallery routes */}
-                <Route exact path="/admin/gallery" component={AdminGalleryListView}/>
-                <Route exact path="/admin/gallery/new" component={AdminNewGalleryView}/>
-                <Route exact path="/admin/gallery/edit/:id" component={AdminEditGalleryView}/>
+                  {/* Admin gallery routes */}
+                  <Route exact path="/admin/gallery" component={AdminGalleryListView}/>
+                  <Route exact path="/admin/gallery/new" component={AdminNewGalleryView}/>
+                  <Route exact path="/admin/gallery/edit/:id" component={AdminEditGalleryView}/>
 
-                <Route path="*" component={NotFound}/>
-              </Switch>
+                  <Route path="*" component={NotFound}/>
+                </Switch>
+              </div>
             </div>
           </div>
           <Footer/>
