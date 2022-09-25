@@ -5,7 +5,12 @@ krb5_conf="""[libdefaults]
   clockskew = 300
   v4_instance_resolve = false
   dns_lookup_kdc = true
-
+[realms]
+  CHALMERS.SE = {
+    kdc = kdc1.ita.chalmers.se:88
+    kdc = kdc2.ita.chalmers.se:88
+    kdc = kdc3.ita.chalmers.se:88
+  }
 [domain_realm]
   .chalmers.se = CHALMERS.SE
   chalmers.se = CHALMERS.SE
