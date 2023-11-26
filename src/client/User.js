@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {observable, action, computed} from 'mobx';
+import { observable, action, computed } from 'mobx';
 
 import axios from 'axios';
 import UiState from './UiState';
@@ -12,21 +12,31 @@ class User {
   }
 
   @action firstCheck() {
-    axios.get('/auth/user', null, { responseType: 'json' })
-      .then((response => {
-        this.data = response.data;
-      }).bind(this))
+    axios
+      .get('/auth/user')
+      .then(
+        ((response) => {
+          this.data = response.data;
+        }).bind(this)
+      )
       .catch((err) => {
         console.log(err);
       });
   }
 
+  /**
+   *
+   * @param {string} cid
+   * @param {string} password
+   * @returns
+   */
   @action login(cid, password) {
-    return axios.post('/auth/login', { cid: cid, password: password }, { responseType: 'json' })
-      .then((response => {
+    return axios.post('/auth/login', { cid: cid, password: password }).then(
+      ((response) => {
         this.data = response.data;
         UiState.refresh();
-      }).bind(this));
+      }).bind(this)
+    );
   }
 
   @action logout() {
@@ -34,11 +44,12 @@ class User {
       return Promise.reject();
     }
 
-    return axios.get('/auth/logout')
-      .then((response => {
+    return axios.get('/auth/logout').then(
+      ((response) => {
         this.data = null;
         UiState.refresh();
-      }).bind(this));
+      }).bind(this)
+    );
   }
 
   @computed get current() {
@@ -46,11 +57,15 @@ class User {
   }
 
   @action setFullName(fullName) {
-    return axios.put(`/auth/user/${this.cid}`, {
-      fullname: fullName
-    }).then((() => {
-      this.data.fullname = fullName;
-    }).bind(this));
+    return axios
+      .put(`/auth/user/${this.cid}`, {
+        fullname: fullName,
+      })
+      .then(
+        (() => {
+          this.data.fullname = fullName;
+        }).bind(this)
+      );
   }
 
   @computed get isLoggedIn() {
@@ -68,7 +83,10 @@ class User {
   @computed get fullName() {
     return _.get(this.data, 'fullname');
   }
+
+  @computed get role() {
+    return _.get(this.data, 'role', 'None');
+  }
 }
 
 export default User;
-
