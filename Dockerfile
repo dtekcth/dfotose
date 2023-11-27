@@ -1,6 +1,9 @@
 FROM node:21
 
-WORKDIR /dfotose
+
+WORKDIR /app
+
+COPY ./config/krb5.conf /etc/krb5.conf
 
 # Install all dependencies
 COPY package.json .
@@ -15,5 +18,3 @@ RUN gulp server:build
 RUN gulp config:copy
 RUN gulp client:copy
 RUN gulp client:build
-
-RUN sh setup-kerberos.sh
