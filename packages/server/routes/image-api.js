@@ -13,10 +13,12 @@ import moment from 'moment';
 import { Restrictions } from '../model/user-roles';
 import { requireRestrictions, hasRestrictions } from './auth-api.js';
 import Logger from '../logger';
-import config from '../config';
 import { abortOnError } from '../utils';
 
 const jsonParser = bodyParser.json();
+
+const tempPath = process.env.TEMP_PATH;
+const storagePath = process.env.STORAGE_PATH;
 
 import Image from '../model/image';
 import ImageTag from '../model/image-tag';
@@ -27,7 +29,7 @@ export default router;
 
 const imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const path = config.storage.temporaryImagePath;
+    const path = tempPath;
     cb(null, path);
   },
   filename: function (req, file, cb) {
@@ -39,17 +41,15 @@ const imageStorage = multer.diskStorage({
 const upload = multer({ storage: imageStorage });
 
 // Make sure storage directories are created
-fs.mkdirs(config.storage.temporaryImagePath, (err) => {
+fs.mkdirs(tempPath, (err) => {
   if (err) {
-    Logger.error(
-      `Could not create storage directory ${config.storage.temporaryImagePath}`
-    );
+    Logger.error(`Could not create storage directory ${tempPath}`);
     throw err;
   }
 });
-fs.mkdirs(config.storage.path, (err) => {
+fs.mkdirs(storagePath, (err) => {
   if (err) {
-    Logger.error(`Could not create storage directory ${config.storage.path}`);
+    Logger.error(`Could not create storage directory ${storagePath}`);
     throw err;
   }
 });
@@ -333,7 +333,7 @@ function handleImages(req, res, galleryId) {
 
     const extension = image.originalname.split('.').pop();
     const filename = uuid.v4();
-    const galleryPath = path.resolve(config.storage.path, galleryId);
+    const galleryPath = path.resolve(storagePath, galleryId);
     const fullSizeImagePath = `${galleryPath}/${filename}.${extension}`;
 
     createDirectoryIfNeeded(galleryPath);

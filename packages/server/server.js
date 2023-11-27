@@ -6,7 +6,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 
 import session from 'express-session';
-import connectRedis from 'connect-redis';
+import RedisStore from 'connect-redis';
+import { createClient } from 'redis';
 
 // Routes
 import imageRouter from './routes/image-api';
@@ -14,13 +15,9 @@ import galleryRouter from './routes/gallery-api';
 import authRouter from './routes/auth-api';
 import userRoleRouter from './routes/user-role-api';
 
-import config from './config';
-
-mongoose.promise = global.Promise;
-
 const connectWithRetry = () => {
   console.log('MongoDB connection with retry');
-  mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true });
+  mongoose.connect(process.env.MONGODB_URL);
 };
 
 // Retry connection on failure
@@ -29,25 +26,19 @@ mongoose.connection.on('error', (err) => {
   setTimeout(connectWithRetry, 5000);
 });
 
+const redisClient = createClient({ url: process.env.REDIS_URL });
+
 connectWithRetry();
 
 const app = express();
 
-const RedisStore = connectRedis(session);
 const sessionMiddleware = session({
-  store: new RedisStore({
-    host: config.redis.host,
-    port: 6379,
-  }),
-  secret: config.session.secret,
+  store: new RedisStore({ client: redisClient }),
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   name: 'dfotose.session',
 });
-
-if (process.env.NODE_ENV !== 'production') {
-  Webpack(app);
-}
 
 // Basic security module
 app.use(helmet());
@@ -71,6 +62,6 @@ app.use(baseUrl, imageRouter);
 app.use(baseUrl, galleryRouter);
 app.use(baseUrl, userRoleRouter);
 
-app.listen(config.port, () => {
-  console.log(`Listening :${config.port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Listening :${process.env.PORT}`);
 });

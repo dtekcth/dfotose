@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/dtekcth/dfotose.git"
   },
-  "author": "Sebastian Lund, Isak Persson",
+  "author": "Sebastian Lund, Isak Persson, Carl Malmgren",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/dtekcth/dfotose/issues"
@@ -15,7 +15,6 @@
   "homepage": "https://github.com/dtekcth/dfotose#readme",
   "workspaces": [
     "packages/client",
-    "packages/server",
-    "packages/test"
+    "packages/server"
   ]
 }
