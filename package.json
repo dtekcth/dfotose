@@ -2,7 +2,6 @@
   "name": "dfotose",
   "version": "1.0.0",
   "description": "dfoto.se",
-  "main": "src/server/server.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dtekcth/dfotose.git"
@@ -16,5 +15,6 @@
   "workspaces": [
     "packages/client",
     "packages/server"
-  ]
+  ],
+  "dependencies": {}
 }

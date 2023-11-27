@@ -10,10 +10,10 @@ import RedisStore from 'connect-redis';
 import { createClient } from 'redis';
 
 // Routes
-import imageRouter from './routes/image-api';
-import galleryRouter from './routes/gallery-api';
-import authRouter from './routes/auth-api';
-import userRoleRouter from './routes/user-role-api';
+import imageRouter from './routes/image-api.js';
+import galleryRouter from './routes/gallery-api.js';
+import authRouter from './routes/auth-api.js';
+import userRoleRouter from './routes/user-role-api.js';
 
 const connectWithRetry = () => {
   console.log('MongoDB connection with retry');
