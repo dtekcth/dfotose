@@ -29,7 +29,7 @@ import AdminMembersView from './components/admin/MembersView';
 import uiState from './UiState';
 import { head, shuffle } from 'lodash-es';
 
-import './css/all.scss';
+import './assets/scss/all.scss';
 
 const Login = () => {
   return <LoginView user={uiState.user} />;
@@ -97,7 +97,14 @@ const NotFound = () => {
 const Root = observer(() => (
   <>
     <Header user={uiState.user}></Header>
-    <Outlet />
+    <div className="sticky-header"></div>
+    <div className="content">
+      <div className="row">
+        <div className="wrapper">
+          <Outlet />
+        </div>
+      </div>
+    </div>
     <Footer />
   </>
 ));

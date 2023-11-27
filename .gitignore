@@ -9,9 +9,8 @@
 # Log-files
 *.log
 
-/dist
+dist
 node_modules
-/bower_components
 
 # Config files
 /src/config/config.yml

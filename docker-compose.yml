@@ -1,11 +1,9 @@
 version: '3.7'
 services:
   dfotose:
-    container_name: dfotose
     build: .
     environment:
       - NODE_ENV=production
-    command: ["pm2-runtime", "start", "-i", "10", "dist/server.js"]
     ports:
       - 127.0.0.1:4000:4000
     volumes:
@@ -15,11 +13,9 @@ services:
       - mongo
       - redis
   redis:
-    container_name: dfotose-redis
     image: "redis:alpine"
     restart: unless-stopped
   mongo:
-    container_name: dfotose-mongodb
     restart: unless-stopped
     image: "mongo:4.0.1"
     environment:
