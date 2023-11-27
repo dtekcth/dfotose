@@ -2,17 +2,15 @@ version: '3.7'
 services:
   dfotose:
     container_name: dfotose
-    restart: unless-stopped
     build: .
+    environment:
+      - NODE_ENV=production
+    command: ["pm2-runtime", "start", "-i", "10", "dist/server.js"]
     ports:
       - 127.0.0.1:4000:4000
     volumes:
-      - ./storage:/dfotose/storage
-      - ./uploaded-images:/dfotose/uploaded-images
-      - ./src:/dfotose/src
-    links:
-      - mongo
-      - redis
+      - storage:/dfotose/storage
+      - images:/dfotose/uploaded-images
     depends_on:
       - mongo
       - redis
@@ -27,5 +25,10 @@ services:
     environment:
       - MONGO_DATA_DIR=/data/db
     volumes:
-      - ./data/db:/data/db
+      - dfoto-mongo-data:/data/db
     command: mongod --smallfiles
+
+volumes:
+  dfoto-mongo-data:
+  storage:
+  images:

@@ -1,0 +1,92 @@
+import { observable, action, computed } from 'mobx';
+
+import axios from 'axios';
+import UiState from './UiState';
+import { get } from 'lodash-es';
+
+class User {
+  @observable accessor data = null;
+
+  constructor() {
+    this.firstCheck();
+  }
+
+  @action firstCheck() {
+    axios
+      .get('/auth/user')
+      .then(
+        ((response) => {
+          this.data = response.data;
+        }).bind(this)
+      )
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  /**
+   *
+   * @param {string} cid
+   * @param {string} password
+   * @returns
+   */
+  @action login(cid, password) {
+    return axios.post('/auth/login', { cid: cid, password: password }).then(
+      ((response) => {
+        this.data = response.data;
+        UiState.refresh();
+      }).bind(this)
+    );
+  }
+
+  @action logout() {
+    if (this.data == null) {
+      return Promise.reject();
+    }
+
+    return axios.get('/auth/logout').then(
+      ((response) => {
+        this.data = null;
+        UiState.refresh();
+      }).bind(this)
+    );
+  }
+
+  @computed get current() {
+    return this.data;
+  }
+
+  @action setFullName(fullName) {
+    return axios
+      .put(`/auth/user/${this.cid}`, {
+        fullname: fullName,
+      })
+      .then(
+        (() => {
+          this.data.fullname = fullName;
+        }).bind(this)
+      );
+  }
+
+  @computed get isLoggedIn() {
+    return this.data != null;
+  }
+
+  @computed get dfotoMember() {
+    return get(this.data, 'dfotoMember', false);
+  }
+
+  @computed get cid() {
+    return get(this.data, 'cid', '');
+  }
+
+  @computed get fullName() {
+    return get(this.data, 'fullname');
+  }
+
+  @computed get role() {
+    return get(this.data, 'role', 'None');
+  }
+}
+
+export default User;

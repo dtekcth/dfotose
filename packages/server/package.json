@@ -1,0 +1,5 @@
+{
+  "name": "dfotose-server",
+  "version": "1.0.0",
+  "main": "src/server/server.js"
+}
