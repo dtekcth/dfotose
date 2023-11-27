@@ -2,18 +2,20 @@ import uuid from 'uuid';
 import { Router } from 'express';
 import multer from 'multer';
 import fs from 'fs-extra';
-import path from 'path';
+import fsp from 'fs/promises';
+import path, { resolve } from 'path';
 import sharp from 'sharp';
 import bodyParser from 'body-parser';
 import { inHTMLData } from 'xss-filters';
 import mongoose from 'mongoose';
-import exifParser from 'exif-parser';
 import moment from 'moment';
+import {ExifImage} from 'exif';
 
 import { Restrictions } from '../model/user-roles';
 import { requireRestrictions, hasRestrictions } from './auth-api.js';
 import Logger from '../logger';
 import { abortOnError } from '../utils';
+import { forEach, get, has, map } from 'lodash';
 
 const jsonParser = bodyParser.json();
 
@@ -23,6 +25,7 @@ const storagePath = process.env.STORAGE_PATH;
 import Image from '../model/image';
 import ImageTag from '../model/image-tag';
 import Gallery from '../model/gallery';
+import User from '../model/user';
 
 const router = Router();
 export default router;
@@ -268,7 +271,7 @@ router.get('/image/tags/:tagName/search', (req, res) => {
 
     // imageTags contains all of the ids of images we need to send
     // to the client
-    const imageObjectIds = _.map(imageTags, (tag) => {
+    const imageObjectIds = map(imageTags, (tag) => {
       return mongoose.Types.ObjectId(tag.imageId);
     });
 
@@ -295,37 +298,38 @@ function createDirectoryIfNeeded(dir) {
   }
 }
 
-function readExifData(imagePath, cb) {
-  fs.open(imagePath, 'r', (status, fd) => {
-    if (status) {
-      Logger.error(`Could not open ${imagePath} for reading`);
-      return;
-    }
+/**
+ *
+ * @param {string} imagePath
+ * @returns
+ */
+async function readExifData(imagePath) {
+  try {
+    const file = await fsp.open(imagePath, 'r');
+    const buffer = await fsp.readFile(file);
 
-    var buffer = new Buffer(65635); // 64kb buffer
-    fs.read(fd, buffer, 0, 65635, 0, (err, bytesRead) => {
-      if (err) {
-        Logger.error(`Could not read EXIF data from ${imagePath}`);
-        return;
-      }
-
-      try {
-        var parser = exifParser.create(buffer);
-        const parsed = parser.parse();
-        cb(parsed);
-      } catch (ex) {
-        cb({});
-      }
+    return new Promise((resolve, reject) => {
+      new ExifImage({ image: buffer }, (error, exifData) => {
+        if (error) {
+          Logger.error(`Error reading EXIF data from ${imagePath}`, error);
+          reject(error);
+        } else {
+          resolve(exifData);
+        }
+      });
     });
-  });
+  } catch (error) {
+    Logger.error(`Error reading EXIF data from ${imagePath}`, error);
+    throw error;
+  }
 }
 
-function handleImages(req, res, galleryId) {
+async function handleImages(req, res, galleryId) {
   const userCid = req.session.user.cid;
   const images = req.files;
 
-  _.forEach(images, (image) => {
-    const fieldName = _.get(image, 'fieldname');
+  for (const image of images) {
+    const fieldName = get(image, 'fieldname');
     if (fieldName !== 'photos') {
       res.status(500).send();
       throw 'incorrect fieldName specified';
@@ -340,10 +344,12 @@ function handleImages(req, res, galleryId) {
     createDirectoryIfNeeded(path.resolve(galleryPath, 'thumbnails'));
     createDirectoryIfNeeded(path.resolve(galleryPath, 'previews'));
 
-    fs.move(image.path, fullSizeImagePath, (err) => {
-      if (err) {
-        Logger.error(err);
-      }
+    try {
+      await fsp.rename(image.path, fullSizeImagePath);
+    } catch (error) {
+      Logger.error(error);
+    }
+
 
       const thumbnail = path.resolve(
         galleryPath,
@@ -351,9 +357,8 @@ function handleImages(req, res, galleryId) {
         `${filename}.${extension}`
       );
       sharp(fullSizeImagePath)
-        .resize(300, 200)
+        .resize(300, 200, { fit: 'cover', position: sharp.strategy.entropy })
         .rotate() // rotates the image based on EXIF orientation data
-        .crop(sharp.strategy.entropy)
         .toFile(thumbnail, (err) => {
           if (err) {
             Logger.error(`Could not save thumbnail for image ${filename}`);
@@ -379,7 +384,7 @@ function handleImages(req, res, galleryId) {
         });
 
       readExifData(fullSizeImagePath, (exif) => {
-        const shotAtUnformatted = _.get(exif, 'tags.DateTimeOriginal');
+        const shotAtUnformatted = get(exif, 'tags.DateTimeOriginal');
         const shotAt = shotAtUnformatted ? moment(shotAtUnformatted) : moment();
 
         var newImage = new Image({
@@ -393,21 +398,20 @@ function handleImages(req, res, galleryId) {
           exifData: exif,
         });
 
-        if (_.has(req.session, 'user.fullname')) {
-          newImage.author = _.get(req.session, 'user.fullname', '');
+        if (has(req.session, 'user.fullname')) {
+          newImage.author = get(req.session, 'user.fullname', '');
         }
-
-        newImage.save((err) => {
+        try {
+          await newImage.save();
+        } catch (error) {
           if (err) {
             Logger.error(err);
             throw err;
           }
-
-          Logger.info(`Saved image ${filename}`);
-        });
+        }
+        Logger.info(`Saved image ${filename}`);
       });
-    });
-  });
+  }
 
   Logger.info(
     `${images.length} new images uploaded by ${req.session.user.cid}`
@@ -458,7 +462,7 @@ export function updateAuthorOfImagesUploadedByCid(cid, author) {
   const updated = { author: author };
 
   Image.find({ authorCid: cid }, (err, images) => {
-    _.forEach(images, (image) => {
+    forEach(images, (image) => {
       Image.findOneAndUpdate(
         { _id: image._id },
         { $set: updated },
