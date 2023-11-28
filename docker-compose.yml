@@ -5,21 +5,28 @@ services:
     environment:
       - NODE_ENV=production
     ports:
-      - 127.0.0.1:4000:4000
+      - 4000:4000
     volumes:
       - storage:/dfotose/storage
       - images:/dfotose/uploaded-images
     depends_on:
       - mongo
       - redis
+    profiles:
+      - "dev"
+
   redis:
     image: "redis:alpine"
     restart: unless-stopped
+    ports:
+      - 6379:6379
   mongo:
     restart: unless-stopped
     image: "mongo:4.0.1"
     environment:
       - MONGO_DATA_DIR=/data/db
+    ports:
+      - 27017:27017
     volumes:
       - dfoto-mongo-data:/data/db
     command: mongod --smallfiles
