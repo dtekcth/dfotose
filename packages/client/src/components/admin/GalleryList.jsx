@@ -30,7 +30,7 @@ class Gallery extends React.Component {
 }
 
 @observer
-class GalleryList extends React.Component {
+export class AdminGalleryList extends React.Component {
   renderGallery(gallery) {
     return (
       <Gallery
@@ -97,5 +97,3 @@ class GalleryList extends React.Component {
     );
   }
 }
-
-export default GalleryList;

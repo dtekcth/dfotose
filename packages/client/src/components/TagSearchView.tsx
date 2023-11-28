@@ -33,7 +33,7 @@ const TagSearchView = observer(() => {
     setShowSpinner(false);
   }
 
-  const images = (imageList.images as any).toJS();
+  const images = imageList.images;
   const hasResults = images.length != 0;
 
   return (

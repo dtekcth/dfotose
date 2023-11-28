@@ -1,9 +1,9 @@
 import { observer } from 'mobx-react';
 
-import UploadImagesForm from './UploadImagesForm';
+import { UploadImagesForm } from './UploadImagesForm';
 import { map } from 'lodash-es';
 
-const GalleryImagesView = observer(({ imageList }) => {
+export const AdminGalleryImagesView = observer(({ imageList }) => {
   const onToggleImage = (image) => {
     return (event) => {
       if (image.isMarked) {
@@ -91,5 +91,3 @@ const GalleryImagesView = observer(({ imageList }) => {
     </div>
   );
 });
-
-export default GalleryImagesView;

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 import uiState from '../../UiState';
 
-class NewGalleryView extends React.Component {
+export class AdminNewGalleryView extends React.Component {
   constructor() {
     super();
 
@@ -74,5 +74,3 @@ class NewGalleryView extends React.Component {
     );
   }
 }
-
-export default NewGalleryView;

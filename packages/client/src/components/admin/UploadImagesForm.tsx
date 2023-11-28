@@ -1,11 +1,11 @@
 import { FormEvent, useRef, useState } from 'react';
 import { ImageGalleryList } from '../../ImageStore';
 
-export default function UploadImagesForm({
+export const UploadImagesForm = ({
   galleryImageList,
 }: {
   galleryImageList: ImageGalleryList;
-}) {
+}) => {
   const fileInput = useRef<HTMLInputElement>(null);
   const [percentDone, setPercentDone] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -58,4 +58,4 @@ export default function UploadImagesForm({
   );
 
   return <div>{isUploading ? progressBar : formUpload}</div>;
-}
+};

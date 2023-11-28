@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import GalleryList from './GalleryList';
+import { AdminGalleryList } from './GalleryList';
 import GalleryStore from '../../GalleryStore';
 
-class GalleryListView extends React.Component {
+export class AdminGalleryListView extends React.Component {
   render() {
     const store = new GalleryStore(true);
 
@@ -14,10 +14,8 @@ class GalleryListView extends React.Component {
         <Link to="/admin/gallery/new">
           <button type="button">Skapa nytt galleri</button>
         </Link>
-        <GalleryList galleries={store} />
+        <AdminGalleryList galleries={store} />
       </div>
     );
   }
 }
-
-export default GalleryListView;

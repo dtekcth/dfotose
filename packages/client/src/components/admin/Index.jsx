@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import { get } from 'lodash-es';
 
 @observer
-class AdminIndex extends React.Component {
+export class AdminIndex extends React.Component {
   constructor(props) {
     super(props);
 
@@ -74,5 +74,3 @@ class AdminIndex extends React.Component {
     );
   }
 }
-
-export default AdminIndex;

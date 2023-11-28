@@ -5,10 +5,10 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   server: {
     proxy: {
-      /* '/v1': 'http://localhost:3000',
-      "/auth": "http://localhost:3000" */
-      '/v1': 'https://dfoto.se',
-      '/auth': 'https://dfoto.se',
+      '/v1': 'http://localhost:4000',
+      '/auth': 'http://localhost:4000',
+      /* '/v1': 'https://dfoto.se',
+      '/auth': 'https://dfoto.se', */
     },
   },
   plugins: [

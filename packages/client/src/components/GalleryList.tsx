@@ -1,15 +1,78 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { Link, useLoaderData, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  LoaderFunction,
+  LoaderFunctionArgs,
+  useLoaderData,
+  useNavigate,
+} from 'react-router-dom';
 import { observer } from 'mobx-react';
 import moment from 'moment';
 
-import PaginatedArray from '../PaginatedArray';
-import GalleryStore, { Gallery } from '../GalleryStore';
+import { Gallery, getGalleies } from '../api/gallery';
+import { QueryClient, useQuery } from '@tanstack/react-query';
 
-const GalleryViewer = observer(({ gallery }: { gallery: Gallery }) => {
-  const thumbnailPreview = gallery.thumbnailPreview;
-  const galleryViewLink = `/gallery/${gallery.id}`;
+const galleriesListQuery = (page?: number) => ({
+  queryKey: ['galleries', page ?? 1],
+  queryFn: () => getGalleies(page),
+});
+
+export const loader =
+  (queryClient: QueryClient) =>
+  async ({ params }: LoaderFunctionArgs) => {
+    const page = Number(params.page ?? 1);
+    await queryClient.prefetchQuery(galleriesListQuery(page));
+    return {
+      page,
+    };
+  };
+
+type LoaderData<T extends (...args: any) => LoaderFunction> = Awaited<
+  ReturnType<ReturnType<T>>
+>;
+
+export default function GalleryList() {
+  const { page } = useLoaderData() as LoaderData<typeof loader>;
+  const {
+    data: { data: galleries, total },
+  } = useQuery(galleriesListQuery(page));
+
+  useEffect(() => {
+    console.log('gallery', galleries);
+  }, [page]);
+
+  const navigate = useNavigate();
+
+  function handleKeydown(event: React.KeyboardEvent) {
+    if (event.key == 'ArrowRight') {
+      navigate(`/gallery/page/${page + 1}`);
+    } else if (event.key == 'ArrowLeft') {
+      navigate(`/gallery/page/${page - 1}`);
+    }
+  }
+
+  return (
+    <div onKeyDown={handleKeydown}>
+      <div className="gallery-list">
+        {galleries.map((gallery) => (
+          <GalleryViewer key={gallery._id} gallery={gallery} />
+        ))}
+      </div>
+      <div className="gallery-pagination">
+        <Link to={`/gallery/page/${page - 1}`}>Föregående</Link>
+        <span>
+          sida {page} / {total}{' '}
+        </span>
+        <Link to={`/gallery/page/${page + 1}`}>Nästa</Link>
+      </div>
+    </div>
+  );
+}
+
+const GalleryViewer = ({ gallery }: { gallery: Gallery }) => {
+  const thumbnailPreview = `/v1/gallery/${gallery._id}/thumbnail-preview`;
+  const galleryViewLink = `/gallery/${gallery._id}`;
   const date = moment(gallery.shootDate).format('YYYY-MM-DD');
 
   return (
@@ -25,78 +88,4 @@ const GalleryViewer = observer(({ gallery }: { gallery: Gallery }) => {
       </Link>
     </div>
   );
-});
-
-const GalleryList = observer(({ galleries }: { galleries: Gallery[] }) => {
-  // Filter to ensure all is published, safety precaution
-  const publishedGalleries = galleries
-    .filter((g) => g.published)
-    .map((gallery) => {
-      return <GalleryViewer key={gallery.id} gallery={gallery} />;
-    });
-
-  return <div className="gallery-list">{publishedGalleries}</div>;
-});
-
-export async function loader({ params }) {
-  const galleries = await GalleryStore.fetchAllGalleries();
-  return {
-    paginatedGalleries: new PaginatedArray(galleries, 28),
-  };
-}
-
-function PaginatedGalleryList() {
-  const { paginatedGalleries } = useLoaderData() as Awaited<
-    ReturnType<typeof loader>
-  >;
-  const navigate = useNavigate();
-
-  function handleKeydown(event: React.KeyboardEvent) {
-    if (event.key == 'ArrowRight') {
-      nextPage();
-    } else if (event.key == 'ArrowLeft') {
-      prevPage();
-    }
-  }
-
-  function nextPage() {
-    paginatedGalleries
-      .nextPage()
-      .then(loadPage)
-      .catch(() => undefined);
-  }
-
-  function prevPage() {
-    paginatedGalleries
-      .prevPage()
-      .then(loadPage)
-      .catch(() => undefined);
-  }
-
-  function loadPage(pageNumber: number) {
-    navigate(`/gallery/page/${pageNumber}`);
-  }
-
-  const galleries = paginatedGalleries.currentPageData;
-  const currentPage = paginatedGalleries.currentPage;
-  const maxPage = paginatedGalleries.maxPage;
-
-  return (
-    <div onKeyDown={handleKeydown}>
-      <GalleryList galleries={galleries} />
-      <div className="gallery-pagination">
-        <a onClick={prevPage} type="button">
-          Föregående
-        </a>
-        <span>
-          sida {currentPage} / {maxPage}{' '}
-        </span>
-        <a onClick={nextPage} type="button">
-          Nästa
-        </a>
-      </div>
-    </div>
-  );
-}
-
-export default PaginatedGalleryList;
+};

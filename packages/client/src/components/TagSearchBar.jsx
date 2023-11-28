@@ -1,37 +1,29 @@
-import React from 'react';
 import { observer } from 'mobx-react';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
-@observer
-class TagSearchBar extends React.Component {
-  constructor(props) {
-    super(props);
+const TagSearchBar = observer(() => {
+  const navigate = useNavigate();
 
-    this.state = { searchInput: '' };
-  }
+  const [searchInput, setSearchInput] = useState('');
 
-  onSearch(event) {
+  function onSearch(event) {
     event.preventDefault();
 
-    this.props.history.push(`/image/search/${this.state.searchInput}`);
+    navigate(`/image/search/${searchInput}`);
   }
 
-  onSearchInputChange(event) {
-    this.setState({ searchInput: event.target.value });
-  }
-
-  render() {
-    return (
-      <form onSubmit={this.onSearch.bind(this)} className="tag-search-bar">
-        <input
-          type="text"
-          placeholder="sök efter taggar"
-          value={this.state.searchInput}
-          onChange={this.onSearchInputChange.bind(this)}
-        />
-        <button type="submit">Sök</button>
-      </form>
-    );
-  }
-}
+  return (
+    <form onSubmit={onSearch} className="tag-search-bar">
+      <input
+        type="text"
+        placeholder="sök efter taggar"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+      />
+      <button type="submit">Sök</button>
+    </form>
+  );
+});
 
 export default TagSearchBar;

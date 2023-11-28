@@ -102,7 +102,7 @@ export async function loader() {
   };
 }
 
-const MembersView = observer(() => {
+export const AdminMembersView = observer(() => {
   const { users, eligibleUsers } = useLoaderData() as Awaited<
     ReturnType<typeof loader>
   >;
@@ -137,5 +137,3 @@ const MembersView = observer(() => {
     </div>
   );
 });
-
-export default MembersView;

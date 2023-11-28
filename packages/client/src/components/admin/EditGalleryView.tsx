@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Link, useLoaderData, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 
-import GalleryImagesView from './GalleryImagesView';
+import { AdminGalleryImagesView } from './GalleryImagesView';
 
 import GalleryStore from '../../GalleryStore';
 import ImageStore, { ImageGalleryList } from '../../ImageStore';
@@ -22,7 +22,7 @@ export async function loader({ params }) {
   );
 }
 
-function EditGalleryView() {
+export function AdminEditGalleryView() {
   const navigate = useNavigate();
   const { gallery, galleryId, imageList } = useLoaderData() as Awaited<
     ReturnType<typeof loader>
@@ -129,9 +129,7 @@ function EditGalleryView() {
         )}
       </form>
       <hr />
-      <GalleryImagesView imageList={imageList} />
+      <AdminGalleryImagesView imageList={imageList} />
     </div>
   );
 }
-
-export default EditGalleryView;
