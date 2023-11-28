@@ -1,0 +1,41 @@
+.image-list {
+    display: grid;
+    grid-template-columns: repeat(4, 300px);
+    grid-gap: 5px;
+    justify-content: center;
+    @media (max-width: 1245px) {
+      grid-template-columns: repeat(auto-fill, 300px);
+    }
+
+    .image-card {
+        display: inline-block;
+
+        img {
+            object-fit: cover;
+
+            /* using fixed height due to the variety of dimensions .. */
+            height: 200px;
+            width: 300px;
+
+            border-radius: 5px;
+            box-shadow: 0 2px 4px 0 #777;
+            transition: 0.3s;
+        }
+
+        img:hover {
+            box-shadow: 0 4px 8px 0 #777;
+            cursor: pointer;
+        }
+    }
+}
+
+.admin-image-list {
+    tr.marked {
+        background: #ccc;
+    }
+
+    tr:hover {
+        background: #aaa;
+    }
+}
+

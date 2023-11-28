@@ -1,0 +1,26 @@
+.tag-search-view {
+  margin-left: 5px;
+  max-width: 1215px;
+  margin: 0 auto;
+
+  @media screen and (max-width: 1215px) {max-width: 910px;}
+  @media screen and (max-width: 910px) {max-width: 605px;}
+  @media screen and (max-width: 605px) {max-width: 300px;}
+  h2 {
+    .tag {
+      font-style: italic;
+      text-decoration: underline;
+    }
+  }
+}
+
+.tag-search-bar {
+  display: flex;
+  flex-direction: row;
+
+  @media(max-width: 926px) {
+    margin-left: 25px;
+    margin-right: 25px;
+    flex-direction: column;
+  }
+}

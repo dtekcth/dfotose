@@ -1,0 +1,23 @@
+@import "variables";
+
+p {
+  font-size: $font-base-size;
+}
+
+h1 {
+  font-size: $font-h1-size;
+}
+
+h2 {
+  font-size: $font-h2-size;
+}
+
+h3 {
+  font-size: $font-h3-size;
+}
+
+h1,h2,h3,h4,h5 {
+  margin-bottom: 15px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+}

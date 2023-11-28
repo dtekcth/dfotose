@@ -1,0 +1,60 @@
+.content {
+  margin: 0 auto;
+
+  .row {
+    margin-top: 20px;
+  }
+}
+
+.site-content {
+  margin-right: 25px;
+  margin-left: 25px;
+
+  max-width: 1200px;
+}
+
+.login-content {
+  max-width: 350px;
+  margin-left: 20px;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.wrapper {
+  margin: 0 auto;
+  max-width: 1245px;
+  @media screen and (max-width: 1215px) {max-width: 915px;}
+  @media screen and (max-width: 915px) {max-width: 610px;}
+
+  .about-us {
+    max-width: 650px;
+  }
+}
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin: 0 auto;
+
+  img {
+    max-width: 50%;
+    max-height: 500px;
+    border-radius: 10px;
+  }
+
+  h1 {
+    font-size: 64px;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  p {
+    font-size: 22px;
+  }
+}

@@ -1,0 +1,31 @@
+.spinner.wave {
+  display: flex;
+  flex-direction: row;
+
+  * {
+    width: 18%;
+    height: 100%;
+  }
+
+  width: 75px;
+  height: 76px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+  }
+
+  .spinner {
+    margin: 0;
+    padding: 0;
+  }
+}
