@@ -17,8 +17,11 @@ import { get, has, map } from 'lodash-es';
 
 const jsonParser = bodyParser.json();
 
-const tempPath = process.env.TEMP_PATH;
-const storagePath = process.env.STORAGE_PATH;
+const tempPath = process.env.DATA_DIR + '/temp';
+const storagePath = process.env.DATA_DIR + '/storage';
+
+console.log(`Using ${tempPath} as temporary storage`);
+console.log(`Using ${storagePath} as storage`);
 
 import Image from '../model/image.js';
 import ImageTag from '../model/image-tag.js';

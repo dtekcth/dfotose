@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import bodyParser from 'body-parser';
-import krb5 from 'kerberos';
+import kerberos from 'kerberos';
 import { inHTMLData } from 'xss-filters';
 
 import User from '../model/user.js';
@@ -12,7 +12,6 @@ import ah from 'express-async-handler';
 
 import Logger from '../logger.js';
 import { get, has, head, isEmpty, merge, set } from 'lodash-es';
-const Kerberos = new krb5.Kerberos();
 
 const router = Router();
 export default router;
@@ -48,61 +47,47 @@ router.post(
   ah(async (req, res) => {
     const { cid, password } = req.body;
 
-    const ok = await new Promise((resolve, reject) =>
-      Kerberos.authUserKrb5Password(cid, password, '', (err, ok) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(ok);
-        }
-      })
-    );
+    await kerberos.checkPassword(cid, password, '');
 
-    if (ok) {
-      const results = await User.find({ cid: cid });
+    const results = await User.find({ cid: cid });
 
-      // first time login ?
-      if (isEmpty(results)) {
-        // In case somebody marked this user to receive
-        // elevated permissions upon first login
-        const role = await fetchInitialRole(cid);
-        const user = await new User({
-          cid: cid,
-          fullname: '',
-          role: role,
-        }).save();
+    // first time login ?
+    if (isEmpty(results)) {
+      // In case somebody marked this user to receive
+      // elevated permissions upon first login
+      const role = await fetchInitialRole(cid);
+      const user = await new User({
+        cid: cid,
+        fullname: '',
+        role: role,
+      }).save();
 
-        req.session.user = user;
-        Logger.info(
-          `${cid} logged in first time, initialized with role ${role}`
-        );
+      req.session.user = user;
+      Logger.info(`${cid} logged in first time, initialized with role ${role}`);
 
-        await removeElevatedIfExists(cid);
+      await removeElevatedIfExists(cid);
 
-        res.send(user);
-      } else {
-        const user = head(results);
-        req.session.user = user;
-
-        Logger.info(`User ${user.cid} logged in. Has role ${user.role}`);
-
-        // Migrate this user once logged in to the new role-based-system.
-        const dfotoMember = get(user, 'dfotoMember', false);
-        if (dfotoMember && user.role == 'None') {
-          user.role = 'Admin';
-          set(req.session, 'user.role', 'Admin');
-
-          await User.findOneAndUpdate(
-            { cid: user.cid },
-            { $set: { role: 'Admin' } }
-          );
-          Logger.info(`Migrated ${user.cid} to new role-based system.`);
-        }
-
-        res.send(user);
-      }
+      res.send(user);
     } else {
-      res.status(401).end();
+      const user = head(results);
+      req.session.user = user;
+
+      Logger.info(`User ${user.cid} logged in. Has role ${user.role}`);
+
+      // Migrate this user once logged in to the new role-based-system.
+      const dfotoMember = get(user, 'dfotoMember', false);
+      if (dfotoMember && user.role == 'None') {
+        user.role = 'Admin';
+        set(req.session, 'user.role', 'Admin');
+
+        await User.findOneAndUpdate(
+          { cid: user.cid },
+          { $set: { role: 'Admin' } }
+        );
+        Logger.info(`Migrated ${user.cid} to new role-based system.`);
+      }
+
+      res.send(user);
     }
   })
 );

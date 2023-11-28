@@ -8,6 +8,7 @@ import Logger from '../logger.js';
 import Gallery from '../model/gallery.js';
 import Image from '../model/image.js';
 import { get } from 'lodash-es';
+import ah from 'express-async-handler';
 
 const jsonParser = bodyParser.json();
 
@@ -15,16 +16,22 @@ const router = Router();
 export default router;
 
 // Return all published galleries
-router.get('/gallery', async (req, res, next) => {
-  try {
-    const galleries = await Gallery.find({ published: true }).sort(
-      '-shootDate'
-    );
-    res.send(galleries);
-  } catch (error) {
-    next(error);
-  }
-});
+router.get(
+  '/gallery',
+  ah(async (req, res) => {
+    const page = Number(req.query.page ?? 1);
+    const limit = Number(req.query.limit ?? 28);
+
+    const galleries = await Gallery.find({ published: true })
+      .sort('-shootDate')
+      .limit(limit)
+      .skip((page - 1) * limit);
+
+    const total = await Gallery.countDocuments({ published: true });
+
+    res.send({ galleries, total });
+  }),
+);
 
 // Return all published galleries with a limit
 router.get('/gallery/limit/:limit', async (req, res, next) => {
@@ -52,7 +59,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Return all galleries (only published) _after_ a certain date
@@ -94,7 +101,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Return the count of all galleries
@@ -162,7 +169,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Modify an existing gallery
@@ -186,13 +193,13 @@ router.put(
             description: galleryData.description,
             shootDate: galleryData.shootDate,
           },
-        }
+        },
       );
       res.status(202).end();
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Publish a gallery
@@ -208,13 +215,13 @@ router.post(
           $set: {
             published: true,
           },
-        }
+        },
       );
       res.status(202).end();
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Unpublish a gallery
@@ -231,13 +238,13 @@ router.post(
           $set: {
             published: false,
           },
-        }
+        },
       );
       res.status(202).end();
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Remove an entire gallery
@@ -254,5 +261,5 @@ router.delete(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );

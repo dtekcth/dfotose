@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import modRewrite from 'connect-modrewrite';
@@ -15,20 +16,8 @@ import galleryRouter from './routes/gallery-api.js';
 import authRouter from './routes/auth-api.js';
 import userRoleRouter from './routes/user-role-api.js';
 
-const connectWithRetry = () => {
-  console.log('MongoDB connection with retry');
-  mongoose.connect(process.env.MONGODB_URL);
-};
-
-// Retry connection on failure
-mongoose.connection.on('error', (err) => {
-  console.log(`MongoDB connection error: ${err}`);
-  setTimeout(connectWithRetry, 5000);
-});
-
+await mongoose.connect(process.env.MONGODB_URL);
 const redisClient = createClient({ url: process.env.REDIS_URL });
-
-connectWithRetry();
 
 const app = express();
 
@@ -49,7 +38,7 @@ app.use(
   ])
 );
 
-app.use('/', express.static(__dirname + '/public'));
+app.use('/', express.static(new URL('/public', import.meta.url).pathname));
 
 app.use(morgan('dev'));
 app.use(sessionMiddleware);
@@ -62,6 +51,6 @@ app.use(baseUrl, imageRouter);
 app.use(baseUrl, galleryRouter);
 app.use(baseUrl, userRoleRouter);
 
-app.listen(process.env.PORT, () => {
-  console.log(`Listening :${process.env.PORT}`);
+app.listen(process.env.PORT ?? 4000, () => {
+  console.log(`Listening :${process.env.PORT ?? 4000}`);
 });
