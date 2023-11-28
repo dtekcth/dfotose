@@ -1,26 +1,5 @@
-# Emacs temp files
-\#*
-.\#*
-
-# Vim temp files
-*~
-*.swp
-
-# Log-files
-*.log
-
+data
 dist
 node_modules
-
-# Config files
-/src/config/config.yml
-
-/.idea
-
 .DS_Store
-
-/storage
-/data
-
-/*.lock
 .env
