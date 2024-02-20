@@ -15,19 +15,33 @@ const jsonParser = bodyParser.json();
 const router = Router();
 export default router;
 
+function getStatus(s) {
+  switch (s) {
+    case 'published':
+      return true;
+    case 'unpublished':
+      return false;
+    case 'all':
+      return undefined;
+    default:
+      return true;
+  }
+}
+
 // Return all published galleries
 router.get(
   '/gallery',
   ah(async (req, res) => {
     const page = Number(req.query.page ?? 1);
     const limit = Number(req.query.limit ?? 28);
+    const published = getStatus(req.query.status);
 
-    const galleries = await Gallery.find({ published: true })
+    const galleries = await Gallery.find({ published })
       .sort('-shootDate')
       .limit(limit)
       .skip((page - 1) * limit);
 
-    const total = await Gallery.countDocuments({ published: true });
+    const total = await Gallery.countDocuments({ published });
 
     res.send({ galleries, total });
   }),

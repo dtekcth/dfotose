@@ -1,0 +1,16 @@
+FROM node:21
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY ./config/krb5.conf /etc/krb5.conf
+
+# Install all dependencies
+COPY package*.json .
+COPY ./packages/server/package*.json ./packages/server/
+RUN npm ci --omit=dev
+
+# Bundle app source
+COPY ./packages/server ./packages/server
+
+CMD ["node", "./packages/server/src/server.js"]

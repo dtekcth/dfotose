@@ -24,7 +24,7 @@
 	<div class="gallery-pagination">
 		<a href="/gallery/page/{data.page - 1}">Föregående</a>
 		<span>
-			sida {data.page} / {data.total}
+			sida {data.page} / {Math.ceil(data.total / 28)}
 		</span>
 		<a href="/gallery/page/{data.page + 1}">Nästa</a>
 	</div>

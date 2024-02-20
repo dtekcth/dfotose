@@ -1,3 +1,4 @@
+import { find, get } from 'lodash-es';
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
@@ -67,8 +68,8 @@ export const UserRoles = [
 ];
 
 export function getRestrictionsForRole(roleName) {
-  const role = _.find(UserRoles, { name: roleName });
-  return _.get(role, 'restrictions', 0);
+  const role = find(UserRoles, { name: roleName });
+  return get(role, 'restrictions', 0);
 }
 
 // Used for when a user has yet to login
@@ -79,6 +80,6 @@ const userEligibleForRoleSchema = new Schema({
 
 const UserEligibleForRole = mongoose.model(
   'UserEligibleForRole',
-  userEligibleForRoleSchema
+  userEligibleForRoleSchema,
 );
 export default UserEligibleForRole;

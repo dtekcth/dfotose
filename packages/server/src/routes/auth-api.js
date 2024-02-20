@@ -1,5 +1,4 @@
-import { Router } from 'express';
-import bodyParser from 'body-parser';
+import { Router, json } from 'express';
 import kerberos from 'kerberos';
 import { inHTMLData } from 'xss-filters';
 
@@ -16,7 +15,7 @@ import { get, has, head, isEmpty, merge, set } from 'lodash-es';
 const router = Router();
 export default router;
 
-const jsonParser = bodyParser.json();
+const jsonParser = json();
 
 // Get the currently logged in User
 //  - Returns 403 if not logged-in
@@ -36,7 +35,7 @@ router.get(
     Logger.info(`User ${req.session.user.cid} fetched all other users`);
 
     res.send(users);
-  })
+  }),
 );
 
 // Login a User
@@ -47,7 +46,7 @@ router.post(
   ah(async (req, res) => {
     const { cid, password } = req.body;
 
-    await kerberos.checkPassword(cid, password, '');
+    await kerberos.checkPassword(cid, password, '', 'CHALMERS.SE');
 
     const results = await User.find({ cid: cid });
 
@@ -82,14 +81,14 @@ router.post(
 
         await User.findOneAndUpdate(
           { cid: user.cid },
-          { $set: { role: 'Admin' } }
+          { $set: { role: 'Admin' } },
         );
         Logger.info(`Migrated ${user.cid} to new role-based system.`);
       }
 
       res.send(user);
     }
-  })
+  }),
 );
 
 /* Change User-data
@@ -111,7 +110,7 @@ router.put(
     if (cid != req.session.user.cid && !canWriteUsers) {
       res.status(403).end();
       Logger.warn(
-        `User ${req.session.user.cid} had insufficient permissions to write another users data`
+        `User ${req.session.user.cid} had insufficient permissions to write another users data`,
       );
       return;
     }
@@ -124,7 +123,7 @@ router.put(
       if (!canWriteUsers) {
         res.status(403).end();
         Logger.warn(
-          `User ${req.session.user.cid} had insufficient permissions to change another users role`
+          `User ${req.session.user.cid} had insufficient permissions to change another users role`,
         );
         return;
       }
@@ -142,7 +141,7 @@ router.put(
     updateAuthorOfImagesUploadedByCid(cid, filteredFullname);
 
     res.status(202).end();
-  })
+  }),
 );
 
 // Logout the currently logged-in User

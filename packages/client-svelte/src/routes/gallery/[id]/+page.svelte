@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ImageCard from './image-card.svelte';
+	import ImageCard from '../../../lib/components/image-card.svelte';
 
 	export let data;
 

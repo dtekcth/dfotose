@@ -1,5 +1,9 @@
 <script lang="ts">
-	const uiState: any = {};
+	import type { User } from '$lib/api/user';
+	import { getContext } from 'svelte';
+	import type { Writable } from 'svelte/store';
+
+	const user = getContext<Writable<User>>('user');
 </script>
 
 <div class="footer">
@@ -9,8 +13,8 @@
 			<a href="mailto:dfoto@dtek.se">dfoto@dtek.se</a>!
 		</p>
 		<h3>Vi ses genom kameralinsen!</h3>
-		{#if uiState?.user?.isLoggedIn}
-			<span>Du är inloggad som {uiState?.user?.cid}</span>
+		{#if $user}
+			<span>Du är inloggad som {$user.cid}</span>
 		{:else}
 			<a href="/login"> Logga in </a>
 		{/if}
