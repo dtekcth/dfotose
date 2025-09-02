@@ -132,6 +132,36 @@ router.get('/image/:id/author', (req, res) => {
     });
 })
 
+
+router.post('/image/:id/author-name', jsonParser, (req, res) => {
+    const imageId = req.params.id;
+    const {authorName} = req.body;
+    const filteredAuthorName = inHTMLData(authorName);
+
+    const canWriteImage = hasRestrictions(
+        req,
+        Restrictions.WRITE_GALLERY | Restrictions.WRITE_IMAGES
+    );
+
+    if (!canWriteImage) {
+      res.status(403).end();
+      Logger.warn(`User ${req.session.user.cid} had insufficient permissions to change author name`);
+      return;
+    }
+
+    // Directly update the image with the custom author name
+    Image.findOneAndUpdate({_id: imageId}, {
+      $set: {
+        author: filteredAuthorName
+      }
+    }, (err) => {
+      abortOnError(err, res);
+
+      console.log(`Changed author to ${filteredAuthorName} for image ${imageId}`);
+      res.status(202).end();
+    });
+});
+
 router.post('/image/:id/gallerythumbnail', (req,res) => {
   const id = req.params.id;
 
@@ -170,39 +200,99 @@ router.post('/image/:id/gallerythumbnail', (req,res) => {
   });
 })
 
-router.post('/image/:id/author', jsonParser, (req, res) => {
-    const imageId = req.params.id;
-    const {newCid} = req.body;
+function handleImages(req, res, galleryId) {
+  const userCid = req.session.user.cid;
+  const images = req.files;
+  
+  // Get photographer name from header, fallback to user's fullname or CID
+  const photographerName = req.headers['x-photographer-name'] || 
+                          req.session.user.fullname || 
+                          req.session.user.cid;
 
-    const canWriteImage = hasRestrictions(
-        req,
-        Restrictions.WRITE_GALLERY | Restrictions.WRITE_IMAGES
-    );
-
-    if (!canWriteImage) {
-      res.status(403).end();
-      Logger.warn(`User ${req.session.user.cid} had insufficient permissions to change author`);
-      return;
+  _.forEach(images, (image) => {
+    const fieldName = _.get(image, 'fieldname');
+    if (fieldName !== 'photos') {
+      res.status(500).send();
+      throw "incorrect fieldName specified";
     }
 
-    // First find the user so we can get the fullname
-    User.findOne({cid: newCid}, (err, user) => {
-        abortOnError(err, res);
+    const extension = image.originalname.split('.').pop();
+    const filename = uuid.v4();
+    const galleryPath = path.resolve(config.storage.path, galleryId);
+    const fullSizeImagePath = `${galleryPath}/${filename}.${extension}`;
 
-        // Next, update the image
-        Image.findOneAndUpdate({_id: imageId}, {
-          $set: {
-            authorCid: newCid,
-            author: user.fullname
+    createDirectoryIfNeeded(galleryPath);
+    createDirectoryIfNeeded(path.resolve(galleryPath, "thumbnails"));
+    createDirectoryIfNeeded(path.resolve(galleryPath, "previews"));
+
+    fs.move(image.path, fullSizeImagePath, (err) => {
+      if (err) {
+        Logger.error(err);
+      }
+
+      const thumbnail = path.resolve(galleryPath, "thumbnails", `${filename}.${extension}`);
+      sharp(fullSizeImagePath)
+        .resize(300, 200)
+        .rotate()
+        .crop(sharp.strategy.entropy)
+        .toFile(thumbnail, (err) => {
+          if (err) {
+            Logger.error(`Could not save thumbnail for image ${filename}`);
+          } else {
+            Logger.info(`Saved thumbnail ${thumbnail}`);
           }
-        }, (err) => {
-          abortOnError(err, res);
+        });
 
-          console.log(`Changed author to ${user.fullname} for image ${imageId}`);
-          res.status(202).end();
-        })
+      const preview = path.resolve(galleryPath, "previews", `${filename}.${extension}`);
+      sharp(fullSizeImagePath)
+        .resize(null, 800)
+        .rotate()
+        .toFile(preview, (err) => {
+          if (err) {
+            Logger.error(`Could not save preview for image ${filename}`);
+          } else {
+            Logger.info(`Saved preview ${preview}`);
+          }
+        });
+
+      readExifData(fullSizeImagePath, (exif) => {
+        const shotAtUnformatted = _.get(exif, 'tags.DateTimeOriginal');
+        const shotAt = shotAtUnformatted ? moment(shotAtUnformatted)
+                                         : moment();
+
+        var newImage = new Image({
+          filename: filename,
+          authorCid: userCid,
+          author: photographerName, // Set the author name
+          galleryId: galleryId,
+          thumbnail: thumbnail,
+          preview: preview,
+          fullSize: fullSizeImagePath,
+          shotAt: shotAt,
+          exifData: exif
+        });
+
+        newImage.save((err) => {
+          if (err) {
+            Logger.error(err);
+            throw err;
+          }
+
+          Logger.info(`Saved image ${filename} with author ${photographerName}`);
+        });
+      });
     });
-});
+  });
+
+  Logger.info(`${images.length} new images uploaded by ${req.session.user.cid}`);
+}
+
+
+const uploadWithFields = multer({ storage: imageStorage }).fields([
+  { name: 'photos', maxCount: 100 },
+  { name: 'photographerName', maxCount: 1 }
+]);
+
 
 router.post('/image/:id/tags', jsonParser, (req, res) => {
   const imageId = req.params.id;
@@ -381,26 +471,21 @@ function handleImages(req, res, galleryId) {
   Logger.info(`${images.length} new images uploaded by ${req.session.user.cid}`);
 }
 
-// Upload images
-//  - The images will not be attached to any
-//    gallery when uploaded
+
+
+// Keep the upload routes exactly as they were:
 router.post('/image',
-  requireRestrictions(Restrictions.WRITE_IMAGES | Restrictions.WRITE_GALLERY)
-  , upload.array('photos'), (req, res) => {
+  requireRestrictions(Restrictions.WRITE_IMAGES | Restrictions.WRITE_GALLERY),
+  upload.array('photos'), (req, res) => {
   handleImages(req, res, 'undefined');
   res.status(202).send();
 });
 
-// Upload images to a specific gallery
-//  - Author is always the logged-in User
-//  - The images will be added to the gallery
-//    automatically.
 router.post('/image/:galleryId',
-  requireRestrictions(Restrictions.WRITE_IMAGES)
-  , upload.array('photos'), (req, res) => {
+  requireRestrictions(Restrictions.WRITE_IMAGES),
+  upload.array('photos'), (req, res) => {
   const galleryId = req.params.galleryId;
 
-  // Validate the gallery
   Gallery.findById(galleryId, (err) => {
     if (err) {
       res.status(500).send(err);

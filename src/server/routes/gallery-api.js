@@ -205,3 +205,27 @@ router.delete('/gallery/:id',
     res.status(202).end();
   });
 });
+
+// Get all unique authors for a gallery
+router.get('/gallery/:id/authors', (req, res) => {
+  const galleryId = req.params.id;
+  
+  Image.find({ galleryId: galleryId }, 'author authorCid', (err, images) => {
+    if (err) {
+      res.status(500).send(err);
+      return;
+    }
+    
+    // Get unique authors
+    const authorsSet = new Set();
+    images.forEach(image => {
+      const author = image.author || image.authorCid;
+      if (author) {
+        authorsSet.add(author);
+      }
+    });
+    
+    const authors = Array.from(authorsSet);
+    res.send({ authors: authors });
+  });
+});

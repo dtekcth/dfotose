@@ -1,23 +1,31 @@
-.footer {
+html, body, #root {
+  height: 100%;
   margin: 0;
+  padding: 0;
+}
 
-  @media (min-width: 650px) {
-    margin-top: 50px;
-  }
+body {
+  display: flex;
+  flex-direction: column;
+}
 
-  .footer-content {
-    background: #454545;
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
-    padding: 15px 40px 20px;
+.content {
+  flex: 1 0 auto;
+  padding-bottom: 40px; // Add some space before footer
+}
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.footer {
+  flex-shrink: 0; // Prevent footer from shrinking
+}
 
-    > * {
-      color: #fafafa;
-      max-width: 650px;
-    }
-  }
+// Optional: Remove link underlines on hover in footer
+.footer a:hover {
+  text-decoration: underline !important;
+  opacity: 0.8;
 }

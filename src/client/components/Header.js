@@ -2,7 +2,6 @@ import React from "react";
 import {Link} from "react-router-dom";
 import {observer} from 'mobx-react';
 
-import TagSearchBar from './TagSearchBar';
 import uiState from '../UiState';
 
 @observer
@@ -25,9 +24,6 @@ class Header extends React.Component {
               </li>
               : null }
           </ul>
-          <div className="info">
-              <TagSearchBar />
-          </div>
         </div>
       </div>
     );
