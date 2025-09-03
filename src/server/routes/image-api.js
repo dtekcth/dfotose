@@ -19,10 +19,11 @@ import {abortOnError} from '../utils';
 
 const jsonParser = bodyParser.json();
 
+
 import Image from '../model/image';
 import ImageTag from '../model/image-tag';
 import Gallery from '../model/gallery';
-const imageQueue = require('./image-queue');
+
 
 const router = Router();
 export default router;
@@ -385,62 +386,6 @@ function readExifData(imagePath, cb) {
     });
   });
 }
-
-async function handleImages(req, res, galleryId) {
-  const userCid = req.session.user.cid;
-  const userFullname = _.get(req.session, 'user.fullname', '');
-  const images = req.files;
-  
-  // Validate and prepare all images first
-  const imageJobs = [];
-  
-  for (const image of images) {
-    const fieldName = _.get(image, 'fieldname');
-    if (fieldName !== 'photos') {
-      res.status(500).send('Incorrect fieldName specified');
-      return;
-    }
-    
-    const extension = image.originalname.split('.').pop().toLowerCase();
-    const filename = uuid.v4();
-    const galleryPath = path.resolve(config.storage.path, galleryId);
-    const fullSizeImagePath = `${galleryPath}/${filename}.${extension}`;
-    
-    // Create directories if needed
-    await fs.ensureDir(galleryPath);
-    await fs.ensureDir(path.resolve(galleryPath, "thumbnails"));
-    await fs.ensureDir(path.resolve(galleryPath, "previews"));
-    
-    // Move uploaded file
-    await fs.move(image.path, fullSizeImagePath);
-    
-    // Add to job queue
-    const job = await imageQueue.add({
-      fullSizeImagePath,
-      galleryPath,
-      filename,
-      extension,
-      userCid,
-      galleryId,
-      userFullname
-    }, {
-      attempts: 3, // Retry failed jobs
-      backoff: {
-        type: 'exponential',
-        delay: 2000
-      }
-    });
-    
-    imageJobs.push(job.id);
-  }
-  
-  Logger.info(`${images.length} new images queued for processing by ${userCid}`);
-  
-  // Return job IDs so client can check status
-  return imageJobs;
-}
-
-
 
 // Keep the upload routes exactly as they were:
 router.post('/image',

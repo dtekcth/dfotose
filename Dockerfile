@@ -27,6 +27,7 @@ COPY package.json .
 RUN npm install
 RUN npm install -g gulp pm2
 
+
 COPY . .
 
 RUN gulp server:build
