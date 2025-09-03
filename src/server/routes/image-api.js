@@ -22,6 +22,7 @@ const jsonParser = bodyParser.json();
 import Image from '../model/image';
 import ImageTag from '../model/image-tag';
 import Gallery from '../model/gallery';
+const imageQueue = require('./image-queue');
 
 const router = Router();
 export default router;
@@ -385,90 +386,58 @@ function readExifData(imagePath, cb) {
   });
 }
 
-function handleImages(req, res, galleryId) {
+async function handleImages(req, res, galleryId) {
   const userCid = req.session.user.cid;
+  const userFullname = _.get(req.session, 'user.fullname', '');
   const images = req.files;
-
-  _.forEach(images, (image) => {
+  
+  // Validate and prepare all images first
+  const imageJobs = [];
+  
+  for (const image of images) {
     const fieldName = _.get(image, 'fieldname');
     if (fieldName !== 'photos') {
-      res.status(500).send();
-      throw "incorrect fieldName specified";
+      res.status(500).send('Incorrect fieldName specified');
+      return;
     }
-
-    const extension = image.originalname.split('.').pop();
+    
+    const extension = image.originalname.split('.').pop().toLowerCase();
     const filename = uuid.v4();
     const galleryPath = path.resolve(config.storage.path, galleryId);
     const fullSizeImagePath = `${galleryPath}/${filename}.${extension}`;
-
-    createDirectoryIfNeeded(galleryPath);
-    createDirectoryIfNeeded(path.resolve(galleryPath, "thumbnails"));
-    createDirectoryIfNeeded(path.resolve(galleryPath, "previews"));
-
-    fs.move(image.path, fullSizeImagePath, (err) => {
-      if (err) {
-        Logger.error(err);
+    
+    // Create directories if needed
+    await fs.ensureDir(galleryPath);
+    await fs.ensureDir(path.resolve(galleryPath, "thumbnails"));
+    await fs.ensureDir(path.resolve(galleryPath, "previews"));
+    
+    // Move uploaded file
+    await fs.move(image.path, fullSizeImagePath);
+    
+    // Add to job queue
+    const job = await imageQueue.add({
+      fullSizeImagePath,
+      galleryPath,
+      filename,
+      extension,
+      userCid,
+      galleryId,
+      userFullname
+    }, {
+      attempts: 3, // Retry failed jobs
+      backoff: {
+        type: 'exponential',
+        delay: 2000
       }
-
-      const thumbnail = path.resolve(galleryPath, "thumbnails", `${filename}.${extension}`);
-      sharp(fullSizeImagePath)
-        .resize(300, 200)
-        .rotate() // rotates the image based on EXIF orientation data
-        .crop(sharp.strategy.entropy)
-        .toFile(thumbnail, (err) => {
-          if (err) {
-            Logger.error(`Could not save thumbnail for image ${filename}`);
-          } else {
-            Logger.info(`Saved thumbnail ${thumbnail}`);
-          }
-        });
-
-      const preview = path.resolve(galleryPath, "previews", `${filename}.${extension}`);
-      sharp(fullSizeImagePath)
-        .resize(null, 800)
-        .rotate() // rotates the image based on EXIF orientation data
-        .toFile(preview, (err) => {
-          if (err) {
-            Logger.error(`Could not save preview for image ${filename}`);
-          } else {
-            Logger.info(`Saved preview ${preview}`);
-          }
-        });
-
-      readExifData(fullSizeImagePath, (exif) => {
-        const shotAtUnformatted = _.get(exif, 'tags.DateTimeOriginal');
-        const shotAt = shotAtUnformatted ? moment(shotAtUnformatted)
-                                         : moment();
-
-        var newImage = new Image({
-          filename: filename,
-          authorCid: userCid,
-          galleryId: galleryId,
-          thumbnail: thumbnail,
-          preview: preview,
-          fullSize: fullSizeImagePath,
-          shotAt: shotAt,
-          exifData: exif
-        });
-
-        if (_.has(req.session, 'user.fullname')) {
-          newImage.author = _.get(req.session, 'user.fullname', '');
-        }
-
-        newImage.save((err) => {
-          if (err) {
-            Logger.error(err);
-            throw err;
-          }
-
-          Logger.info(`Saved image ${filename}`);
-        });
-      });
-
     });
-  });
-
-  Logger.info(`${images.length} new images uploaded by ${req.session.user.cid}`);
+    
+    imageJobs.push(job.id);
+  }
+  
+  Logger.info(`${images.length} new images queued for processing by ${userCid}`);
+  
+  // Return job IDs so client can check status
+  return imageJobs;
 }
 
 

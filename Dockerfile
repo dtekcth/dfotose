@@ -6,6 +6,7 @@ WORKDIR /dfotose
 COPY package.json .
 RUN npm install
 RUN npm install -g gulp pm2
+RUN npm install bull
 
 # Bundle app source
 COPY . .
