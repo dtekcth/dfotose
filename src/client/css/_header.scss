@@ -3,7 +3,7 @@
   width: 100%;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-
+  
   .header-content {
     display: flex;
     flex-direction: row;
@@ -12,6 +12,7 @@
     max-width: 100%;
     padding: 0 40px;
     height: 120px;
+    position: relative;  // Needed for absolute positioning of photo count
     
     @media (max-width: 926px) {
       flex-direction: column;
@@ -19,7 +20,7 @@
       height: auto;
       justify-content: center;
     }
-
+    
     img {
       height: 100px;
       
@@ -28,7 +29,37 @@
         width: auto;
       }
     }
-
+    
+    // Photo count in the middle
+    .header-photo-count {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 30px;
+      font-weight: 600;
+      color: #666;
+      white-space: nowrap;
+      
+      strong {
+        color: #fa6607;  // Orange theme color
+        font-weight: 700;
+        margin-left: 4px;
+      }
+      
+      // Loading animation
+      &.loading {
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+      
+      @media (max-width: 926px) {
+        position: static;
+        transform: none;
+        margin: 10px 0;
+        font-size: 16px;
+        order: 2;  // Shows between logo and navigation on mobile
+      }
+    }
+    
     ul {
       margin: 0;
       padding: 0;
@@ -42,7 +73,7 @@
         padding: 8px 20px;
         border-radius: 25px;
         transition: all 0.3s ease;
-
+        
         a {
           text-decoration: none;
           color: #2e2e2e;
@@ -57,9 +88,10 @@
           }
         }
       }
-
+      
       @media (max-width: 926px) {
         margin: 15px 0;
+        order: 3;  // Navigation at the bottom on mobile
         
         li {
           font-size: 16px;
@@ -79,10 +111,20 @@
   min-height: 40px;
   z-index: 20;
   box-shadow: 0 2px 8px rgba(250, 102, 7, 0.3);
-
+  
   span {
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
     font-size: 15px;
+  }
+}
+
+// Loading animation for photo count
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+  }
+  50% { 
+    opacity: 0.5; 
   }
 }

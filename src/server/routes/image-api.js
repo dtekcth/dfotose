@@ -451,3 +451,14 @@ router.delete('/image/:id',
     res.status(202).send();
   });
 });
+
+// Photo Statistics
+router.get('/stats/photos', (req, res) => {
+  Image.countDocuments({}, (err, count) => {
+    if (err) {
+      Logger.error('Error counting images:', err);
+      return res.status(500).json({ error: 'Could not count images' });
+    }
+    res.json({ count });
+  });
+});
