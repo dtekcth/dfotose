@@ -130,7 +130,7 @@ export default class UploadImagesForm extends React.Component {
         marginBottom: '20px',
         border: '1px solid #c3e6cb'
       }}>
-        ✓ {fileCount} bild{fileCount !== 1 ? 'er' : ''} uppladdade framgångsrikt!
+        {fileCount} bild{fileCount !== 1 ? 'er' : ''} laddades upp!
       </div>
     );
     
@@ -143,7 +143,7 @@ export default class UploadImagesForm extends React.Component {
         marginBottom: '20px',
         border: '1px solid #f5c6cb'
       }}>
-        ✗ Uppladdning misslyckades. Försök igen.
+        Uppladdning misslyckades. Försök igen.
       </div>
     );
     
