@@ -101,4 +101,5 @@ DFoto har ett öppet rest-liknande api för att kunna hämta bilder och gallerie
 | GET    | /image/:id/preview             | the preview image                        |
 | GET    | /image/:id/tags                | all the tags associated with an image    |
 | GET    | /image/tags/:name/search       | a list of images that contains a certain tag |
+| GET    | /stats/photos                  | get the amount of pictures on the site   |
 
