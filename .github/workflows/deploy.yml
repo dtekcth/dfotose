@@ -33,32 +33,3 @@ jobs:
           ${{ secrets.DOCKER_USERNAME }}/dfotose:${{ github.sha }}
         cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/dfotose:buildcache
         cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/dfotose:buildcache,mode=max
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    
-    steps:
-    - name: Deploy to server via SSH
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        port: ${{ secrets.PORT || 22 }}
-        script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/dfotose:latest
-          docker stop dfotose || true
-          docker rm dfotose || true
-          docker run -d \
-            --name dfotose \
-            --restart unless-stopped \
-            -p 4000:4000 \
-            -v :/app/storage \
-            -v :/app/uploaded-images \
-            --network dfoto-network \
-            -e DATABASE_HOST=mongo \
-            -e REDIS_HOST=redis \
-            ${{ secrets.DOCKER_USERNAME }}/dfotose:latest
-          docker image prune -f
