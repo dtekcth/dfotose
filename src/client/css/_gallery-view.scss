@@ -1,16 +1,39 @@
 .gallery-view {
   margin: 0;
+  padding: 40px 0;
 
   .title {
-    margin-left: 10px;
-    max-width: 1215px;
-    margin: 0 auto;
-    p {
-      font-style: italic;
+    max-width: 1200px;
+    margin: 0 auto 30px;
+    padding: 0 20px;
+    
+    h2 {
+      color: #2e2e2e;
+      font-weight: 600;
+      margin-bottom: 10px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #fa6607;
+      display: inline-block;
     }
     
-    @media screen and (max-width: 1215px) {max-width: 910px;}
-    @media screen and (max-width: 910px) {max-width: 605px;}
-    @media screen and (max-width: 605px) {max-width: 300px;}
+    p {
+      color: #666;
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 15px 0;
+      
+      &:first-of-type {
+        font-weight: 600;
+        color: #2e2e2e;
+      }
+    }
+    
+    @media screen and (max-width: 768px) {
+      padding: 0 15px;
+      
+      h2 {
+        font-size: 24px;
+      }
+    }
   }
 }

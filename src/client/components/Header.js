@@ -1,17 +1,59 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import {observer} from 'mobx-react';
-
-import TagSearchBar from './TagSearchBar';
+import axios from 'axios';
 import uiState from '../UiState';
 
 @observer
 class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      photoCount: null,
+      loading: true
+    };
+  }
+
+  componentDidMount() {
+    this.fetchPhotoCount();
+  }
+
+  fetchPhotoCount() {
+    axios.get('/v1/stats/photos')
+      .then(response => {
+        this.setState({ 
+          photoCount: response.data.count,
+          loading: false 
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching photo count:', error);
+        this.setState({ loading: false });
+      });
+  }
+
+  formatNumber(num) {
+    if (!num) return '0';
+    return num.toLocaleString('sv-SE');
+  }
+
   render() {
+    const { photoCount, loading } = this.state;
+    
     return (
       <div className="header">
         <div className="header-content">
           <Link to="/"><img src="/assets/images/logo.png"/></Link>
+          
+          {/* Photo count in the middle */}
+          <div className={`header-photo-count ${loading ? 'loading' : ''}`}>
+            {loading ? (
+              <span>Foton: ...</span>
+            ) : (
+              <span>Foton: <strong>{this.formatNumber(photoCount)}</strong></span>
+            )}
+          </div>
+          
           <ul>
             <li>
               <Link to="/"> Bilder </Link>
@@ -25,9 +67,6 @@ class Header extends React.Component {
               </li>
               : null }
           </ul>
-          <div className="info">
-              <TagSearchBar />
-          </div>
         </div>
       </div>
     );

@@ -1,5 +1,4 @@
 import React from "react";
-import {animateScroll} from "react-scroll";
 import {Sticky} from "react-sticky";
 
 export default class StickyHeader extends React.Component {
@@ -22,7 +21,7 @@ export default class StickyHeader extends React.Component {
       <Sticky onStickyStateChange={ this.onStickyChange.bind(this) } topOffset={ 200 }
               className={ isVisible ? 'visible' : 'hidden' }>
         {() => (
-          <div onClick={ () => animateScroll.scrollToTop() } className="sticky-header"/>
+          <div className="sticky-header"/>
         )}
       </Sticky>
     )

@@ -27,8 +27,13 @@ const GalleryImagesView = observer(({imageList}) => {
 
   const onThumbChange = (image) => {
     return (event) => {
-      image.setGalleryThumbnail();
-      imageList.images.forEach(image => image.updateData());
+      // Set the thumbnail on the server first
+      image.setGalleryThumbnail().then(() => {
+        // Then update all images to reflect the thumbnail change
+        // This ensures all images get the updated isGalleryThumbnail status
+        const updatePromises = imageList.images.map(img => img.updateData());
+        return Promise.all(updatePromises);
+      });
     }
   }
 
@@ -48,8 +53,7 @@ const GalleryImagesView = observer(({imageList}) => {
   return (
     <div>
       <UploadImagesForm galleryImageList={ imageList } />
-      <p> Tänk på att när du laddar upp bilder kan det ta någon minut innan de dyker upp nedan. Det är för att de måste
-      hanteras utav servern innan de kan användas. </p>
+     
       <hr/>
       <b>Markerade bilder: </b>
       <button type="button" className="button-danger" onClick={onRemoveClick}>Ta bort</button>

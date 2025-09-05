@@ -70,8 +70,17 @@ export class Image {
     })
   }
 
+  // New method to directly set author name (custom name)
+  @action changeAuthor(newAuthorName) {
+    const imageId = this.data._id;
+    return axios.post(`/v1/image/${imageId}/author-name`, {authorName: newAuthorName}).then(() => {
+        // Update the local data immediately
+        this.data.author = newAuthorName;
+    });
+  }
 
-  @action changeAuthor(newCid) {
+  // Old method for changing author by CID (kept for backwards compatibility)
+  @action changeAuthorByCid(newCid) {
     const imageId = this.data._id;
     return axios.post(`/v1/image/${imageId}/author`, {newCid: newCid}).then(() => {
         // Fetch the newly written parameters

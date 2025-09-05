@@ -1,25 +1,53 @@
 import React from "react";
 import {Link} from 'react-router-dom';
-
 import {observer} from 'mobx-react';
-
 import uiState from '../UiState';
 
 @observer
 class Footer extends React.Component {
   render() {
     return (
-      <div className="footer">
-        <div className="footer-content">
-          <p> Du kan komma i kontakt med oss genom att maila <a href="mailto:dfoto@dtek.se">dfoto@dtek.se</a>!</p>
-          <h3>Vi ses genom kameralinsen!</h3>
-          { !uiState.user.isLoggedIn ?
-            <Link to="/login"> Logga in </Link>
-            : null }
-          { uiState.user.isLoggedIn ? <span>Du är inloggad som { uiState.user.cid }</span> : null }
-          <br/>
-          <p>Hittar du något du inte gillar med sidan? Fixa det! <a href="https://github.com/dtekcth/dfotose">Här</a> är koden. </p>
-          <p>Copyright &copy; DFoto {new Date().getFullYear()}.</p>
+      <div className="footer" style={{
+        backgroundColor: '#454545',
+        color: '#ecf0f1',
+        padding: '30px 0',
+        marginTop: 'auto',
+        width: '100%'
+      }}>
+        <div className="footer-content" style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px',
+          textAlign: 'center'
+        }}>
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ margin: '0 0 10px 0', color: '#ecf0f1' }}>DFoto</h3>
+            <p style={{ margin: '5px 0' }}>Datateknologsektionens Fotoförening</p>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: '30px',
+            flexWrap: 'wrap',
+            marginBottom: '20px' 
+          }}>
+            <a href="mailto:dfoto@dtek.se" style={{ color: '#3498db', textDecoration: 'none' }}>
+              dfoto@dtek.se
+            </a>
+            <a href="https://github.com/dtekcth/dfotose" style={{ color: '#3498db', textDecoration: 'none' }}>
+              GitHub
+            </a>
+            { !uiState.user.isLoggedIn ? 
+              <Link to="/login" style={{ color: '#3498db', textDecoration: 'none' }}>Logga in</Link>
+              : 
+              <span style={{ color: '#95a5a6' }}>Inloggad som {uiState.user.cid}</span>
+            }
+          </div>
+          
+          <p style={{ margin: '0', fontSize: '14px', color: '#95a5a6' }}>
+            © {new Date().getFullYear()} DFoto
+          </p>
         </div>
       </div>
     );

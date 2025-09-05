@@ -1,0 +1,5 @@
+# Rebuild the server code inside the container
+docker exec -it dfotose gulp server:build
+
+# Then restart
+docker-compose restart dfotose

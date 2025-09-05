@@ -99,10 +99,14 @@ class App extends React.Component {
   render() {
     return (
       <BrowserRouter>
-        <UnblockedStickyContainer>
+        <UnblockedStickyContainer style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
           <Header user={uiState.user}/>
           <StickyHeader/>
-          <div className="content">
+          <div className="content" style={{ flex: '1 0 auto' }}>
             <div className="row">
               <div className="wrapper">
                 <Switch>
@@ -131,7 +135,6 @@ class App extends React.Component {
           </div>
           <Footer/>
         </UnblockedStickyContainer>
-
       </BrowserRouter>
     );
   }

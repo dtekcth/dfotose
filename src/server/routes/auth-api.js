@@ -44,6 +44,9 @@ router.get('/auth/users',
 //  - Logs out the previous User if any
 router.post('/auth/login', jsonParser, (req, res) => {
   const {cid, password} = req.body;
+
+
+ 
   Kerberos.authUserKrb5Password(cid, password, '', (err, ok) => {
     abortOnError(err, res);
 

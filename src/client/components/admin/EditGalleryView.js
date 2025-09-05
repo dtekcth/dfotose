@@ -19,25 +19,18 @@ class EditGalleryView extends React.Component {
       name: gallery.name,
       description: gallery.description,
       published: gallery.published,
-      date: date
+      date: date,
+      saving: false,
+      lastSaved: null
     };
+
+    // Create debounced save function (waits 1 second after typing stops)
+    this.debouncedSave = _.debounce(this.autoSave.bind(this), 1000);
   }
 
-  onChangeName(event) {
-    this.setState({ name: event.target.value });
-  }
-
-  onChangeDescription(event) {
-    this.setState({ description: event.target.value });
-  }
-
-  onChangeDate(event) {
-    this.setState({ date: event.target.value });
-  }
-
-  onSave(event) {
-    event.preventDefault();
-
+  autoSave() {
+    this.setState({ saving: true });
+    
     const newGalleryData = {
       name: this.state.name,
       description: this.state.description,
@@ -46,8 +39,29 @@ class EditGalleryView extends React.Component {
 
     this.props.gallery.update(newGalleryData)
       .then(() => {
-        this.props.history.push('/admin/gallery');
+        this.setState({ 
+          saving: false,
+          lastSaved: new Date()
+        });
+      })
+      .catch(() => {
+        this.setState({ saving: false });
       });
+  }
+
+  onChangeName(event) {
+    this.setState({ name: event.target.value });
+    this.debouncedSave();
+  }
+
+  onChangeDescription(event) {
+    this.setState({ description: event.target.value });
+    this.debouncedSave();
+  }
+
+  onChangeDate(event) {
+    this.setState({ date: event.target.value });
+    this.debouncedSave();
   }
 
   onPublishToggle(event) {
@@ -71,29 +85,63 @@ class EditGalleryView extends React.Component {
 
   render() {
     const isPublished = this.state.published;
+    const { saving, lastSaved } = this.state;
 
     return (
       <div>
-        <form onSubmit={ this.onSave.bind(this) }>
-          <h4> Ändrar galleri: { this.props.gallery.id } </h4>
-          <label>Namn på galleri:</label>
-          <input className="u-full-width" type="text" value={ this.state.name } onChange={ this.onChangeName.bind(this) } placeholder="namn" />
-          <label>Beskrivning utav gallery:</label>
-          <textarea className="u-full-width" value={ this.state.description } onChange={ this.onChangeDescription.bind(this) }/>
-          <label>Datum för galleri:</label>
-          <input className="u-full-width" type="date" value={ this.state.date } onChange={ this.onChangeDate.bind(this) } placeholder="yyyy-mm-dd" />
-          <button type="submit" className="button-primary">Spara</button>
-          <Link to="/admin/gallery">Tillbaka</Link>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h4>Ändrar galleri: { this.props.gallery.id }</h4>
+          <Link to="/admin/gallery">
+            <button type="button" className="button">← Tillbaka till gallerier</button>
+          </Link>
+        </div>
 
-          <br/>
-          { !isPublished ?
-            <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }>
-              Publicera </button>
-            :
-            <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }>
-              O-Publicera </button>
-          }
+        {saving && <span style={{ color: '#888' }}>Sparar...</span>}
+        {!saving && lastSaved && (
+          <span style={{ color: 'green', fontSize: '14px' }}>
+            ✓ Autosparat {moment(lastSaved).format('HH:mm:ss')}
+          </span>
+        )}
+
+        <form onSubmit={(e) => e.preventDefault()}>
+          <label>Namn på galleri:</label>
+          <input 
+            className="u-full-width" 
+            type="text" 
+            value={ this.state.name } 
+            onChange={ this.onChangeName.bind(this) } 
+            placeholder="namn" 
+          />
+          
+          <label>Beskrivning utav gallery:</label>
+          <textarea 
+            className="u-full-width" 
+            value={ this.state.description } 
+            onChange={ this.onChangeDescription.bind(this) }
+          />
+          
+          <label>Datum för galleri:</label>
+          <input 
+            className="u-full-width" 
+            type="date" 
+            value={ this.state.date } 
+            onChange={ this.onChangeDate.bind(this) } 
+            placeholder="yyyy-mm-dd" 
+          />
+
+          <div style={{ marginTop: '20px' }}>
+            { !isPublished ?
+              <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }>
+                Publicera
+              </button>
+              :
+              <button type="button" className="button-primary" onClick={ this.onPublishToggle.bind(this) }>
+                O-Publicera
+              </button>
+            }
+          </div>
         </form>
+        
         <hr/>
         <GalleryImagesView galleryId={ this.props.gallery.id } imageList={ this.props.imageList } />
       </div>
