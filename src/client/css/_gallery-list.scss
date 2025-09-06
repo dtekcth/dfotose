@@ -35,7 +35,7 @@
 .gallery-list {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-gap: 0;
+  grid-gap: 5px;
   max-width: 1200px;
   margin: 0 auto;
   
@@ -54,6 +54,7 @@
     overflow: hidden;
     aspect-ratio: 3/2;
     background: #000;
+    border-radius: 5px;
 
     a {
       display: block;

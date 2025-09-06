@@ -31,13 +31,12 @@
       }
 
       button:hover {
-        font-size: 14px;
+        outline: solid 1px #999;
       }
     }
 
     li:hover {
       background-color: #2e2e2e;
-      color: #fefefe;
     }
   }
 }
