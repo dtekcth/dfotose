@@ -5,7 +5,6 @@ import {observer} from "mobx-react";
 import {StickyContainer} from 'react-sticky';
 
 import Header from "./components/Header";
-import StickyHeader from "./components/StickyHeader";
 import Footer from "./components/Footer";
 import LoginView from './components/LoginView';
 import GalleryList from './components/GalleryList';
@@ -105,7 +104,6 @@ class App extends React.Component {
           flexDirection: 'column'
         }}>
           <Header user={uiState.user}/>
-          <StickyHeader/>
           <div className="content" style={{ flex: '1 0 auto' }}>
             <div className="row">
               <div className="wrapper">

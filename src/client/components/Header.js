@@ -68,6 +68,7 @@ class Header extends React.Component {
               : null }
           </ul>
         </div>
+        <div className="sticky-header" />
       </div>
     );
   }

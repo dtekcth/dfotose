@@ -1,5 +1,4 @@
 .header {
-  min-height: 120px;
   width: 100%;
   background: #fff;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
@@ -11,7 +10,6 @@
     align-items: center;
     max-width: 100%;
     padding: 0 40px;
-    height: 120px;
     position: relative;  // Needed for absolute positioning of photo count
     
     @media (max-width: 926px) {
