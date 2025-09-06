@@ -59,6 +59,9 @@ class Header extends React.Component {
               <Link to="/"> Bilder </Link>
             </li>
             <li>
+              <Link to="/image/search/"> Sök </Link>
+            </li>
+            <li>
               <Link to="/about"> Om oss </Link>
             </li>
             { uiState.user.isLoggedIn && uiState.user.role != 'None' ?

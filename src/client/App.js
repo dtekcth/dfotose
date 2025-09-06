@@ -115,7 +115,7 @@ class App extends React.Component {
                   <Route exact path="/gallery/page/:pageNumber" component={GalleryList}/>
                   <Route exact path="/gallery/:id" component={GalleryView}/>
                   <Route exact path="/gallery/:galleryId/image/:id" component={ImageView}/>
-                  <Route exact path="/image/search/:tag" component={TagSearchView}/>
+                  <Route path="/image/search/:tag?" component={TagSearchView}/>
 
                   {/* Admin routes */}
                   <Route exact path="/admin" component={AdminHome}/>

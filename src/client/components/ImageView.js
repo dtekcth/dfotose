@@ -30,7 +30,8 @@ class ImageView extends React.Component {
 
     this.state = {
       initialImageId: props.imageId,
-      imageId: props.imageId
+      imageId: props.imageId,
+      newTag: ''
     };
     window.history.replaceState({ imageId: props.imageId }, null, `/gallery/${props.galleryId}/image/${props.imageId}`);
 
@@ -77,6 +78,25 @@ class ImageView extends React.Component {
 
   onImageLoad(event) {
     this.setState({ loaded: true });
+  }
+
+  onChangeTag(event) {
+    this.setState({newTag: event.target.value});
+  }
+
+  onAddTag(event) {
+    event.preventDefault();
+
+    const newTagName = this.state.newTag;
+    const images = this.props.images;
+    const imageId = this.state.imageId;
+    const currentImage = _.find(images, image => image.id == imageId);
+
+    currentImage.addTag(newTagName)
+                .then(() => {
+                });
+
+    this.setState({newTag: ''});
   }
 
   render() {
@@ -131,6 +151,11 @@ class ImageView extends React.Component {
           <a href={ currentImage.fullSize } onClick={ clickFullSize(currentImage.fullSize) } target="_blank">
             Öppna bilden i full storlek
           </a>
+          <div className="tags"><b>Taggar</b>: {currentImage.tags.join(', ')}</div>
+          <form onSubmit={ this.onAddTag.bind(this) } className="new-tag-form">
+            <input type="text" name="newTag" placeholder="Ny tagg" value={ this.state.newTag } onChange={ this.onChangeTag.bind(this) } />
+            <button type="submit" className="button">Lägg till</button>
+          </form>
         </div>
       </div>
     );

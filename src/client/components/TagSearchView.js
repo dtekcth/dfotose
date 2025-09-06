@@ -16,7 +16,8 @@ class TagSearchView extends React.Component {
     this.state = {
       tag: tag,
       imageList: uiState.imageStore.getImagesForTag(tag),
-      showSpinner: true
+      showSpinner: true,
+      searchInput: ''
     };
   }
 
@@ -40,6 +41,16 @@ class TagSearchView extends React.Component {
     this.setState({ showSpinner: false });
   }
 
+  onSearch(event) {
+    event.preventDefault();
+
+    this.props.history.push(`/image/search/${this.state.searchInput}`);
+  }
+
+  onSearchInputChange(event) {
+    this.setState({searchInput: event.target.value});
+  }
+
   render() {
     const {tag, showSpinner} = this.state;
     const images = this.state.imageList.images.toJS();
@@ -48,6 +59,11 @@ class TagSearchView extends React.Component {
 
     return (
       <div className="tag-search-view">
+        <form onSubmit={ this.onSearch.bind(this) } className="tag-search-bar">
+          <input type="text" placeholder="Sök efter taggar" value={ this.state.searchInput }
+                 onChange={ this.onSearchInputChange.bind(this) }/>
+          <button type="submit">Sök</button>
+        </form>
         <h2>Taggsökning: <span className="tag">{ tag }</span></h2>
         { !hasResults ? <p>Inga resultat hittade.</p> : <LoadingSpinner visible={ showSpinner } /> }
         <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } onImageClick={ this.onImageClick.bind(this) } />
