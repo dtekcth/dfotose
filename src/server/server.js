@@ -1,36 +1,45 @@
-import express from 'express'
-import mongoose from 'mongoose'
-import modRewrite from 'connect-modrewrite';
-import helmet from 'helmet';
+const express = require('express');
+const mongoose = require('mongoose');
+const modRewrite = require('connect-modrewrite');
+const helmet = require('helmet');
 
-import morgan from 'morgan';
+const morgan = require('morgan');
 
-import session from 'express-session';
-import connectRedis from 'connect-redis';
+const session = require('express-session');
+const connectRedis = require('connect-redis');
 
-import Webpack from './webpack';
+const Webpack = require('./webpack');
 
 // Routes
-import imageRouter from './routes/image-api';
-import galleryRouter from './routes/gallery-api';
-import authRouter from './routes/auth-api';
-import userRoleRouter from './routes/user-role-api';
+const imageRouter = require('./routes/image-api');
+const galleryRouter = require('./routes/gallery-api');
+const { router: authRouter} = require('./routes/auth-api');
+const { router: userRoleRouter } = require('./routes/user-role-api');
 
-import config from './config';
+const config = require('./config');
 
 
 mongoose.promise = global.Promise;
 
 const connectWithRetry = () => {
-  console.log('MongoDB connection with retry')
-  mongoose.connect(`mongodb://${config.database.host}:27017/${config.database.name}`, { useNewUrlParser: true });
-}
+  console.log('MongoDB connection with retry');
+  mongoose.connect(
+    `mongodb://${config.database.host}:27017/${config.database.name}`,
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  ).catch(err => {
+    console.error(`Initial connection error: ${err}`);
+  });
+};
 
-// Retry connection on failure
 mongoose.connection.on('error', err => {
-  console.log(`MongoDB connection error: ${err}`)
-  setTimeout(connectWithRetry, 5000)
-})
+  console.error(`MongoDB error: ${err}`);
+  setTimeout(connectWithRetry, 5000);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected! Retrying in 5s...');
+  setTimeout(connectWithRetry, 5000);
+});
 
 connectWithRetry();
 
