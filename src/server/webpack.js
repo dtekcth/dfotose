@@ -1,14 +1,13 @@
-import webpack from 'webpack';
-import webpackDevMiddleware from 'webpack-dev-middleware';
-import webpackHotMiddleware from 'webpack-hot-middleware';
+const webpack = require('webpack');
+const webpackDevMiddleware = require('webpack-dev-middleware');
+const webpackHotMiddleware = require('webpack-hot-middleware');
 
-import config from './../webpack.config';
+const config = require('./../webpack.config');
 
-var myConfig = config;
-myConfig.output.path = '/';
-const compiler = webpack(myConfig);
+module.exports = function(app) {
+  const myConfig = { ...config, output: { ...config.output, path: '/' } };
+  const compiler = webpack(myConfig);
 
-const Webpack = (app) => {
   app.use(webpackDevMiddleware(compiler, {
     publicPath: config.output.publicPath,
     stats: {
@@ -21,4 +20,3 @@ const Webpack = (app) => {
   }));
 };
 
-export default Webpack;
