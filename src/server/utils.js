@@ -1,4 +1,4 @@
-export function abortOnError(err, res) {
+exports.abortOnError = function(err, res) {
   if (err) {
     res.status(500);
     res.send(err);

@@ -50,17 +50,26 @@ const About = () => {
     <div className="wrapper">
       <div className="site-content about-us">
         <h2>Om oss</h2>
-        <p>DFoto är Datateknologsektionens fotoförening.
-          Vår ambition är att genom foto och film föreviga alla arrangemang Datateknologen går på.
-          Allt ifrån iDrotts legendariska aktiviteter, till D6s storslagna fester och Deltas episka pubar.</p>
-        <p> Du kan komma i kontakt med oss genom att maila <a href="mailto:dfoto@dtek.se">dfoto@dtek.se</a> eller 
-          skriva till vår <a href="https://www.facebook.com/dfotochalmers/">Facebooksida</a>.
+        <p>
+          DFoto är Datateknologsektionens fotoförening. 
+          Vår ambition är att genom foto och film föreviga alla arrangemang Datateknologen deltar i. 
+          Allt från iDrotts legendariska aktiviteter, till D6:s storslagna fester och Deltas episka pubar.
+        </p>
+        <p>
+          Du kan komma i kontakt med oss genom att maila <a href="mailto:dfoto@dtek.se">dfoto@dtek.se</a>, 
+          skriva till vår <a href="https://www.facebook.com/dfotochalmers/">Facebook </a> 
+           eller följ oss på <a href="https://www.instagram.com/dfoto_chalmers/">Instagram</a>.
+        </p>
+        <h2>Anmäla arrangemang</h2>
+        <p>
+          Vill du att vi kommer och fotograferar ett arrangemang? Anmäl det via <a href="https://forms.gle/d7ESL17YZq86oPNfA">detta formulär</a>.
         </p>
         <h3>Vi ses genom kameralinsen!</h3>
       </div>
     </div>
   );
 };
+
 
 const AdminHome = () => {
   return (<AdminIndex user={uiState.user}/>);

@@ -1,7 +1,7 @@
-import _ from 'lodash';
+const _ = require('lodash');
 
-import yamlConfig from 'node-yaml-config';
-import logger from './logger';
+const yamlConfig = require('node-yaml-config');
+const logger = require('./logger');
 
 const config = yamlConfig.load(__dirname + '/config/config.yml');
 
@@ -48,5 +48,5 @@ const model = {
 
 checkModel(model, '');
 
-export default config;
+module.exports = config;
 

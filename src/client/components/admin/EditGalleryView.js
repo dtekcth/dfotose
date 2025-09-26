@@ -99,7 +99,7 @@ class EditGalleryView extends React.Component {
         {saving && <span style={{ color: '#888' }}>Sparar...</span>}
         {!saving && lastSaved && (
           <span style={{ color: 'green', fontSize: '14px' }}>
-            ✓ Autosparat {moment(lastSaved).format('HH:mm:ss')}
+            Autosparat {moment(lastSaved).format('HH:mm:ss')}
           </span>
         )}
 
