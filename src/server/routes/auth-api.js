@@ -29,12 +29,34 @@ router.get('/auth/users', requireRestrictions(Restrictions.READ_USERS), (req, re
   });
 });
 
+async function authUserKrb5Password(cid, password) {
+  return new Promise((resolve, reject) => {
+    kerberos.initializeClient(
+      `${cid}`,               // or `${cid}@YOUR.REALM.COM` if your KDC expects realm
+      { user: cid, password }, 
+      (err, client) => {
+        if (err) return reject(err);
+
+        client.step('', (err) => {
+          if (err) return reject(err);
+          resolve(true);
+        });
+      }
+    );
+  });
+}
+
+
 // Login a User
 router.post('/auth/login', jsonParser, async (req, res) => {
   const { cid, password } = req.body;
 
+  // Dev bypass
+  //handleDevBypass(cid, req, res);
+  //return;
+
   try {
-    const ok = await kerberos.authUserKrb5Password(cid, password, '');
+    const ok = await authUserKrb5Password(cid, password);
     if (!ok) {
       return res.status(401).end();
     }

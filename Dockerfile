@@ -2,11 +2,15 @@ FROM node:18
 
 WORKDIR /dfotose
 
+# Avoid prompts when installing krb5-user
+ENV DEBIAN_FRONTEND=noninteractive
+
 # For kerberos
 RUN apt-get update && apt-get install -y \
     python3 \
     build-essential \
     libkrb5-dev \
+    krb5-user \
     && rm -rf /var/lib/apt/lists/*
 
 # Install all dependencies
