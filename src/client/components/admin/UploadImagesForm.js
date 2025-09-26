@@ -22,14 +22,23 @@ export default class UploadImagesForm extends React.Component {
   }
   
   onFileSelect(event) {
-    const files = event.target.files;
-    this.setState({ 
-      selectedFiles: files,
-      fileCount: files.length,
-      uploadComplete: false,
-      uploadError: false
-    });
+  const files = event.target.files;
+
+  if (files.length > 200) {
+    alert('Du kan inte ladda upp fler än 200 filer åt gången.');
+    // clear file input
+    event.target.value = '';
+    this.setState({ selectedFiles: [], fileCount: 0 });
+    return;
   }
+
+  this.setState({ 
+    selectedFiles: files,
+    fileCount: files.length,
+    uploadComplete: false,
+    uploadError: false
+  });
+}
   
   onSubmit(event) {
     event.preventDefault();
