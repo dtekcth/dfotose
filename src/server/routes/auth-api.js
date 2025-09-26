@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { Router } = require('express');
 const bodyParser = require('body-parser');
 const kerberos = require('kerberos');
+const { spawn } = require("child_process");
 
 const User = require('../model/user');
 const { Restrictions, getRestrictionsForRole } = require('../model/user-roles');
@@ -10,6 +11,7 @@ const { fetchInitialRole, removeElevatedIfExists } = require('./user-role-api');
 const { LoggedInRequired, hasRestrictions, requireRestrictions } = require('./permissions');
 const Logger = require('../logger');
 const { abortOnError } = require('../utils');
+
 
 const router = Router();
 
@@ -31,18 +33,26 @@ router.get('/auth/users', requireRestrictions(Restrictions.READ_USERS), (req, re
 
 async function authUserKrb5Password(cid, password) {
   return new Promise((resolve, reject) => {
-    kerberos.initializeClient(
-      `${cid}`,               // or `${cid}@YOUR.REALM.COM` if your KDC expects realm
-      { user: cid, password }, 
-      (err, client) => {
-        if (err) return reject(err);
+    const child = spawn("kinit", [`${cid}@CHALMERS.SE`]);
 
-        client.step('', (err) => {
-          if (err) return reject(err);
-          resolve(true);
-        });
+    let stderr = "";
+    child.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    child.on("error", (err) => reject(err));
+
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(true);
+      } else {
+        reject(new Error(stderr || `kinit failed with code ${code}`));
       }
-    );
+    });
+
+    // Send password to kinit
+    child.stdin.write(password + "\n");
+    child.stdin.end();
   });
 }
 
