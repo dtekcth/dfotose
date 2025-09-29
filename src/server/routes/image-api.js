@@ -1,32 +1,33 @@
-import _ from 'lodash';
-import uuid from 'uuid';
-import {Router} from 'express';
-import multer from 'multer';
-import fs from 'fs-extra';
-import path from 'path';
-import sharp from 'sharp';
-import bodyParser from 'body-parser';
-import {inHTMLData} from 'xss-filters';
-import mongoose from 'mongoose';
-import exifParser from 'exif-parser';
-import moment from 'moment';
+const _ = require('lodash');
+const uuid = require('uuid');
+const uuidv4 = uuid.v4;
+const { Router } = require('express');
+const multer = require('multer');
+const fs = require('fs-extra');
+const path = require('path');
+const sharp = require('sharp');
+const bodyParser = require('body-parser');
+const { inHTMLData } = require('xss-filters');
+const mongoose = require('mongoose');
+const exifParser = require('exif-parser');
+const moment = require('moment');
 
-import {Restrictions} from '../model/user-roles';
-import {requireRestrictions, hasRestrictions} from './auth-api.js';
-import Logger from '../logger';
-import config from '../config';
-import {abortOnError} from '../utils';
+const { Restrictions } = require('../model/user-roles');
+const { requireRestrictions, hasRestrictions } = require('./permissions');
+const Logger = require('../logger');
+const config = require('../config');
+const { abortOnError } = require('../utils');
 
 const jsonParser = bodyParser.json();
 
 
-import Image from '../model/image';
-import ImageTag from '../model/image-tag';
-import Gallery from '../model/gallery';
+const Image = require('../model/image');
+const ImageTag = require('../model/image-tag');
+const Gallery = require('../model/gallery');
 
 
 const router = Router();
-export default router;
+module.exports = router;
 
 const imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -164,137 +165,163 @@ router.post('/image/:id/author-name', jsonParser, (req, res) => {
     });
 });
 
-router.post('/image/:id/gallerythumbnail', (req,res) => {
+router.post('/image/:id/gallerythumbnail', (req, res) => {
   const id = req.params.id;
 
   const canWriteImage = hasRestrictions(
-      req,
-      Restrictions.WRITE_GALLERY | Restrictions.WRITE_IMAGES
+    req,
+    Restrictions.WRITE_GALLERY | Restrictions.WRITE_IMAGES
   );
 
   if (!canWriteImage) {
-    res.status(403).end();
-    Logger.warn(`User ${req.session.user.cid} had insufficient permissions to change thumbnail.`);
-    return;
+    Logger.warn(
+      `User ${req.session.user.cid} had insufficient permissions to change thumbnail.`
+    );
+    return res.status(403).end();
   }
 
   // Find the image that should be set as thumbnail
-  Image.findOne({_id: id}, (err, newThumb) => {
+  Image.findOne({ _id: id }, (err, newThumb) => {
     abortOnError(err, res);
 
     // Remove the image that was previously thumbnail
-    Image.find({galleryId: newThumb.galleryId, isGalleryThumbnail: true}, (err, oldThumbs) => {
-      if (oldThumbs !== null && oldThumbs.length !== 0) {
-        oldThumbs.forEach(oldThumb => {
-          oldThumb.isGalleryThumbnail = false;
-          oldThumb.save();
+    Image.updateMany(
+      { galleryId: newThumb.galleryId, isGalleryThumbnail: true },
+      { $set: { isGalleryThumbnail: false } },
+      (err) => {
+        abortOnError(err, res);
+
+        // Set the new one as thumbnail
+        newThumb.isGalleryThumbnail = true;
+        newThumb.save((err, savedThumb) => {
+          abortOnError(err, res);
+
+          Logger.info(
+            `Changed gallery thumbnail to ${id} for gallery ${newThumb.galleryId}`
+          );
+
+          // return updated info so frontend doesn’t reload everything
+          res.status(200).json({
+            galleryId: savedThumb.galleryId,
+            imageId: savedThumb._id,
+            thumbnailUrl: savedThumb.thumbnail,
+            previewUrl: savedThumb.preview,
+          });
         });
       }
-      else { console.log("No old thumbnail found"); }
-    });
-
-    // Set the new one as thumbnail
-    newThumb.isGalleryThumbnail = true;
-    newThumb.save();
-    console.log(`Changed gallery thumbnail to ${id} for gallery ${newThumb.galleryId}`);
-    res.status(202).end();
-
+    );
   });
-})
+});
 
-function handleImages(req, res, galleryId) {
-  const userCid = req.session.user.cid;
-  const images = req.files;
-  
-  // Get photographer name from header, fallback to user's fullname or CID
-  const photographerName = req.headers['x-photographer-name'] || 
-                          req.session.user.fullname || 
-                          req.session.user.cid;
 
-  _.forEach(images, (image) => {
-    const fieldName = _.get(image, 'fieldname');
-    if (fieldName !== 'photos') {
-      res.status(500).send();
-      throw "incorrect fieldName specified";
+// helper: simple concurrency limiter
+async function runWithLimit(limit, tasks) {
+  const results = [];
+  const executing = [];
+
+  for (const task of tasks) {
+    const p = task().then(r => {
+      executing.splice(executing.indexOf(p), 1);
+      return r;
+    });
+    results.push(p);
+    executing.push(p);
+
+    if (executing.length >= limit) {
+      await Promise.race(executing); // wait until one finishes
     }
-
-    const extension = image.originalname.split('.').pop();
-    const filename = uuid.v4();
-    const galleryPath = path.resolve(config.storage.path, galleryId);
-    const fullSizeImagePath = `${galleryPath}/${filename}.${extension}`;
-
-    createDirectoryIfNeeded(galleryPath);
-    createDirectoryIfNeeded(path.resolve(galleryPath, "thumbnails"));
-    createDirectoryIfNeeded(path.resolve(galleryPath, "previews"));
-
-    fs.move(image.path, fullSizeImagePath, (err) => {
-      if (err) {
-        Logger.error(err);
-      }
-
-      const thumbnail = path.resolve(galleryPath, "thumbnails", `${filename}.${extension}`);
-      sharp(fullSizeImagePath)
-        .resize(300, 200)
-        .rotate()
-        .crop(sharp.strategy.entropy)
-        .toFile(thumbnail, (err) => {
-          if (err) {
-            Logger.error(`Could not save thumbnail for image ${filename}`);
-          } else {
-            Logger.info(`Saved thumbnail ${thumbnail}`);
-          }
-        });
-
-      const preview = path.resolve(galleryPath, "previews", `${filename}.${extension}`);
-      sharp(fullSizeImagePath)
-        .resize(null, 800)
-        .rotate()
-        .toFile(preview, (err) => {
-          if (err) {
-            Logger.error(`Could not save preview for image ${filename}`);
-          } else {
-            Logger.info(`Saved preview ${preview}`);
-          }
-        });
-
-      readExifData(fullSizeImagePath, (exif) => {
-        const shotAtUnformatted = _.get(exif, 'tags.DateTimeOriginal');
-        const shotAt = shotAtUnformatted ? moment(shotAtUnformatted)
-                                         : moment();
-
-        var newImage = new Image({
-          filename: filename,
-          authorCid: userCid,
-          author: photographerName, // Set the author name
-          galleryId: galleryId,
-          thumbnail: thumbnail,
-          preview: preview,
-          fullSize: fullSizeImagePath,
-          shotAt: shotAt,
-          exifData: exif
-        });
-
-        newImage.save((err) => {
-          if (err) {
-            Logger.error(err);
-            throw err;
-          }
-
-          Logger.info(`Saved image ${filename} with author ${photographerName}`);
-        });
-      });
-    });
-  });
-
-  Logger.info(`${images.length} new images uploaded by ${req.session.user.cid}`);
+  }
+  return Promise.all(results);
 }
 
+// make readExifData return a promise
+function readExifDataPromise(filePath) {
+  return new Promise((resolve, reject) => {
+    readExifData(filePath, (exif) => {
+      if (!exif) return reject(new Error("Could not read EXIF"));
+      resolve(exif);
+    });
+  });
+}
 
-const uploadWithFields = multer({ storage: imageStorage }).fields([
-  { name: 'photos', maxCount: 100 },
-  { name: 'photographerName', maxCount: 1 }
-]);
+async function handleImages(req, res, galleryId) {
+  try {
+    const userCid = req.session.user.cid;
+    const images = req.files;
 
+    const photographerName =
+      req.headers["x-photographer-name"] ||
+      req.session.user.fullname ||
+      req.session.user.cid;
+
+    const galleryPath = path.resolve(config.storage.path, galleryId);
+
+    // ensure dirs once
+    await fs.ensureDir(galleryPath);
+    await fs.ensureDir(path.resolve(galleryPath, "thumbnails"));
+    await fs.ensureDir(path.resolve(galleryPath, "previews"));
+
+    // create tasks
+    const tasks = images.map((image) => async () => {
+      if (image.fieldname !== "photos") {
+        throw new Error("incorrect fieldName specified");
+      }
+
+      const extension = path.extname(image.originalname);
+      const filename = uuidv4();
+      const fullSizeImagePath = path.join(galleryPath, `${filename}${extension}`);
+
+      await fs.move(image.path, fullSizeImagePath);
+
+      const thumbnail = path.join(galleryPath, "thumbnails", `${filename}${extension}`);
+      const preview   = path.join(galleryPath, "previews",   `${filename}${extension}`);
+
+      // sharp tasks for this image
+      await Promise.all([
+        sharp(fullSizeImagePath)
+          .resize(300, 200, { fit: sharp.fit.cover, position: sharp.strategy.entropy })
+          .rotate()
+          .toFile(thumbnail),
+
+        sharp(fullSizeImagePath)
+          .resize({ height: 800, fit: sharp.fit.inside })
+          .rotate()
+          .toFile(preview),
+      ]);
+
+      // EXIF
+      const exif = await readExifDataPromise(fullSizeImagePath);
+      const shotAtUnformatted = _.get(exif, "tags.DateTimeOriginal");
+      const shotAt = shotAtUnformatted ? moment(shotAtUnformatted) : moment();
+
+      const newImage = new Image({
+        filename,
+        authorCid: userCid,
+        author: photographerName,
+        galleryId,
+        thumbnail,
+        preview,
+        fullSize: fullSizeImagePath,
+        shotAt,
+        exifData: exif,
+      });
+
+      await newImage.save();
+      Logger.info(`Saved image ${filename} with author ${photographerName}`);
+    });
+
+    // run tasks with concurrency limit (e.g. 5 at a time)
+    await runWithLimit(5, tasks);
+
+    Logger.info(`${images.length} new images uploaded by ${req.session.user.cid}`);
+
+  } catch (err) {
+    Logger.error(`Image processing failed: ${err && err.message ? err.message : err}`);
+    if (err && err.stack) {
+      Logger.error(err.stack);
+    }
+  }
+}
 
 router.post('/image/:id/tags', jsonParser, (req, res) => {
   const imageId = req.params.id;
@@ -387,13 +414,16 @@ function readExifData(imagePath, cb) {
   });
 }
 
-// Keep the upload routes exactly as they were:
 router.post('/image',
   requireRestrictions(Restrictions.WRITE_IMAGES | Restrictions.WRITE_GALLERY),
-  upload.array('photos'), (req, res) => {
-  handleImages(req, res, 'undefined');
-  res.status(202).send();
-});
+  upload.array('photos', 200), // Limit upload to 200
+  (req, res) => {
+    handleImages(req, res, 'undefined') 
+      .catch(err => Logger.error(err));
+    res.status(202).send(); // Accepted, still processing
+  }
+);
+
 
 router.post('/image/:galleryId',
   requireRestrictions(Restrictions.WRITE_IMAGES),
@@ -412,25 +442,7 @@ router.post('/image/:galleryId',
   });
 });
 
-// Updates the author retroactively on all images
-// uploaded by a certain user
-export function updateAuthorOfImagesUploadedByCid(cid, author) {
-  const updated = { author: author };
 
-  Image.find({ authorCid: cid }, (err, images) => {
-    _.forEach(images, image => {
-      Image.findOneAndUpdate(
-        { _id: image._id },
-        { $set : updated },
-        (err, image) => {
-          if (err) {
-            throw err;
-          }
-        }
-      );
-    });
-  });
-}
 
 // Delete a specific image
 //  - Note: this automatically removes all gallery

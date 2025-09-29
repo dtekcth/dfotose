@@ -1,20 +1,16 @@
-import _ from 'lodash';
-import {Router} from 'express';
-import bodyParser from 'body-parser';
+const _ = require('lodash');
+const { Router } = require('express');
+const bodyParser = require('body-parser');
 
-import UserEligibleForRole, {Restrictions} from '../model/user-roles';
-import {requireRestrictions} from './auth-api';
-
-import Logger from '../logger';
-import {abortOnError} from '../utils';
+const { UserEligibleForRole, Restrictions } = require('../model/user-roles');
+const { requireRestrictions } = require('./permissions');
+const Logger = require('../logger');
+const { abortOnError } = require('../utils');
 
 const router = Router();
-export default router;
-
 const jsonParser = bodyParser.json();
 
 // Fetch all users that are eligible to be elevated
-// upon first login
 router.get('/user/eligible',
   requireRestrictions(Restrictions.READ_USERS),
   (req, res) => {
@@ -22,61 +18,60 @@ router.get('/user/eligible',
       abortOnError(err, res);
       res.send(eligibleUsers);
     });
-});
+  }
+);
 
-// Sets a user to be elevated to a specific role
-// upon first login
+// Sets a user to be elevated
 router.post('/user/eligible',
   requireRestrictions(Restrictions.WRITE_USERS),
   jsonParser,
   (req, res) => {
-    const {cid, role} = req.body;
+    const { cid, role } = req.body;
 
-    UserEligibleForRole.findOne({cid: cid}, (err, user) => {
+    UserEligibleForRole.findOne({ cid }, (err, user) => {
       abortOnError(err, res);
       if (user) {
         res.status(500).send(`${cid} already has one added ..`);
         return;
       }
 
-      UserEligibleForRole({
-        cid: cid, role: role
-      }).save(err => {
+      UserEligibleForRole({ cid, role }).save(err => {
         abortOnError(err, res);
-
-        Logger.info(`${req.session.user.cid} set ${cid} to be elevated to role ${role} upon first login`);
-        res.send({ cid: cid, role: role });
+        Logger.info(`${req.session.user.cid} set ${cid} to be elevated to role ${role}`);
+        res.send({ cid, role });
       });
     });
-});
+  }
+);
 
-// Remove a user from getting elevated to a specific role
-// when logging in the first time.
+// Remove a user from getting elevated
 router.delete('/user/eligible/:cid',
   requireRestrictions(Restrictions.WRITE_USERS),
   (req, res) => {
     const cid = req.params.cid;
 
-    UserEligibleForRole.find({cid: cid}).remove(err => {
+    UserEligibleForRole.find({ cid }).remove(err => {
       abortOnError(err, res);
       res.status(202).end();
     });
-});
+  }
+);
 
-// Used by auth-api to determine the initial role when a user
-// logs in the first time
-export function fetchInitialRole(cid, cb) {
-  UserEligibleForRole.findOne({
-    cid: cid
-  }, (err, eligibleUser) => {
+// Helpers
+function fetchInitialRole(cid, cb) {
+  UserEligibleForRole.findOne({ cid }, (err, eligibleUser) => {
     if (err) throw err;
     const role = _.get(eligibleUser, 'role', 'None');
     cb(role);
   });
 }
 
-// Used by auth-api
-export function removeElevatedIfExists(cid) {
-  UserEligibleForRole.find({cid: cid}).remove(err => {
-  });
+function removeElevatedIfExists(cid) {
+  UserEligibleForRole.find({ cid }).remove(err => {});
 }
+
+module.exports = {
+  router,
+  fetchInitialRole,
+  removeElevatedIfExists
+};

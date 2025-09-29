@@ -1,19 +1,19 @@
-import _ from 'lodash';
-import {Router} from 'express';
-import bodyParser from 'body-parser';
+const _ = require('lodash');
+const { Router } = require('express');
+const bodyParser = require('body-parser');
 
-import {Restrictions} from '../model/user-roles';
-import {requireRestrictions} from './auth-api.js';
-import Logger from '../logger';
-import {abortOnError} from '../utils';
+const { Restrictions } = require('../model/user-roles');
+const { requireRestrictions } = require('./permissions');
+const Logger = require('../logger');
+const { abortOnError } = require('../utils');
 
-import Gallery from '../model/gallery';
-import Image from '../model/image';
+const Gallery = require('../model/gallery');
+const Image = require('../model/image');
 
 const jsonParser = bodyParser.json();
 
 const router = Router();
-export default router;
+module.exports = router;
 
 // Return all published galleries
 router.get('/gallery', (req, res) => {
@@ -206,26 +206,37 @@ router.delete('/gallery/:id',
   });
 });
 
-// Get all unique authors for a gallery
 router.get('/gallery/:id/authors', (req, res) => {
   const galleryId = req.params.id;
-  
-  Image.find({ galleryId: galleryId }, 'author authorCid', (err, images) => {
+
+  Image.aggregate([
+    { $match: { galleryId: galleryId } },
+    { $project: { author: 1, authorCid: 1 } },
+    { $group: { _id: null, authors: { $addToSet: { $ifNull: ["$author", "$authorCid"] } } } }
+  ]).exec((err, result) => {
     if (err) {
       res.status(500).send(err);
       return;
     }
-    
-    // Get unique authors
-    const authorsSet = new Set();
-    images.forEach(image => {
-      const author = image.author || image.authorCid;
-      if (author) {
-        authorsSet.add(author);
-      }
-    });
-    
-    const authors = Array.from(authorsSet);
-    res.send({ authors: authors });
+
+    const authors = (result[0] && result[0].authors) || [];
+    res.send({ authors });
+  });
+});
+
+// Get authors for all galleries at once
+router.get('/galleries/authors', (req, res) => {
+  Image.aggregate([
+    { $group: { _id: "$galleryId", authors: { $addToSet: { $ifNull: ["$author", "$authorCid"] } } } }
+  ]).exec((err, result) => {
+    if (err) return res.status(500).send(err);
+
+    // Convert to a map: { galleryId: [authors] }
+    const authorsMap = result.reduce((acc, r) => {
+      acc[r._id] = r.authors;
+      return acc;
+    }, {});
+
+    res.send(authorsMap);
   });
 });
