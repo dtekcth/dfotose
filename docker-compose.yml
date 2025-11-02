@@ -17,7 +17,7 @@ services:
       - redis
   redis:
     container_name: dfotose-redis
-    image: "redis:alpine"
+    image: "redis:8.2.2-alpine"
     restart: unless-stopped
   mongo:
     container_name: dfotose-mongodb
