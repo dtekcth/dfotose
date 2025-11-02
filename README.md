@@ -70,10 +70,16 @@ $> make up-dev
 ...
 ```
 
-Sidan borde starta tillsammans med mongodb och redis i bakgrunden. Om det är en första gången setup (vilket det oftast är, annars ändra
-`docker-compose.yml` till att peka mot andra docker containers) så behöver du ge en första
-person admin access på sidan. Gör detta genom att öppna en mongo-client (e.g. `docker exec -it dfotose_mongo_1 mongo`)
-och sedan slänga in `{ cid: '<ditt cid>, role: 'Admin' }` i `usereligibleforrole` tabellen.
+Sidan borde starta tillsammans med mongodb och redis i bakgrunden. Om det är en
+första gången setup (vilket det oftast är, annars ändra `docker-compose.yml`
+till att peka mot andra docker containers) så behöver du ge en första person
+admin access på sidan. Gör detta genom att öppna en mongo-client (e.g. `docker
+exec -it dfotose_mongo_1 mongo`) och sedan köra följande kommandon:
+
+```
+use dfotose
+db.usereligibleforroles.insert({ cid: '<ditt cid>', role: 'Admin' })
+```
 
 Sidan exponeras på port 4000 by default, vilket går att ändra i `docker-compose.yml`.
 
