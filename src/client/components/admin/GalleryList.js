@@ -15,11 +15,7 @@ class Gallery extends React.Component {
     const { gallery } = this.props;
 
     // Only fetch authors if gallery has an id
-    if (gallery._id) {
-      axios.get('/v1/galleries/authors')
-        .then(res => this.setState({ authors: res.data[gallery._id] || [] }))
-        .catch(err => console.error('Failed to fetch authors:', err));
-    }
+    
   }
 
   render() {
@@ -68,11 +64,7 @@ class Gallery extends React.Component {
             </p>
             <p style={{ margin: '5px 0', color: '#999', fontSize: '14px' }}>{date}</p>
             <p style={{ margin: '5px 0', color: '#666' }}>{gallery.description}</p>
-            {authors.length > 0 && (
-              <p style={{ fontSize: '12px', color: '#888', margin: '5px 0' }}>
-                Fotografer: {authors.join(', ')}
-              </p>
-            )}
+           
           </div>
           <button
             type="button"
