@@ -29,6 +29,21 @@ const Gallery = require('../model/gallery');
 const router = Router();
 module.exports = router;
 
+function updateAuthorOfImagesUploadedByCid(cid, filteredAuthorName) {
+  Image.updateMany(
+    { authorCid: cid },
+    { $set: { author: filteredAuthorName } },
+    err => {
+      if (err) {
+        Logger.error(`Could not update author name for images uploaded by ${cid}`);
+        Logger.error(err);
+      }
+    }
+  );
+}
+
+module.exports.updateAuthorOfImagesUploadedByCid = updateAuthorOfImagesUploadedByCid;
+
 const imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const path = config.storage.temporaryImagePath;

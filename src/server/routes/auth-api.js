@@ -3,6 +3,7 @@ const { Router } = require('express');
 const bodyParser = require('body-parser');
 const kerberos = require('kerberos');
 const { spawn } = require("child_process");
+const { inHTMLData } = require('xss-filters');
 
 const User = require('../model/user');
 const { Restrictions, getRestrictionsForRole } = require('../model/user-roles');
