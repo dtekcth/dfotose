@@ -5,22 +5,18 @@ import {withRouter} from '../routerCompat';
 import ImageList from './ImageList';
 import LoadingSpinner from './LoadingSpinner';
 
-import GalleryStore, {Gallery as GalleryModel} from '../GalleryStore';
 import ImageStore, {Image as ImageModel} from '../ImageStore';
 import UiState from '../UiState';
 import PreloadContainerFactory from './PreloadContainerFactory';
-import {formatDate} from '../formatDate';
 
-function hydrateGalleryViewState(state) {
-  const gallery = state.gallery ? new GalleryModel(state.gallery) : undefined;
+function hydratePhotographerViewState(state) {
   const images = (state.images || []).map(image => (
     image instanceof ImageModel ? image : new ImageModel(image)
   ));
 
   return {
-    gallery: gallery,
-    galleryId: state.gallery?._id,
-    images: images,
+    cid: state.cid,
+    images,
     imagePage: state.imagePage || {
       page: 1,
       pageSize: 80,
@@ -31,7 +27,7 @@ function hydrateGalleryViewState(state) {
 }
 
 @observer
-class GalleryView extends React.Component {
+class PhotographerView extends React.Component {
   constructor(props) {
     super(props);
 
@@ -49,7 +45,7 @@ class GalleryView extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.galleryId !== this.props.galleryId) {
+    if (prevProps.cid !== this.props.cid) {
       this.setState({
         images: this.props.images || [],
         imagePage: this.props.imagePage || {
@@ -65,20 +61,12 @@ class GalleryView extends React.Component {
   }
 
   onAllImagesLoaded() {
-    if (this.state.showSpinner) {
-      this.setState({showSpinner: false});
-
-      if (UiState.oldScrollPosition != 0 && UiState.lastGalleryIdViewed == this.props.gallery.id) {
-        setTimeout(() => {
-          window.scrollTo(0, UiState.oldScrollPosition);
-        }, 100);
-      }
-    }
+    this.setState({showSpinner: false});
   }
 
   onImageClick(image) {
     const imageViewLink = `/gallery/${image.galleryId}/image/${image.id}`;
-    const top  = window.pageYOffset || document.documentElement.scrollTop;
+    const top = window.pageYOffset || document.documentElement.scrollTop;
 
     UiState.updateScrollPosition(top);
     UiState.updateLastGalleryIdViewed(image.galleryId);
@@ -91,9 +79,9 @@ class GalleryView extends React.Component {
     }
 
     const nextPage = this.state.imagePage.page + 1;
-    this.setState({ loadingMore: true });
+    this.setState({loadingMore: true});
 
-    ImageStore.fetchImagesPage(this.props.gallery.id, nextPage, this.state.imagePage.pageSize)
+    ImageStore.fetchImagesForPhotographerPage(this.props.cid, nextPage, this.state.imagePage.pageSize)
       .then(({images, imagePage}) => {
         this.setState(state => ({
           images: state.images.concat(images),
@@ -102,57 +90,49 @@ class GalleryView extends React.Component {
         }));
       })
       .catch(() => {
-        this.setState({ loadingMore: false });
+        this.setState({loadingMore: false});
       });
   }
-  
+
   render() {
-    const {gallery} = this.props;
+    const {cid} = this.props;
     const {images, imagePage, loadingMore} = this.state;
-    
-    if (gallery == undefined) {
-      return (<p>Galleriet finns inte</p>);
-    }
-    
-    const showSpinner = this.state.showSpinner;
-    const date = formatDate(gallery.shootDate);
-    
+
     return (
       <div className="gallery-view">
         <div className="title">
-          <h2>{ gallery.name } - { date }</h2>
-          <p>{ imagePage.totalCount } bilder.<br/> 
-             { gallery.description }</p>
+          <h2>Fotograf: {cid}</h2>
+          <p>{imagePage.totalCount} bilder.</p>
         </div>
-        <LoadingSpinner visible={ showSpinner } />
-        <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } onImageClick={ this.onImageClick.bind(this) } />
-        { imagePage.hasMore ?
+        <LoadingSpinner visible={this.state.showSpinner}/>
+        <ImageList
+          images={images}
+          onAllLoaded={this.onAllImagesLoaded.bind(this)}
+          onImageClick={this.onImageClick.bind(this)}
+        />
+        {imagePage.hasMore ? (
           <div className="gallery-load-more">
-            <button type="button" disabled={ loadingMore } onClick={ this.loadMoreImages.bind(this) }>
-              { loadingMore ? 'Laddar...' : 'Visa fler bilder' }
+            <button type="button" disabled={loadingMore} onClick={this.loadMoreImages.bind(this)}>
+              {loadingMore ? 'Laddar...' : 'Visa fler bilder'}
             </button>
-            <span>{ images.length } / { imagePage.totalCount }</span>
+            <span>{images.length} / {imagePage.totalCount}</span>
           </div>
-          : null }
+        ) : null}
       </div>
-    )
+    );
   }
 }
 
-const GalleryViewContainer = PreloadContainerFactory((props) => {
-  const galleryId = props.match?.params?.id;
+const PhotographerViewContainer = PreloadContainerFactory((props) => {
+  const cid = props.match?.params?.cid;
 
-  const galleryPromise = GalleryStore.fetchGallery(galleryId);
-  const imagesPromise = ImageStore.fetchImagesPage(galleryId);
-
-  return Promise.all([galleryPromise, imagesPromise]).then(([gallery, imageResult]) => {
+  return ImageStore.fetchImagesForPhotographerPage(cid).then(imageResult => {
     return {
-      gallery: gallery,
-      galleryId: galleryId,
+      cid,
       images: imageResult.images,
       imagePage: imageResult.imagePage
     };
   });
-}, GalleryView, hydrateGalleryViewState);
+}, PhotographerView, hydratePhotographerViewState);
 
-export default withRouter(GalleryViewContainer);
+export default withRouter(PhotographerViewContainer);

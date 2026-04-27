@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import React from 'react';
-import {Link, withRouter} from 'react-router-dom';
+import {Link} from 'react-router';
 import moment from 'moment';
+import {withRouter} from '../../routerCompat';
 
 import GalleryImagesView from './GalleryImagesView';
 

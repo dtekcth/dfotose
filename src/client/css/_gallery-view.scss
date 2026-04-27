@@ -36,4 +36,17 @@
       }
     }
   }
+
+  .gallery-load-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin: 32px auto 0;
+    color: #666;
+
+    button {
+      margin: 0;
+    }
+  }
 }

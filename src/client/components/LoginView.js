@@ -1,7 +1,7 @@
 import React from "react";
-import {withRouter} from "react-router-dom";
 import {observer} from "mobx-react";
 import PropTypes from "prop-types";
+import {withRouter} from "../routerCompat";
 
 import uiState from '../UiState';
 

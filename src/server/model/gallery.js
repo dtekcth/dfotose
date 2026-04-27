@@ -11,5 +11,7 @@ const gallerySchema = new Schema({
   created_at: {type: Date, default: Date.now}
 });
 
+gallerySchema.index({ published: 1, shootDate: -1 });
+
 const Gallery = mongoose.model('Gallery', gallerySchema);
 module.exports = Gallery;

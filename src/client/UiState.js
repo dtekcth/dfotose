@@ -1,4 +1,4 @@
-import {observable, action} from 'mobx';
+import {observable, action, makeObservable} from 'mobx';
 
 import User from './User';
 import GalleryStore from './GalleryStore';
@@ -11,6 +11,10 @@ class UiState {
 
   @observable oldScrollPosition = 0;
   @observable lastGalleryIdViewed = '';
+
+  constructor() {
+    makeObservable(this);
+  }
 
   @action updateScrollPosition(scrollPosition) {
     this.oldScrollPosition = scrollPosition;

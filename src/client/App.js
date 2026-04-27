@@ -1,26 +1,25 @@
 import React from "react";
-import {BrowserRouter, Route, Switch, withRouter} from 'react-router-dom';
+import {BrowserRouter, Route, Routes} from 'react-router';
 import {observer} from "mobx-react";
-
-import {StickyContainer} from 'react-sticky';
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import LoginView from './components/LoginView';
 import GalleryList from './components/GalleryList';
 import GalleryView from './components/GalleryView';
-import ImageView from './components/ImageView';
 import TagSearchView from './components/TagSearchView';
-
-import AdminIndex from './components/admin/Index';
-import AdminGalleryListView from './components/admin/GalleryListView';
-import AdminNewGalleryView from './components/admin/NewGalleryView';
-import AdminEditGalleryView from './components/admin/EditGalleryView';
-import AdminMembersView from './components/admin/MembersView';
+import PhotographerView from './components/PhotographerView';
 
 import uiState from './UiState';
 
-require('./css/all.scss');
+const LoginView = React.lazy(() => import('./components/LoginView'));
+const ImageView = React.lazy(() => import('./components/ImageView'));
+
+const AdminIndex = React.lazy(() => import('./components/admin/Index'));
+const AdminGalleryListView = React.lazy(() => import('./components/admin/GalleryListView'));
+const AdminNewGalleryView = React.lazy(() => import('./components/admin/NewGalleryView'));
+const AdminEditGalleryView = React.lazy(() => import('./components/admin/EditGalleryView'));
+const AdminMembersView = React.lazy(() => import('./components/admin/MembersView'));
+const AdminStressTestView = React.lazy(() => import('./components/admin/StressTestView'));
 
 const ContentContainer = ({children}) => {
   return (
@@ -75,6 +74,10 @@ const AdminHome = () => {
   return (<AdminIndex user={uiState.user}/>);
 };
 
+const AdminRouteFallback = () => {
+  return <div>Laddar...</div>;
+};
+
 const NotFound = () => {
   const imagesWithText = [
     {path: '/assets/images/404_lec.jpg', text: 'Rädd för Corona?'},
@@ -87,8 +90,7 @@ const NotFound = () => {
     {path: '/assets/images/404_vela.jpg', text: 'Glad i glaset?'}
   ];
 
-  const shuffled = _.shuffle(imagesWithText);
-  const picked = _.head(shuffled);
+  const picked = imagesWithText[Math.floor(Math.random() * imagesWithText.length)];
 
   return (
     <div className="not-found">
@@ -100,14 +102,19 @@ const NotFound = () => {
   );
 };
 
-const UnblockedStickyContainer = withRouter(StickyContainer);
+const AppFrame = ({children, ...props}) => <div {...props}>{children}</div>;
 
 @observer
 class App extends React.Component {
   render() {
+    const Router = this.props.Router || BrowserRouter;
+    const routerProps = this.props.routerProps || {};
+    const ssrData = this.props.ssrData || {};
+    const ssrInitialPath = ssrData.path;
+
     return (
-      <BrowserRouter>
-        <UnblockedStickyContainer style={{
+      <Router {...routerProps}>
+        <AppFrame style={{
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column'
@@ -116,33 +123,78 @@ class App extends React.Component {
           <div className="content" style={{ flex: '1 0 auto' }}>
             <div className="row">
               <div className="wrapper">
-                <Switch>
-                  {/* User routes */}
-                  <Route exact path="/" component={GalleryList}/>
-                  <Route exact path="/login" component={Login}/>
-                  <Route exact path="/about" component={About}/>
-                  <Route exact path="/gallery/page/:pageNumber" component={GalleryList}/>
-                  <Route exact path="/gallery/:id" component={GalleryView}/>
-                  <Route exact path="/gallery/:galleryId/image/:id" component={ImageView}/>
-                  <Route path="/image/search/:tag?" component={TagSearchView}/>
+                <React.Suspense fallback={<AdminRouteFallback/>}>
+                  <Routes>
+                    {/* User routes */}
+                    <Route
+                      path="/"
+                      element={
+                        <GalleryList
+                          ssrInitialPath={ssrInitialPath}
+                          ssrInitialState={ssrData.galleryList}
+                        />
+                      }
+                    />
+                    <Route path="/login" element={<Login/>}/>
+                    <Route path="/about" element={<About/>}/>
+                    <Route
+                      path="/gallery/page/:pageNumber"
+                      element={
+                        <GalleryList
+                          ssrInitialPath={ssrInitialPath}
+                          ssrInitialState={ssrData.galleryList}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/gallery/:id"
+                      element={
+                        <GalleryView
+                          ssrInitialPath={ssrInitialPath}
+                          ssrInitialState={ssrData.galleryView}
+                        />
+                      }
+                    />
+                    <Route path="/gallery/:galleryId/image/:id" element={<ImageView/>}/>
+                    <Route path="/image/search" element={<TagSearchView/>}/>
+                    <Route
+                      path="/image/search/:tag"
+                      element={
+                        <TagSearchView
+                          ssrInitialPath={ssrInitialPath}
+                          ssrInitialState={ssrData.tagSearch}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/image/photographer/:cid"
+                      element={
+                        <PhotographerView
+                          ssrInitialPath={ssrInitialPath}
+                          ssrInitialState={ssrData.photographerView}
+                        />
+                      }
+                    />
 
-                  {/* Admin routes */}
-                  <Route exact path="/admin" component={AdminHome}/>
-                  <Route path="/admin/members" component={AdminMembersView}/>
+                    {/* Admin routes are lazy-loaded so public gallery visitors avoid this bundle. */}
+                    <Route path="/admin" element={<AdminHome/>}/>
+                    <Route path="/admin/members" element={<AdminMembersView/>}/>
+                    <Route path="/admin/stress-test" element={<AdminStressTestView user={uiState.user}/>}/>
 
-                  {/* Admin gallery routes */}
-                  <Route exact path="/admin/gallery" component={AdminGalleryListView}/>
-                  <Route exact path="/admin/gallery/new" component={AdminNewGalleryView}/>
-                  <Route exact path="/admin/gallery/edit/:id" component={AdminEditGalleryView}/>
+                    {/* Admin gallery routes */}
+                    <Route path="/admin/gallery" element={<AdminGalleryListView/>}/>
+                    <Route path="/admin/gallery/new" element={<AdminNewGalleryView/>}/>
+                    <Route path="/admin/gallery/edit/:id" element={<AdminEditGalleryView/>}/>
 
-                  <Route path="*" component={NotFound}/>
-                </Switch>
+                    <Route path="*" element={<NotFound/>}/>
+                  </Routes>
+                </React.Suspense>
               </div>
             </div>
           </div>
           <Footer/>
-        </UnblockedStickyContainer>
-      </BrowserRouter>
+        </AppFrame>
+      </Router>
     );
   }
 }

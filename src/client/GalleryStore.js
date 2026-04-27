@@ -1,15 +1,15 @@
-import _ from 'lodash';
-
-import moment from 'moment';
 import axios from 'axios';
-import {computed, action,observable} from 'mobx';
+import {computed, action, observable, makeObservable} from 'mobx';
 
 import UiState from './UiState';
 
-class Gallery {
+const isBrowser = typeof window !== 'undefined';
+
+export class Gallery {
   @observable data;
   
   constructor(galleryData) {
+    makeObservable(this);
     this.data = galleryData;
   }
   
@@ -38,7 +38,7 @@ class Gallery {
   }
   
   @action update(data) {
-    _.assign(this.data, data);
+    Object.assign(this.data, data);
     return this.save();
   }
   
@@ -76,8 +76,11 @@ class GalleryStore {
   loadAll = false;
 
   constructor(loadAll) {
+    makeObservable(this);
     this.loadAll = loadAll;
-    this.reload();
+    if (isBrowser) {
+      this.reload();
+    }
   }
 
   loadGalleriesWithUrl(url) {
@@ -87,7 +90,7 @@ class GalleryStore {
   }
   
   @action loadGalleries(galleryDatas) {
-    this.galleries = _.map(galleryDatas, data => {
+    this.galleries = galleryDatas.map(data => {
       return new Gallery(data);
     })
   }
@@ -113,7 +116,7 @@ class GalleryStore {
   }
   
   @action removeGallery(galleryId) {
-    const gallery = _.find(this.galleries, gallery => gallery.id == galleryId);
+    const gallery = this.galleries.find(gallery => gallery.id == galleryId);
     return gallery.remove().then(() => {
       this.reload();
     })
@@ -134,7 +137,7 @@ class GalleryStore {
   static fetchAllGalleries() {
     return axios.get('/v1/gallery')
       .then((response) => {
-        const galleries = _.map(response.data, data => new Gallery(data));
+        const galleries = response.data.map(data => new Gallery(data));
         return Promise.resolve(galleries);
       });
   }

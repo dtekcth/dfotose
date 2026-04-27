@@ -1,19 +1,16 @@
-@import 'colors';
-@import 'variables';
+@use 'fonts';
+@use "skeleton";
+@use 'headings';
+@use 'spinners';
 
-@import 'fonts';
-@import "skeleton";
-@import 'headings';
-@import 'spinners';
+@use 'header';
+@use 'footer';
+@use 'content';
 
-@import 'header';
-@import 'footer';
-@import 'content';
+@use 'editable-gallery-list';
 
-@import 'editable-gallery-list';
-
-@import 'gallery-view';
-@import 'gallery-list';
-@import 'image-list';
-@import 'image-view';
-@import 'tag-search';
+@use 'gallery-view';
+@use 'gallery-list';
+@use 'image-list';
+@use 'image-view';
+@use 'tag-search';

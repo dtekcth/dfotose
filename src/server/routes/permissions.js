@@ -11,7 +11,7 @@ function LoggedInRequired(req, res, next) {
   if (isLoggedIn(req)) {
     next();
   } else {
-    res.status(403).end();
+    res.status(401).json({ authenticated: false });
   }
 }
 
@@ -21,6 +21,11 @@ function hasRestrictions(req, restrictions) {
   const roleName = _.get(req, 'session.user.role', 'None');
   const roleRestrictions = getRestrictionsForRole(roleName);
   return (roleRestrictions & restrictions) !== 0;
+}
+
+function hasRole(req, roleName) {
+  if (!isLoggedIn(req)) return false;
+  return _.get(req, 'session.user.role', 'None') === roleName;
 }
 
 // Middleware: enforce restrictions
@@ -34,8 +39,20 @@ function requireRestrictions(restrictions) {
   };
 }
 
+function requireRole(roleName) {
+  return (req, res, next) => {
+    if (hasRole(req, roleName)) {
+      next();
+    } else {
+      res.status(403).end();
+    }
+  };
+}
+
 module.exports = {
   LoggedInRequired,
   hasRestrictions,
-  requireRestrictions
+  requireRestrictions,
+  hasRole,
+  requireRole
 };

@@ -46,7 +46,8 @@ const UserRoles = [
       Restrictions.PUBLISH_GALLERY |
       Restrictions.READ_IMAGES |
       Restrictions.WRITE_IMAGES |
-      Restrictions.READ_USERS
+      Restrictions.READ_USERS |
+      Restrictions.WRITE_USERS
     )
   },
   {

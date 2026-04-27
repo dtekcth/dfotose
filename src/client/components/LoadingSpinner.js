@@ -1,11 +1,16 @@
 import React from 'react';
-import Spinner from 'react-spinkit';
 
 export default ({visible}) => {
   const spinner = (
     <div className="loading-spinner">
       <h1>LADDAR</h1>
-      <Spinner name="wave" />
+      <div className="spinner wave">
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+      </div>
     </div>
   );
   

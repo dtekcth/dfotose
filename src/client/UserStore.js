@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import axios from 'axios';
-import {computed, action, observable} from 'mobx';
+import {computed, action, observable, makeObservable} from 'mobx';
 
 export class User {
   @observable data;
 
   constructor(userData) {
+    makeObservable(this);
     this.data = userData;
   }
 
@@ -22,8 +23,12 @@ export class User {
   }
 
   @action setRole(roleName) {
+    const previousRole = this.data.role;
     this.data.role = roleName;
-    return this.save();
+    return this.save().catch(action((err) => {
+      this.data.role = previousRole;
+      throw err;
+    }));
   }
 
   @action save() {
@@ -36,6 +41,7 @@ export class EligibleUser {
   @observable data;
 
   constructor (userData) {
+    makeObservable(this);
     this.data = userData;
   }
 
@@ -77,6 +83,11 @@ class UserStore {
         const eligibleUsers = _.map(response.data, userData => new EligibleUser(userData));
         return Promise.resolve(eligibleUsers);
       }));
+  }
+
+  static fetchPhotoCounts() {
+    return axios.get('/v1/user/photo-counts')
+      .then(response => response.data || {});
   }
 }
 

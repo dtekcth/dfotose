@@ -1,24 +1,34 @@
-import _ from 'lodash';
-import {observable, action, computed} from 'mobx';
+import {observable, action, computed, makeObservable} from 'mobx';
 
 import axios from 'axios';
 import UiState from './UiState';
+
+const isBrowser = typeof window !== 'undefined';
 
 class User {
   @observable data = null;
 
   constructor() {
-    this.firstCheck();
+    makeObservable(this);
+    if (isBrowser) {
+      this.firstCheck();
+    }
   }
 
   @action firstCheck() {
-    axios.get('/auth/user', null, { responseType: 'json' })
-      .then((response => {
-        this.data = response.data;
-      }).bind(this))
-      .catch((err) => {
-        console.log(err);
-      });
+    return axios
+        .get('/auth/user', { responseType: 'json' })
+        .then(action((response) => {
+          this.data = response.data;
+        }))
+        .catch(action((err) => {
+          if (err.response?.status === 403 || err.response?.status === 401) {
+            this.data = null;
+            return;
+          }
+
+          console.log(err);
+        }));
   }
 
   @action login(cid, password) {
@@ -58,15 +68,19 @@ class User {
   }
 
   @computed get dfotoMember() {
-    return _.get(this.data, 'dfotoMember', false);
+    return this.data?.dfotoMember || false;
   }
 
   @computed get cid() {
-    return _.get(this.data, 'cid', '');
+    return this.data?.cid || '';
   }
 
   @computed get fullName() {
-    return _.get(this.data, 'fullname');
+    return this.data?.fullname;
+  }
+
+  @computed get role() {
+    return this.data?.role || 'None';
   }
 }
 

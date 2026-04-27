@@ -1,33 +1,57 @@
 import React from 'react';
-import {withRouter} from 'react-router-dom';
 import {observer} from 'mobx-react';
+import {withRouter} from '../routerCompat';
 
 import ImageList from './ImageList';
 import LoadingSpinner from './LoadingSpinner';
 
 import uiState from '../UiState';
+import {Image as ImageModel} from '../ImageStore';
+
+function createLoadedImageList(tag, imageData) {
+  return {
+    tag,
+    images: (imageData || []).map(image => (
+      image instanceof ImageModel ? image : new ImageModel(image)
+    )),
+    loading: false,
+    loaded: true,
+    error: null
+  };
+}
+
+function hasMatchingServerState(props) {
+  return props.ssrInitialState && props.ssrInitialPath === props.location?.pathname;
+}
+
+function getRouteSearchTerm(props) {
+  return props.match?.params?.tag || props.match?.params?.cid;
+}
 
 @observer
 class TagSearchView extends React.Component {
   constructor(props) {
     super(props);
 
-    const tag = _.get(props, 'match.params.tag');
+    const tag = getRouteSearchTerm(props);
+    const hasServerState = hasMatchingServerState(props);
     this.state = {
       tag: tag,
-      imageList: uiState.imageStore.getImagesForTag(tag),
-      showSpinner: true,
+      imageList: hasServerState
+        ? createLoadedImageList(tag, props.ssrInitialState.images)
+        : uiState.imageStore.getImagesForTag(tag),
       searchInput: ''
     };
   }
 
-  componentWillReceiveProps(newProps) {
-    if (this.state.tag != newProps.match.params.tag) {
-      const tag = _.get(newProps, 'match.params.tag');
+  componentDidUpdate(prevProps) {
+    const previousTag = getRouteSearchTerm(prevProps);
+    const tag = getRouteSearchTerm(this.props);
+
+    if (previousTag != tag) {
       this.setState({
         tag: tag,
-        imageList: uiState.imageStore.getImagesForTag(tag),
-        showSpinner: true
+        imageList: uiState.imageStore.getImagesForTag(tag)
       });
     }
   }
@@ -38,13 +62,18 @@ class TagSearchView extends React.Component {
   }
 
   onAllImagesLoaded() {
-    this.setState({ showSpinner: false });
+    // Image loading is intentionally decoupled from search loading. The search
+    // request controls the spinner so cached/broken/lazy thumbnails cannot keep
+    // the page stuck in a loading state.
   }
 
   onSearch(event) {
     event.preventDefault();
 
-    this.props.history.push(`/image/search/${this.state.searchInput}`);
+    const tag = this.state.searchInput.trim();
+    if (tag) {
+      this.props.history.push(`/image/search/${encodeURIComponent(tag)}`);
+    }
   }
 
   onSearchInputChange(event) {
@@ -52,10 +81,12 @@ class TagSearchView extends React.Component {
   }
 
   render() {
-    const {tag, showSpinner} = this.state;
-    const images = this.state.imageList.images.toJS();
+    const {tag} = this.state;
+    const imageList = this.state.imageList;
+    const images = imageList.images || [];
+    const headingPrefix = this.props.headingPrefix || 'Taggsökning';
 
-    const hasResults = _.get(images, 'length', 0) != 0;
+    const hasResults = images.length != 0;
 
     return (
       <div className="tag-search-view">
@@ -64,9 +95,16 @@ class TagSearchView extends React.Component {
                  onChange={ this.onSearchInputChange.bind(this) }/>
           <button type="submit">Sök</button>
         </form>
-        <h2>Taggsökning: <span className="tag">{ tag }</span></h2>
-        { !hasResults ? <p>Inga resultat hittade.</p> : <LoadingSpinner visible={ showSpinner } /> }
-        <ImageList images={ images } onAllLoaded={ this.onAllImagesLoaded.bind(this) } onImageClick={ this.onImageClick.bind(this) } />
+        { tag ? <h2>{headingPrefix}: <span className="tag">{ tag }</span></h2> : null }
+        <LoadingSpinner visible={ Boolean(tag && imageList.loading) } />
+        { imageList.error ? <p>Kunde inte söka efter taggen.</p> : null }
+        { tag && imageList.loaded && !hasResults && !imageList.error ? <p>Inga resultat hittade.</p> : null }
+        <ImageList
+          disableLazyLoad={ true }
+          images={ images }
+          onAllLoaded={ this.onAllImagesLoaded.bind(this) }
+          onImageClick={ this.onImageClick.bind(this) }
+        />
       </div>
     )
   }

@@ -1,5 +1,5 @@
 import React from "react";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {observer} from 'mobx-react';
 import axios from 'axios';
 import uiState from '../UiState';

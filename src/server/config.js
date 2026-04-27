@@ -1,9 +1,23 @@
 const _ = require('lodash');
+const fs = require('fs');
+const path = require('path');
+const YAML = require('yaml');
 
-const yamlConfig = require('node-yaml-config');
 const logger = require('./logger');
 
-const config = yamlConfig.load(__dirname + '/config/config.yml');
+function loadConfig() {
+  const configPath = path.join(__dirname, 'config/config.yml');
+  const parsed = YAML.parse(fs.readFileSync(configPath, 'utf8')) || {};
+  const environment = process.env.NODE_ENV || 'default';
+
+  return _.merge(
+    {},
+    _.get(parsed, 'default', {}),
+    environment === 'default' ? {} : _.get(parsed, environment, {})
+  );
+}
+
+const config = loadConfig();
 
 function checkValue(path) {
   const hasValue = _.has(config, path);

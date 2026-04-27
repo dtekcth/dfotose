@@ -1,17 +1,46 @@
-import _ from 'lodash';
 import React from 'react';
-import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 
 const lazyLoadComponents = [];
 let lazyLoadHandler = null;
 
 function onLazyLoadCheck() {
-  _.forEach(lazyLoadComponents, checkVisible);
+  lazyLoadComponents.forEach(checkVisible);
+}
+
+function throttle(callback, wait) {
+  let timeout = null;
+  let lastRun = 0;
+
+  return function throttledCallback(...args) {
+    const now = Date.now();
+    const remaining = wait - (now - lastRun);
+
+    if (remaining <= 0) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+
+      lastRun = now;
+      callback(...args);
+      return;
+    }
+
+    if (!timeout) {
+      timeout = setTimeout(() => {
+        lastRun = Date.now();
+        timeout = null;
+        callback(...args);
+      }, remaining);
+    }
+  };
 }
 
 function checkVisible(component) {
-  const shouldBeVisible = isVisible(component);
+  const node = component.nodeRef.current;
+  const shouldBeVisible = isVisible(node, component.props);
+
   if (shouldBeVisible && !component.visible) {
     component.visible = true;
     component.forceUpdate();
@@ -20,20 +49,22 @@ function checkVisible(component) {
   }
 }
 
-function isVisible(component) {
-  const node = ReactDom.findDOMNode(component);
+function isVisible(node, props = {}) {
   if (!node) {
-    console.error(`Could not find node ${component}`);
-    return;
+    console.error('Could not find node');
+    return false;
   }
 
-
   const rect = node.getBoundingClientRect();
-  const {top} = rect;
-  const windowInnerHeight = window.innerHeight || document.documentElement.clientHeight;
-  const {offset, height} = component.props;
+  const { top } = rect;
 
-  return (top - offset <= windowInnerHeight) && (top + height >= 0);
+  const windowInnerHeight =
+      window.innerHeight || document.documentElement.clientHeight;
+
+  const offset = props.offset ?? 0;
+  const height = props.height ?? rect.height;
+
+  return top - offset <= windowInnerHeight && top + height >= 0;
 }
 
 export default class LazyLoad extends React.Component {
@@ -47,7 +78,10 @@ export default class LazyLoad extends React.Component {
   constructor() {
     super();
 
-    this.visible = false;
+    // SSR should emit real image tags, not placeholders. During hydration we
+    // also start visible so React reconciles the server markup cleanly.
+    this.visible = typeof window === 'undefined' || Boolean(window.__DFOTO_SSR_DATA__);
+    this.nodeRef = React.createRef();
   }
 
   shouldComponentUpdate() {
@@ -55,9 +89,9 @@ export default class LazyLoad extends React.Component {
   }
 
   componentDidMount() {
-    if (lazyLoadComponents.length == 0) {
+    if (lazyLoadComponents.length === 0) {
       if (lazyLoadHandler == null) {
-        lazyLoadHandler = _.throttle(onLazyLoadCheck, 150);
+        lazyLoadHandler = throttle(onLazyLoadCheck, 150);
       }
 
       on(window, 'scroll', lazyLoadHandler);
@@ -65,25 +99,30 @@ export default class LazyLoad extends React.Component {
 
     lazyLoadComponents.push(this);
 
-    const init = () => {
+    setTimeout(() => {
       checkVisible(this);
-    };
-
-    setTimeout(init.bind(this), 500);
+    }, 500);
   }
 
   componentWillUnmount() {
-    const index = _.findIndex(lazyLoadComponents, this);
-    lazyLoadComponents.splice(index);
+    const index = lazyLoadComponents.indexOf(this);
+    if (index >= 0) {
+      lazyLoadComponents.splice(index, 1);
+    }
 
-    if (lazyLoadComponents.length == 0) {
+    if (lazyLoadComponents.length === 0) {
       off(window, 'scroll', lazyLoadHandler);
     }
   }
 
   render() {
-    const {placeHolder, children} = this.props;
-    return this.visible ? children : placeHolder;
+    const { placeHolder, children } = this.props;
+
+    return (
+        <div ref={this.nodeRef}>
+          {this.visible ? children : placeHolder}
+        </div>
+    );
   }
 }
 

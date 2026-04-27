@@ -1,14 +1,11 @@
 const _ = require('lodash');
-const uuid = require('uuid');
-const uuidv4 = uuid.v4;
-const { Router } = require('express');
+const { randomUUID } = require('crypto');
+const { Router, json } = require('express');
 const multer = require('multer');
 const fs = require('fs-extra');
 const path = require('path');
 const sharp = require('sharp');
-const bodyParser = require('body-parser');
 const { inHTMLData } = require('xss-filters');
-const mongoose = require('mongoose');
 const exifParser = require('exif-parser');
 const moment = require('moment');
 
@@ -18,28 +15,31 @@ const Logger = require('../logger');
 const config = require('../config');
 const { abortOnError } = require('../utils');
 
-const jsonParser = bodyParser.json();
+const jsonParser = json();
 
 
 const Image = require('../model/image');
 const ImageTag = require('../model/image-tag');
 const Gallery = require('../model/gallery');
+const { IMAGE_LIST_FIELDS, searchImagesByTag } = require('../services/tag-search');
 
 
 const router = Router();
 module.exports = router;
 
+const GALLERY_IMAGE_PAGE_SIZE = 80;
+const MAX_GALLERY_IMAGE_PAGE_SIZE = 200;
+
 function updateAuthorOfImagesUploadedByCid(cid, filteredAuthorName) {
   Image.updateMany(
     { authorCid: cid },
-    { $set: { author: filteredAuthorName } },
-    err => {
+    { $set: { author: filteredAuthorName } }
+  ).catch(err => {
       if (err) {
         Logger.error(`Could not update author name for images uploaded by ${cid}`);
         Logger.error(err);
       }
-    }
-  );
+  });
 }
 
 module.exports.updateAuthorOfImagesUploadedByCid = updateAuthorOfImagesUploadedByCid;
@@ -50,7 +50,8 @@ const imageStorage = multer.diskStorage({
     cb(null, path);
   },
   filename: function (req, file, cb) {
-    const filename = `${file.originalname}`;
+    const extension = path.extname(file.originalname);
+    const filename = `${Date.now()}-${randomUUID()}${extension}`;
     cb(null, filename);
   }
 });
@@ -71,87 +72,176 @@ fs.mkdirs(config.storage.path, (err) => {
   }
 });
 
+function parsePositiveInteger(value, fallback) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function getGalleryImagePageOptions(req) {
+  const pageNumber = parsePositiveInteger(req.params.pageNumber, 1);
+  const requestedLimit = parsePositiveInteger(req.query.limit, GALLERY_IMAGE_PAGE_SIZE);
+  const limit = Math.min(requestedLimit, MAX_GALLERY_IMAGE_PAGE_SIZE);
+
+  return {
+    pageNumber,
+    limit,
+    skip: (pageNumber - 1) * limit
+  };
+}
+
+// Public gallery pages only need lightweight image metadata. This avoids
+// shipping EXIF data and filesystem paths for large galleries.
+router.get('/image/:galleryId/page/:pageNumber', async (req, res) => {
+  const galleryId = req.params.galleryId;
+  const { pageNumber, limit, skip } = getGalleryImagePageOptions(req);
+
+  try {
+    const [images, totalCount] = await Promise.all([
+      Image.find({ galleryId: galleryId })
+        .sort('shotAt')
+        .skip(skip)
+        .limit(limit)
+        .select(IMAGE_LIST_FIELDS)
+        .lean()
+        .exec(),
+      Image.countDocuments({ galleryId: galleryId })
+    ]);
+
+    res.set('Cache-Control', 'public, max-age=30');
+    res.send({
+      images,
+      page: pageNumber,
+      pageSize: limit,
+      totalCount,
+      hasMore: skip + images.length < totalCount
+    });
+  } catch (err) {
+    abortOnError(err, res);
+  }
+});
+
+// Public photographer albums are paginated so one prolific uploader cannot
+// force the server to serialize thousands of images at once.
+router.get('/image/photographer/:cid/page/:pageNumber', async (req, res) => {
+  const cid = req.params.cid;
+  const { pageNumber, limit, skip } = getGalleryImagePageOptions(req);
+
+  try {
+    const [images, totalCount] = await Promise.all([
+      Image.find({ authorCid: cid })
+        .sort('shotAt')
+        .skip(skip)
+        .limit(limit)
+        .select(IMAGE_LIST_FIELDS)
+        .lean()
+        .exec(),
+      Image.countDocuments({ authorCid: cid })
+    ]);
+
+    res.set('Cache-Control', 'public, max-age=30');
+    res.send({
+      images,
+      page: pageNumber,
+      pageSize: limit,
+      totalCount,
+      hasMore: skip + images.length < totalCount
+    });
+  } catch (err) {
+    abortOnError(err, res);
+  }
+});
+
 // Return all images for a specific gallery
-router.get('/image/:galleryId', (req, res) => {
+router.get('/image/:galleryId', async (req, res) => {
   const galleryId = req.params.galleryId;
 
-  Image.find({galleryId: galleryId}).sort('shotAt').exec((err, images) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
-
+  try {
+    const images = await Image.find({galleryId: galleryId}).sort('shotAt').lean().exec();
     res.send(images);
-  });
+  } catch (err) {
+    res.status(500).send(err);
+    throw err;
+  }
 });
 
-router.get('/image/:id/details', (req,res) => {
+router.get('/image/:id/details', async (req,res) => {
   const id = req.params.id;
-  Image.findById(id, (err, image) => {
-    abortOnError(err, res);
+  try {
+    const image = await Image.findById(id).lean().exec();
     res.send(image);
-  });
+  } catch (err) {
+    abortOnError(err, res);
+  }
 });
+
+function sendCachedImage(res, image, propertyName) {
+  if (!image || !image[propertyName]) {
+    return res.status(404).end();
+  }
+
+  return res.sendFile(image[propertyName], {
+    headers: {
+      'Cache-Control': 'public, max-age=31536000, immutable'
+    }
+  });
+}
 
 // Return a specific image using an id
 router.get('/image/:id/fullSize', (req, res) => {
   const id = req.params.id;
 
-  Image.findById(id, (err, image) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
-
-    res.sendFile(image.fullSize);
+  Image.findById(id).lean().exec().then(image => {
+    sendCachedImage(res, image, 'fullSize');
+  }).catch(err => {
+    res.status(500).send(err);
+    throw err;
   });
 });
 
 router.get('/image/:id/thumbnail', (req, res) => {
   const id = req.params.id;
 
-  Image.findById(id, (err, image) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
-
-    res.sendFile(image.thumbnail);
+  Image.findById(id).lean().exec().then(image => {
+    sendCachedImage(res, image, 'thumbnail');
+  }).catch(err => {
+    res.status(500).send(err);
+    throw err;
   });
 });
 
 router.get('/image/:id/preview', (req, res) => {
   const id = req.params.id;
 
-  Image.findById(id, (err, image) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
-
-    res.sendFile(image.preview);
+  Image.findById(id).lean().exec().then(image => {
+    sendCachedImage(res, image, 'preview');
+  }).catch(err => {
+    res.status(500).send(err);
+    throw err;
   });
 });
 
-router.get('/image/:id/tags', (req, res) => {
+router.get('/image/:id/tags', async (req, res) => {
   const id = req.params.id;
-  ImageTag.find({ imageId: id }, (err, imageTags) => {
-    abortOnError(err, res);
-
+  try {
+    const imageTags = await ImageTag.find({ imageId: id }).lean().exec();
     res.send(imageTags);
-  });
+  } catch (err) {
+    abortOnError(err, res);
+  }
 });
 
-router.get('/image/:id/author', (req, res) => {
+router.get('/image/:id/author', async (req, res) => {
     const id = req.params.id;
-    Image.findById(id, (err, image) => {
+    try {
+        const image = await Image.findById(id).lean().exec();
+        res.send(image ? image.author : undefined);
+    } catch (err) {
         abortOnError(err, res);
-        res.send(image.author);
-    });
+    }
 })
 
 
-router.post('/image/:id/author-name', jsonParser, (req, res) => {
+router.post('/image/:id/author-name', jsonParser, async (req, res) => {
     const imageId = req.params.id;
     const {authorName} = req.body;
     const filteredAuthorName = inHTMLData(authorName);
@@ -163,24 +253,26 @@ router.post('/image/:id/author-name', jsonParser, (req, res) => {
 
     if (!canWriteImage) {
       res.status(403).end();
-      Logger.warn(`User ${req.session.user.cid} had insufficient permissions to change author name`);
+      Logger.warn(`User ${_.get(req, 'session.user.cid', 'anonymous')} had insufficient permissions to change author name`);
       return;
     }
 
-    // Directly update the image with the custom author name
-    Image.findOneAndUpdate({_id: imageId}, {
-      $set: {
-        author: filteredAuthorName
-      }
-    }, (err) => {
-      abortOnError(err, res);
+    try {
+      // Directly update the image with the custom author name
+      await Image.findOneAndUpdate({_id: imageId}, {
+        $set: {
+          author: filteredAuthorName
+        }
+      });
 
       console.log(`Changed author to ${filteredAuthorName} for image ${imageId}`);
       res.status(202).end();
-    });
+    } catch (err) {
+      abortOnError(err, res);
+    }
 });
 
-router.post('/image/:id/gallerythumbnail', (req, res) => {
+router.post('/image/:id/gallerythumbnail', async (req, res) => {
   const id = req.params.id;
 
   const canWriteImage = hasRestrictions(
@@ -190,42 +282,43 @@ router.post('/image/:id/gallerythumbnail', (req, res) => {
 
   if (!canWriteImage) {
     Logger.warn(
-      `User ${req.session.user.cid} had insufficient permissions to change thumbnail.`
+      `User ${_.get(req, 'session.user.cid', 'anonymous')} had insufficient permissions to change thumbnail.`
     );
     return res.status(403).end();
   }
 
-  // Find the image that should be set as thumbnail
-  Image.findOne({ _id: id }, (err, newThumb) => {
-    abortOnError(err, res);
+  try {
+    // Find the image that should be set as thumbnail
+    const newThumb = await Image.findOne({ _id: id });
+
+    if (!newThumb) {
+      return res.status(404).end();
+    }
 
     // Remove the image that was previously thumbnail
-    Image.updateMany(
+    await Image.updateMany(
       { galleryId: newThumb.galleryId, isGalleryThumbnail: true },
-      { $set: { isGalleryThumbnail: false } },
-      (err) => {
-        abortOnError(err, res);
-
-        // Set the new one as thumbnail
-        newThumb.isGalleryThumbnail = true;
-        newThumb.save((err, savedThumb) => {
-          abortOnError(err, res);
-
-          Logger.info(
-            `Changed gallery thumbnail to ${id} for gallery ${newThumb.galleryId}`
-          );
-
-          // return updated info so frontend doesn’t reload everything
-          res.status(200).json({
-            galleryId: savedThumb.galleryId,
-            imageId: savedThumb._id,
-            thumbnailUrl: savedThumb.thumbnail,
-            previewUrl: savedThumb.preview,
-          });
-        });
-      }
+      { $set: { isGalleryThumbnail: false } }
     );
-  });
+
+    // Set the new one as thumbnail
+    newThumb.isGalleryThumbnail = true;
+    const savedThumb = await newThumb.save();
+
+    Logger.info(
+      `Changed gallery thumbnail to ${id} for gallery ${newThumb.galleryId}`
+    );
+
+    // return updated info so frontend doesn't reload everything
+    res.status(200).json({
+      galleryId: savedThumb.galleryId,
+      imageId: savedThumb._id,
+      thumbnailUrl: savedThumb.thumbnail,
+      previewUrl: savedThumb.preview,
+    });
+  } catch (err) {
+    abortOnError(err, res);
+  }
 });
 
 
@@ -283,7 +376,7 @@ async function handleImages(req, res, galleryId) {
       }
 
       const extension = path.extname(image.originalname);
-      const filename = uuidv4();
+      const filename = randomUUID();
       const fullSizeImagePath = path.join(galleryPath, `${filename}${extension}`);
 
       await fs.move(image.path, fullSizeImagePath);
@@ -338,7 +431,7 @@ async function handleImages(req, res, galleryId) {
   }
 }
 
-router.post('/image/:id/tags', jsonParser, (req, res) => {
+router.post('/image/:id/tags', jsonParser, async (req, res) => {
   const imageId = req.params.id;
 
   const {tagName} = req.body;
@@ -349,77 +442,67 @@ router.post('/image/:id/tags', jsonParser, (req, res) => {
     tagName: filteredTagName
   };
 
-  var newTag = new ImageTag(imageTagData);
-  newTag.save((err) => {
-    abortOnError(err, res);
+  try {
+    await ImageTag.create(imageTagData);
 
     // Now add a duplicate to the images list of tags
-    Image.findById(imageId, (err, image) => {
-      abortOnError(err, res);
+    const image = await Image.findById(imageId);
 
-      image.tags.push(filteredTagName);
-      const newImageTags = image.tags;
+    if (!image) {
+      return res.status(404).end();
+    }
 
-      Image.findOneAndUpdate({ _id: imageId }, {
-        $set: {
-          tags: newImageTags
-        }
-      }, (err) => {
-        abortOnError(err, res);
+    image.tags.push(filteredTagName);
+    const newImageTags = image.tags;
 
-        console.log(`Added tag ${filteredTagName} to image ${imageId}`);
-        res.status(202).end();
-      });
+    await Image.findOneAndUpdate({ _id: imageId }, {
+      $set: {
+        tags: newImageTags
+      }
     });
-  });
-});
 
-router.get('/image/tags/:tagName/search', (req, res) => {
-  const tagName = req.params.tagName.toLowerCase();
-
-  ImageTag.find({ tagName: tagName }, (err, imageTags) => {
+    console.log(`Added tag ${filteredTagName} to image ${imageId}`);
+    res.status(202).end();
+  } catch (err) {
     abortOnError(err, res);
-
-    // imageTags contains all of the ids of images we need to send
-    // to the client
-    const imageObjectIds = _.map(imageTags, tag => {
-      return mongoose.Types.ObjectId(tag.imageId);
-    });
-
-    Image.find({ '_id': {
-      $in: imageObjectIds
-    }}, (err, images) => {
-      abortOnError(err, res);
-
-      res.send(images);
-    });
-  });
+  }
 });
 
-function createDirectoryIfNeeded(dir) {
+router.get('/image/tags/:tagName/search', async (req, res) => {
   try {
-    fs.statSync(dir);
-  } catch(err) {
-    fs.mkdirSync(dir);
+    const searchResult = await searchImagesByTag(req.params.tagName);
+
+    res.set('Cache-Control', 'public, max-age=30');
+    res.send(searchResult.images);
+  } catch (err) {
+    abortOnError(err, res);
   }
-}
+});
 
 function readExifData(imagePath, cb) {
   fs.open(imagePath, 'r', (status, fd) => {
     if (status) {
       Logger.error(`Could not open ${imagePath} for reading`);
+      cb({});
       return;
     }
 
-    var buffer = new Buffer(65635); // 64kb buffer
+    const buffer = Buffer.alloc(65635); // 64kb buffer
     fs.read(fd, buffer, 0, 65635, 0, (err, bytesRead) => {
+      fs.close(fd, closeErr => {
+        if (closeErr) {
+          Logger.error(`Could not close ${imagePath} after reading EXIF data`);
+        }
+      });
+
       if (err) {
         Logger.error(`Could not read EXIF data from ${imagePath}`);
+        cb({});
         return;
       }
 
       try {
-        var parser = exifParser.create(buffer);
+        const parser = exifParser.create(buffer.slice(0, bytesRead));
         const parsed = parser.parse();
         cb(parsed);
       } catch(ex) {
@@ -442,19 +525,19 @@ router.post('/image',
 
 router.post('/image/:galleryId',
   requireRestrictions(Restrictions.WRITE_IMAGES),
-  upload.array('photos'), (req, res) => {
+  upload.array('photos'), async (req, res) => {
   const galleryId = req.params.galleryId;
 
-  Gallery.findById(galleryId, (err) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
+  try {
+    await Gallery.findById(galleryId);
 
     Logger.info(`Preparing upload of files to gallery ${galleryId}`);
     handleImages(req, res, galleryId);
     res.status(202).send();
-  });
+  } catch (err) {
+      res.status(500).send(err);
+      throw err;
+  }
 });
 
 
@@ -464,28 +547,27 @@ router.post('/image/:galleryId',
 //          associations.
 router.delete('/image/:id',
   requireRestrictions(Restrictions.WRITE_IMAGES | Restrictions.WRITE_GALLERY),
-  (req, res) => {
+  async (req, res) => {
   const id = req.params.id;
 
-  Image.findByIdAndRemove(id, (err, image) => {
-    if (err) {
-      res.status(500).send(err);
-      throw err;
-    }
-
+  try {
+    await Image.findByIdAndDelete(id);
     Logger.info(`User ${req.session.user.cid} removed image ${id}`);
 
     res.status(202).send();
-  });
+  } catch (err) {
+      res.status(500).send(err);
+      throw err;
+  }
 });
 
 // Photo Statistics
-router.get('/stats/photos', (req, res) => {
-  Image.countDocuments({}, (err, count) => {
-    if (err) {
-      Logger.error('Error counting images:', err);
-      return res.status(500).json({ error: 'Could not count images' });
-    }
+router.get('/stats/photos', async (req, res) => {
+  try {
+    const count = await Image.countDocuments({});
     res.json({ count });
-  });
+  } catch (err) {
+    Logger.error('Error counting images:', err);
+    return res.status(500).json({ error: 'Could not count images' });
+  }
 });

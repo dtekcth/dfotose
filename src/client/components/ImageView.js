@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React from 'react';
 import {observer} from 'mobx-react';
-import {Link} from 'react-router-dom';
-import keydown, {Keys} from 'react-keydown';
+import {Link} from 'react-router';
+import {withRouter} from '../routerCompat';
 
 import LoadingSpinner from './LoadingSpinner';
 
@@ -35,13 +35,34 @@ class ImageView extends React.Component {
     };
     window.history.replaceState({ imageId: props.imageId }, null, `/gallery/${props.galleryId}/image/${props.imageId}`);
 
-    window.onpopstate = (event => {
+    this.handlePopState = (event) => {
       const imageId = _.get(event, 'state.imageId', this.state.initialImageId);
-      this.setState({ imageId: event.state.imageId });
-    }).bind(this);
+      this.setState({ imageId });
+    };
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+
+    window.onpopstate = this.handlePopState;
   }
 
-  @keydown(Keys.right)
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+    if (window.onpopstate === this.handlePopState) {
+      window.onpopstate = null;
+    }
+  }
+
+  handleKeyDown(event) {
+    if (event.key === 'ArrowRight') {
+      this.openNextImage(event);
+    } else if (event.key === 'ArrowLeft') {
+      this.openPrevImage(event);
+    }
+  }
+
   openNextImage(event) {
     event.preventDefault();
 
@@ -56,7 +77,6 @@ class ImageView extends React.Component {
     this.openImage(nextId);
   }
 
-  @keydown(Keys.left)
   openPrevImage(event) {
     event.preventDefault();
 
@@ -180,4 +200,4 @@ const ImageContainer = PreloadContainerFactory((props) => {
   });
 }, ImageView);
 
-export default ImageContainer;
+export default withRouter(ImageContainer);

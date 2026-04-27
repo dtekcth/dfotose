@@ -1,12 +1,12 @@
-import _ from 'lodash';
 import axios from 'axios';
-import {computed,action,observable} from 'mobx';
+import {computed, action, observable, makeObservable, toJS} from 'mobx';
 
 export class Image {
   @observable data;
   @observable marked = false;
 
   constructor(data) {
+    makeObservable(this);
     this.data = data;
   }
 
@@ -19,7 +19,7 @@ export class Image {
   }
 
   @computed get author() {
-    return _.get(this.data, 'author', this.data.authorCid);
+    return this.data.author || this.data.authorCid;
   }
 
   @computed get authorCid() {
@@ -27,7 +27,7 @@ export class Image {
   }
 
   @computed get isGalleryThumbnail() {
-    return _.get(this.data, 'isGalleryThumbnail', false);
+    return this.data.isGalleryThumbnail || false;
   }
 
   @computed get filename() {
@@ -47,7 +47,7 @@ export class Image {
   }
 
   @computed get tags() {
-    return this.data.tags.toJS();
+    return toJS(this.data.tags || []);
   }
 
   @computed get isMarked() {
@@ -118,6 +118,7 @@ export class ImageGalleryList {
   @observable galleryId = null;
 
   constructor(galleryId, images) {
+    makeObservable(this);
     this.galleryId = galleryId;
     this.images = images;
   }
@@ -125,7 +126,7 @@ export class ImageGalleryList {
   fetchImages() {
     return axios.get(`/v1/image/${this.galleryId}`)
       .then((response => {
-        this.images = _.map(response.data, data => {
+        this.images = response.data.map(data => {
           return new Image(data);
         });
       }).bind(this));
@@ -147,15 +148,15 @@ export class ImageGalleryList {
   }
 
   @action removeMarkedImages() {
-    const markedImages = _.filter(this.images, {isMarked: true});
+    const markedImages = this.images.filter(image => image.isMarked);
 
-    const removePromises = _.map(markedImages, image => {
+    const removePromises = markedImages.map(image => {
       return axios.delete(`/v1/image/${image.id}`);
     });
 
     Promise.all(removePromises)
       .then(() => {
-        this.images = _.filter(this.images, {isMarked: false});
+        this.images = this.images.filter(image => !image.isMarked);
       })
       .catch(err => {
         console.log(err);
@@ -167,23 +168,52 @@ export class ImageGalleryList {
 export class ImagesForTagList {
   @observable images = [];
   @observable tag = null;
+  @observable loading = false;
+  @observable loaded = false;
+  @observable error = null;
 
   constructor(tag) {
+    makeObservable(this);
     this.tag = tag;
-    this.fetchImages();
+    if (tag) {
+      this.fetchImages();
+    }
   }
 
   fetchImages() {
-    axios.get(`/v1/image/tags/${this.tag}/search`)
-      .then((response => {
-        this.images = _.map(response.data, data => {
+    if (!this.tag) {
+      this.images = [];
+      this.loading = false;
+      this.loaded = true;
+      return Promise.resolve();
+    }
+
+    this.loading = true;
+    this.loaded = false;
+    this.error = null;
+
+    return axios.get(`/v1/image/tags/${this.tag}/search`)
+      .then(action((response) => {
+        this.images = response.data.map(data => {
           return new Image(data);
         });
-      }).bind(this));
+        this.loading = false;
+        this.loaded = true;
+      }))
+      .catch(action((err) => {
+        this.images = [];
+        this.loading = false;
+        this.loaded = true;
+        this.error = err;
+      }));
   }
 }
 
 export class ImageStore {
+  constructor() {
+    makeObservable(this);
+  }
+
   @action getImagesForTag(tag) {
     return new ImagesForTagList(tag);
   }
@@ -191,12 +221,48 @@ export class ImageStore {
   static fetchImagesInGallery(galleryId) {
     return axios.get(`/v1/image/${galleryId}`)
       .then((response => {
-        const images = _.map(response.data, data => {
+        const images = response.data.map(data => {
           return new Image(data);
         });
 
         return Promise.resolve(images);
       }).bind(this));
+  }
+
+  static fetchImagesPage(galleryId, pageNumber = 1, pageSize = 80) {
+    return axios.get(`/v1/image/${galleryId}/page/${pageNumber}`, {
+      params: {
+        limit: pageSize
+      }
+    }).then(response => {
+      return {
+        images: response.data.images.map(data => new Image(data)),
+        imagePage: {
+          page: response.data.page,
+          pageSize: response.data.pageSize,
+          totalCount: response.data.totalCount,
+          hasMore: response.data.hasMore
+        }
+      };
+    });
+  }
+
+  static fetchImagesForPhotographerPage(cid, pageNumber = 1, pageSize = 80) {
+    return axios.get(`/v1/image/photographer/${encodeURIComponent(cid)}/page/${pageNumber}`, {
+      params: {
+        limit: pageSize
+      }
+    }).then(response => {
+      return {
+        images: response.data.images.map(data => new Image(data)),
+        imagePage: {
+          page: response.data.page,
+          pageSize: response.data.pageSize,
+          totalCount: response.data.totalCount,
+          hasMore: response.data.hasMore
+        }
+      };
+    });
   }
 }
 

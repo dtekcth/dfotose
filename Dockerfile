@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:24-bookworm-slim
 
 WORKDIR /dfotose
 
@@ -15,25 +15,20 @@ RUN apt-get update && apt-get install -y \
 
 # Install all dependencies
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm ci
 
-# Install global tools
-RUN npm install -g gulp@4 pm2
-
-# If you want bull only locally, move to dependencies in package.json.
-# Otherwise installing separately is fine:
-RUN npm install bull
+# PM2 is used for the existing clustered production runtime.
+RUN npm install -g pm2@6
 
 # Bundle app source
 COPY . .
 
 # Build the app
-RUN npx gulp server:build
-RUN npx gulp config:copy
-RUN npx gulp client:copy
-RUN npx gulp client:build
+RUN npm run build
 
 RUN sh setup-kerberos.sh
+
+ENV NODE_ENV=production
 
 # Use PM2 to run clustered processes
 CMD ["pm2-runtime", "start", "-i", "10", "dist/server.js"]

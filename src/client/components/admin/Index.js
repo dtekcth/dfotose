@@ -1,6 +1,6 @@
 import _ from "lodash";
 import React from "react";
-import {Link} from "react-router-dom";
+import {Link} from "react-router";
 import {observer} from "mobx-react";
 
 @observer
@@ -13,8 +13,10 @@ class AdminIndex extends React.Component {
     };
   }
 
-  componentWillReceiveProps(newProps, oldProps) {
-    this.setState({ fullname: newProps.user.fullName });
+  componentDidUpdate(prevProps) {
+    if (prevProps.user.fullName !== this.props.user.fullName) {
+      this.setState({ fullname: this.props.user.fullName });
+    }
   }
 
   changeNameSubmit(event) {
@@ -61,6 +63,11 @@ class AdminIndex extends React.Component {
         <Link to="/admin/members">
           <button type="button">Hantera medlemmar</button>
         </Link>
+        {this.props.user.role === 'Admin' ?
+          <Link to="/admin/stress-test">
+            <button type="button">Stressverktyg</button>
+          </Link>
+          : null}
       </div>
     );
   }

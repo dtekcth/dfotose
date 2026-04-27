@@ -1,5 +1,13 @@
-import _ from 'lodash';
-import {observable, action, computed} from 'mobx';
+import {observable, action, computed, makeObservable} from 'mobx';
+
+function chunkArray(arr, pageSize) {
+  const chunks = [];
+  for (let index = 0; index < arr.length; index += pageSize) {
+    chunks.push(arr.slice(index, index + pageSize));
+  }
+
+  return chunks;
+}
 
 class PaginatedArray {
   @observable data = [];
@@ -9,7 +17,8 @@ class PaginatedArray {
   @observable maxPage = 1;
 
   constructor(arr, pageSize) {
-    const chunkedArr = _.chunk(arr, pageSize);
+    makeObservable(this);
+    const chunkedArr = chunkArray(arr, pageSize);
     this.data = chunkedArr;
     this.pageSize = pageSize;
     this.maxPage = chunkedArr.length;

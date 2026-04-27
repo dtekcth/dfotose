@@ -1,12 +1,10 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
 const sass = require('gulp-sass')(require('sass'));
-const concat = require('gulp-concat');
-const filter = require('gulp-filter');
 const env = require('gulp-env');
 
 const webpack = require('webpack');
-const webpackConfig = require('./webpack.config.js');
+const createWebpackConfig = require('./webpack.config.js');
 
 const child = require('child_process');
 
@@ -87,22 +85,35 @@ gulp.task('server:release', gulp.series('server:env-release', 'server:build'));
 gulp.task('server:rebuild', gulp.series('server:build', 'server:spawn'));
 
 gulp.task('client:build', function (callback) {
-  webpackConfig.mode = 'production';
+  const webpackConfig = createWebpackConfig({ production: true });
   webpack(webpackConfig, function (err, stats) {
     if (err) throw new PluginError("client:build", err);
+    if (stats.hasErrors()) throw new PluginError("client:build", stats.toString({ colors: true }));
     log("[client:build]", stats.toString({ colors: true }));
+    callback();
+  });
+});
+
+gulp.task('ssr:build', function (callback) {
+  const webpackConfig = createWebpackConfig({ production: true, target: 'node' });
+  webpack(webpackConfig, function (err, stats) {
+    if (err) throw new PluginError("ssr:build", err);
+    if (stats.hasErrors()) throw new PluginError("ssr:build", stats.toString({ colors: true }));
+    log("[ssr:build]", stats.toString({ colors: true }));
     callback();
   });
 });
 
 gulp.task('watch', function () {
   gulp.watch(path.SRV_SRC, gulp.series('server:rebuild'));
+  gulp.watch(['src/client/**/*', 'src/server/ssr-renderer.js'], gulp.series('ssr:build', 'server:spawn'));
 });
 
 // -------------------- DEFAULT -------------------- //
 
 gulp.task('default', gulp.series(
-  gulp.parallel('server:build', 'config:copy', 'client:copy', 'server:spawn'),
+  gulp.parallel('server:build', 'ssr:build', 'config:copy', 'client:copy'),
+  'server:spawn',
   'watch'
 ));
 

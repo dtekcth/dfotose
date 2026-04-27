@@ -1,6 +1,14 @@
-#!/usr/bin/sh
+#!/usr/bin/env sh
+set -eu
 
-krb5_conf="""[libdefaults]
+echo "WARNING: overwriting /etc/krb5.conf"
+echo "NOTE: old is backed up at /etc/krb5.conf.bak"
+if [ -f /etc/krb5.conf ]; then
+  mv /etc/krb5.conf /etc/krb5.conf.bak
+fi
+
+cat > /etc/krb5.conf <<'EOF'
+[libdefaults]
   default_realm = CHALMERS.SE
   clockskew = 300
   v4_instance_resolve = false
@@ -16,9 +24,4 @@ krb5_conf="""[libdefaults]
   chalmers.se = CHALMERS.SE
 [logging]
   default = SYSLOG:INFO:USER
-"""
-
-echo "WARNING: overwriting /etc/krb5.conf"
-echo "NOTE: old is backed up at /etc/krb5.conf.bak"
-mv /etc/krb5.conf{,.bak}
-echo "$krb5_conf" > /etc/krb5.conf
+EOF

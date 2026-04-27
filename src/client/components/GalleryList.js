@@ -1,14 +1,29 @@
 import React from 'react';
-import _ from 'lodash';
-import {Link} from 'react-router-dom';
+import {Link} from 'react-router';
 import {observer} from 'mobx-react';
-import moment from 'moment';
-import keydown, {Keys} from 'react-keydown';
 import PropTypes from 'prop-types';
+import {withRouter} from '../routerCompat';
 
 import PaginatedArray from '../PaginatedArray';
 import PreloadContainerFactory from './PreloadContainerFactory';
-import GalleryStore from '../GalleryStore';
+import GalleryStore, {Gallery as GalleryModel} from '../GalleryStore';
+import {formatDate} from '../formatDate';
+
+const PAGE_SIZE = 28;
+
+function pagePath(pageNumber) {
+  return pageNumber <= 1 ? '/' : `/gallery/page/${pageNumber}`;
+}
+
+function createPaginatedGalleries(galleries, pageNumber = 1) {
+  const galleryModels = galleries.map(gallery => (
+    gallery instanceof GalleryModel ? gallery : new GalleryModel(gallery)
+  ));
+  const paginatedGalleries = new PaginatedArray(galleryModels, PAGE_SIZE);
+
+  paginatedGalleries.setPage(pageNumber);
+  return paginatedGalleries;
+}
 
 @observer
 class Gallery extends React.Component {
@@ -17,7 +32,7 @@ class Gallery extends React.Component {
     
     const thumbnailPreview = gallery.thumbnailPreview;
     const galleryViewLink = `/gallery/${gallery.id}`;
-    const date = moment(gallery.shootDate).format('YYYY-MM-DD');
+    const date = formatDate(gallery.shootDate);
     
     return (
       <div className="gallery-card">
@@ -41,12 +56,11 @@ class GalleryList extends React.Component {
     const allGalleries = this.props.galleries;
     
     // Filter to ensure all is published, safety precaution
-    const publishedGalleries = _.chain(allGalleries)
-      .filter({ published: true })
+    const publishedGalleries = allGalleries
+      .filter(gallery => gallery.published === true)
       .map(gallery => {
         return (<Gallery key={ gallery.id } gallery={ gallery } />);
-      })
-      .value();
+      });
     
     return (
       <div className="gallery-list">
@@ -64,20 +78,45 @@ class PaginatedGalleryList extends React.Component {
   constructor(props) {
     super(props);
 
-    const pageNumber = _.get(props, 'routeParams.pageNumber', 1);
-    window.history.replaceState({ pageNumber: pageNumber }, null,  `/gallery/page/${pageNumber}`);
+    const pageNumber = props.routeParams?.pageNumber || 1;
     if (pageNumber != 1) {
       this.props.paginatedGalleries.setPage(pageNumber);
     }
 
-    window.onpopstate = (event => {
-      const pageNumber = _.get(event, 'state.pageNumber', 1);
+    this.handlePopState = (event => {
+      const pageNumber = event.state?.pageNumber || 1;
       this.props.paginatedGalleries.setPage(pageNumber);
       this.forceUpdate();
     }).bind(this);
+
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
-  @keydown(Keys.right)
+  componentDidMount() {
+    const pageNumber = this.props.routeParams?.pageNumber || 1;
+
+    // Browser history is intentionally client-only so the same component can be
+    // rendered on the server without touching the window object.
+    window.history.replaceState({ pageNumber: pageNumber }, null, pagePath(Number(pageNumber)));
+    window.onpopstate = this.handlePopState;
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+    if (window.onpopstate === this.handlePopState) {
+      window.onpopstate = null;
+    }
+  }
+
+  handleKeyDown(event) {
+    if (event.key === 'ArrowRight') {
+      this.nextPage(event);
+    } else if (event.key === 'ArrowLeft') {
+      this.prevPage(event);
+    }
+  }
+
   nextPage(event) {
     event.preventDefault();
     this.props.paginatedGalleries.nextPage()
@@ -85,7 +124,6 @@ class PaginatedGalleryList extends React.Component {
       .catch(() => undefined);
   }
 
-  @keydown(Keys.left)
   prevPage(event) {
     event.preventDefault();
     this.props.paginatedGalleries.prevPage()
@@ -94,7 +132,7 @@ class PaginatedGalleryList extends React.Component {
   }
 
   loadPage(pageNumber) {
-    window.history.pushState({ pageNumber: pageNumber }, null, `/gallery/page/${pageNumber}`);
+    window.history.pushState({ pageNumber: pageNumber }, null, pagePath(pageNumber));
     this.forceUpdate()
   }
 
@@ -105,12 +143,12 @@ class PaginatedGalleryList extends React.Component {
 
     return (
       <div>
-        <GalleryList galleries={ galleries } />
         <div className="gallery-pagination">
-          <a onClick={ this.prevPage.bind(this) } type="button">Föregående</a>
+          <a href={ pagePath(currentPage - 1) } onClick={ this.prevPage.bind(this) } type="button">Föregående</a>
           <span>sida { currentPage } / { maxPage } </span>
-          <a onClick={ this.nextPage.bind(this) } type="button">Nästa</a>
+          <a href={ pagePath(currentPage + 1) } onClick={ this.nextPage.bind(this) } type="button">Nästa</a>
         </div>
+        <GalleryList galleries={ galleries } />
       </div>
     );
   }
@@ -120,10 +158,15 @@ const PaginatedGalleryListContainer = PreloadContainerFactory((props) => {
   return GalleryStore.fetchAllGalleries()
     .then(galleries => {
       return {
-        paginatedGalleries: new PaginatedArray(galleries, 28),
+        paginatedGalleries: createPaginatedGalleries(galleries, props.routeParams?.pageNumber || 1),
         ...props
       }
     });
-}, PaginatedGalleryList);
+}, PaginatedGalleryList, (state, props) => ({
+  paginatedGalleries: createPaginatedGalleries(
+    state.galleries || [],
+    props.routeParams?.pageNumber || state.pageNumber || 1
+  )
+}));
 
-export default PaginatedGalleryListContainer;
+export default withRouter(PaginatedGalleryListContainer);

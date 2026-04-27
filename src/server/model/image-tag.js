@@ -9,5 +9,7 @@ const imageTagSchema = new Schema({
   created_at: {type: Date, default: Date.now}
 });
 
+imageTagSchema.index({ tagName: 1, imageId: 1 });
+
 const ImageTag = mongoose.model('ImageTag', imageTagSchema);
 module.exports = ImageTag;

@@ -2,9 +2,10 @@ const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 
-const config = require('./../webpack.config');
+const createWebpackConfig = require('./../webpack.config');
 
 module.exports = function(app) {
+  const config = createWebpackConfig();
   const myConfig = { ...config, output: { ...config.output, path: '/' } };
   const compiler = webpack(myConfig);
 

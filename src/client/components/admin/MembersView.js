@@ -1,11 +1,36 @@
-import _ from 'lodash';
 import React from 'react';
 
 import {observable} from 'mobx';
 import {observer} from 'mobx-react';
+import {Link} from 'react-router';
 
 import UserStore, {EligibleUser} from '../../UserStore';
+import uiState from '../../UiState';
 import PreloadContainerFactory from '../PreloadContainerFactory';
+
+const ROLE_PRIORITY = {
+  DFoto: 0,
+  Admin: 1,
+  Aspirant: 2
+};
+
+function getRolePriority(role) {
+  return ROLE_PRIORITY[role] ?? 3;
+}
+
+function compareMembersByRoleAndCid(firstMember, secondMember) {
+  const roleDifference = getRolePriority(firstMember.role) - getRolePriority(secondMember.role);
+
+  if (roleDifference != 0) {
+    return roleDifference;
+  }
+
+  return firstMember.cid.localeCompare(secondMember.cid, 'sv');
+}
+
+function canCurrentUserEditRoles() {
+  return uiState.user.role === 'Admin' || uiState.user.role === 'DFoto';
+}
 
 @observer
 class EligibleMembers extends React.Component {
@@ -23,6 +48,10 @@ class EligibleMembers extends React.Component {
   }
 
   onAddEligibleUser(event) {
+    if (!this.props.canEditRoles) {
+      return;
+    }
+
     const {cid, role} = this.state;
     EligibleUser.create(cid, role)
       .then(() => {
@@ -33,8 +62,15 @@ class EligibleMembers extends React.Component {
 
   onDeleteEligibleUser(user) {
     return (event) => {
+      if (!this.props.canEditRoles) {
+        return;
+      }
+
       user.remove().then(() => {
-        _.remove(this.props.members, user);
+        const userIndex = this.props.members.indexOf(user);
+        if (userIndex >= 0) {
+          this.props.members.splice(userIndex, 1);
+        }
       });
     };
   }
@@ -42,29 +78,34 @@ class EligibleMembers extends React.Component {
   render() {
     const eligibleUsers = this.props.members;
 
-    const cid = _.get(this, 'state.cid', '');
-    const role = _.get(this, 'state.role', '');
+    const cid = this.state.cid || '';
+    const role = this.state.role || '';
 
-    const toBeMembers = _.map(eligibleUsers, eligibleUser => {
+    const toBeMembers = eligibleUsers.map(eligibleUser => {
       return (
         <tr key={eligibleUser.cid}>
           <td>{eligibleUser.cid}</td>
           <td>{eligibleUser.role}</td>
-          <td><button onClick={this.onDeleteEligibleUser(eligibleUser).bind(this)}>Ta bort</button></td>
+          <td>
+            <button onClick={this.onDeleteEligibleUser(eligibleUser).bind(this)} disabled={!this.props.canEditRoles}>
+              Ta bort
+            </button>
+          </td>
         </tr>
       );
     });
 
     return (
       <div>
-        <input type="text" onChange={this.onCidChange.bind(this)} value={cid}/>
-        <select value={role} onChange={this.onRoleChange.bind(this)}>
+        {!this.props.canEditRoles ? <p>Bara DFoto och Admin kan lägga till eller ändra roller.</p> : null}
+        <input type="text" onChange={this.onCidChange.bind(this)} value={cid} disabled={!this.props.canEditRoles}/>
+        <select value={role} onChange={this.onRoleChange.bind(this)} disabled={!this.props.canEditRoles}>
           <option value="Admin">Admin</option>
           <option value="DFoto">DFoto</option>
           <option value="Aspirant">Aspjävel</option>
           <option value="None">-</option>
         </select>
-        <button onClick={this.onAddEligibleUser.bind(this)}>Lägg till</button>
+        <button onClick={this.onAddEligibleUser.bind(this)} disabled={!this.props.canEditRoles}>Lägg till</button>
 
         <table>
           <thead>
@@ -86,18 +127,33 @@ class EligibleMembers extends React.Component {
 @observer
 class Member extends React.Component {
   onRoleChange(event) {
+    if (!this.props.canEditRoles) {
+      return;
+    }
+
     const newRole = event.target.value;
-    this.props.member.setRole(newRole);
+    this.props.member.setRole(newRole).catch(() => {
+      alert('Kunde inte ändra roll. Bara DFoto och Admin kan ändra roller.');
+    });
   }
 
   render() {
     const member = this.props.member;
+    const photoCount = this.props.photoCount || 0;
+
     return (
       <tr key={ member.cid }>
         <td> {member.cid} </td>
         <td> {member.fullname} </td>
         <td>
-          <select value={member.role} onChange={this.onRoleChange.bind(this)}>
+          {photoCount > 0 ? (
+            <Link to={`/image/photographer/${encodeURIComponent(member.cid)}`}>
+              {photoCount}
+            </Link>
+          ) : null}
+        </td>
+        <td>
+          <select value={member.role} onChange={this.onRoleChange.bind(this)} disabled={!this.props.canEditRoles}>
             <option value="Admin">Admin</option>
             <option value="DFoto">DFoto</option>
             <option value="Aspirant">Aspjävel</option>
@@ -118,17 +174,23 @@ class MembersView extends React.Component {
   }
 
   render() {
-    const regularSearch = _.get(this.state, 'regularSearch', '');
-    const {users, eligibleUsers} = this.props;
+    const regularSearch = this.state?.regularSearch || '';
+    const {users, eligibleUsers, photoCounts} = this.props;
+    const canEditRoles = canCurrentUserEditRoles();
 
-    const members = _.chain(users)
-      .filter(user => {
-        return regularSearch == '' || user.cid.startsWith(regularSearch);
-      })
+    const members = users
+      .filter(user => regularSearch == '' || user.cid.startsWith(regularSearch))
+      .sort(compareMembersByRoleAndCid)
       .map(member => {
-        return <Member key={ member.cid } member={ member } />;
-      })
-      .value();
+        return (
+          <Member
+            key={ member.cid }
+            member={ member }
+            photoCount={ photoCounts[member.cid] }
+            canEditRoles={ canEditRoles }
+          />
+        );
+      });
 
     return (
       <div>
@@ -136,7 +198,7 @@ class MembersView extends React.Component {
           access.</p>
 
         <h3>Fördefinierade roller</h3>
-        <EligibleMembers members={eligibleUsers}/>
+        <EligibleMembers members={eligibleUsers} canEditRoles={canEditRoles}/>
 
         <h3>Medlemmar ({members.length} st)</h3>
         Sök: <input onChange={ this.onSearchRegular.bind(this) } type="text" />
@@ -145,6 +207,7 @@ class MembersView extends React.Component {
             <tr>
               <th> cid </th>
               <th> namn </th>
+              <th> bilder </th>
               <th> roll </th>
             </tr>
           </thead>
@@ -160,13 +223,15 @@ class MembersView extends React.Component {
 const MembersViewContainer = PreloadContainerFactory((props) => {
   const userPromise = UserStore.fetchAllUsers();
   const eligibleUserPromise = UserStore.fetchEligibleUsers();
+  const photoCountsPromise = UserStore.fetchPhotoCounts();
 
-  return Promise.all([userPromise, eligibleUserPromise])
-    .then(([users, eligibleUsers]) => {
+  return Promise.all([userPromise, eligibleUserPromise, photoCountsPromise])
+    .then(([users, eligibleUsers, photoCounts]) => {
       return {
         users: observable(users),
-        eligibleUsers: observable(eligibleUsers)
-      }
+        eligibleUsers: observable(eligibleUsers),
+        photoCounts
+      };
   });
 }, MembersView);
 

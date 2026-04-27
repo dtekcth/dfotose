@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { observer } from 'mobx-react';
 import axios from 'axios';
 import moment from 'moment';
@@ -112,10 +112,23 @@ class GalleryList extends React.Component {
 
   onRemoveGallery = (galleryId) => (event) => {
     event.preventDefault();
+    event.stopPropagation();
+
     if (window.confirm('Vill du verkligen ta bort detta galleri?')) {
-      this.setState(prev => ({
-        galleries: prev.galleries.filter(g => g._id !== galleryId)
-      }));
+      axios.delete(`/v1/gallery/${galleryId}`)
+        .then((response) => {
+          if (!response.data.deleted) {
+            throw new Error('Gallery was not deleted by the server.');
+          }
+
+          this.setState(prev => ({
+            galleries: prev.galleries.filter(g => g._id !== galleryId)
+          }));
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Kunde inte ta bort galleriet.');
+        });
     }
   }
 

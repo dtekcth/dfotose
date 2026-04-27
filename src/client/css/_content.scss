@@ -58,3 +58,30 @@
     font-size: 22px;
   }
 }
+
+.stress-test-admin {
+  max-width: 620px;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  input {
+    max-width: 220px;
+  }
+
+  button {
+    margin-right: 10px;
+  }
+
+  .stress-test-success {
+    color: #1f7a3a;
+  }
+
+  .stress-test-error {
+    color: #b42318;
+    font-weight: 600;
+  }
+}

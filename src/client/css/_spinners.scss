@@ -1,14 +1,46 @@
 .spinner.wave {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 
   * {
-    width: 18%;
+    width: 14%;
     height: 100%;
+    background-color: currentColor;
+    animation: spinner-wave 1.2s infinite ease-in-out;
+  }
+
+  *:nth-child(2) {
+    animation-delay: -1.1s;
+  }
+
+  *:nth-child(3) {
+    animation-delay: -1s;
+  }
+
+  *:nth-child(4) {
+    animation-delay: -0.9s;
+  }
+
+  *:nth-child(5) {
+    animation-delay: -0.8s;
   }
 
   width: 75px;
   height: 76px;
+}
+
+@keyframes spinner-wave {
+  0%,
+  40%,
+  100% {
+    transform: scaleY(0.4);
+  }
+
+  20% {
+    transform: scaleY(1);
+  }
 }
 
 .loading-spinner {
