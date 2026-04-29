@@ -49,7 +49,7 @@ class PaginatedArray {
   }
 
   @computed get currentPageData() {
-    return this.data[this.currentPage-1];
+    return this.data[this.currentPage-1] || [];
   }
 }
 
