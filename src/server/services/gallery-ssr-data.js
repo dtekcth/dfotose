@@ -64,6 +64,7 @@ async function getTagSearchData(req) {
     path: req.path,
     tagSearch: {
       tag: searchResult.tag,
+      galleries: searchResult.galleries,
       images: searchResult.images,
       limit: searchResult.limit
     }

@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router';
 import {observer} from 'mobx-react';
 import {withRouter} from '../routerCompat';
 
@@ -7,12 +8,17 @@ import LoadingSpinner from './LoadingSpinner';
 
 import uiState from '../UiState';
 import {Image as ImageModel} from '../ImageStore';
+import {Gallery as GalleryModel} from '../GalleryStore';
+import {formatDate} from '../formatDate';
 
-function createLoadedImageList(tag, imageData) {
+function createLoadedImageList(tag, imageData, galleryData) {
   return {
     tag,
     images: (imageData || []).map(image => (
       image instanceof ImageModel ? image : new ImageModel(image)
+    )),
+    galleries: (galleryData || []).map(gallery => (
+      gallery instanceof GalleryModel ? gallery : new GalleryModel(gallery)
     )),
     loading: false,
     loaded: true,
@@ -38,7 +44,7 @@ class TagSearchView extends React.Component {
     this.state = {
       tag: tag,
       imageList: hasServerState
-        ? createLoadedImageList(tag, props.ssrInitialState.images)
+        ? createLoadedImageList(tag, props.ssrInitialState.images, props.ssrInitialState.galleries)
         : uiState.imageStore.getImagesForTag(tag),
       searchInput: ''
     };
@@ -80,18 +86,38 @@ class TagSearchView extends React.Component {
     this.setState({searchInput: event.target.value});
   }
 
+  renderGallery(gallery) {
+    const galleryViewLink = `/gallery/${gallery.id}`;
+    const date = formatDate(gallery.shootDate);
+
+    return (
+      <div className="gallery-card" key={ gallery.id }>
+        <Link to={ galleryViewLink }>
+          <img src={ gallery.thumbnailPreview } />
+          <div className="title">
+            <div className="text">
+              <span className="name">{ gallery.name }</span>
+              <span className="date">{ date } </span>
+            </div>
+          </div>
+        </Link>
+      </div>
+    );
+  }
+
   render() {
     const {tag} = this.state;
     const imageList = this.state.imageList;
     const images = imageList.images || [];
+    const galleries = imageList.galleries || [];
     const headingPrefix = this.props.headingPrefix || 'Taggsökning';
 
-    const hasResults = images.length != 0;
+    const hasResults = images.length != 0 || galleries.length != 0;
 
     return (
       <div className="tag-search-view">
         <form onSubmit={ this.onSearch.bind(this) } className="tag-search-bar">
-          <input type="text" placeholder="Sök efter taggar" value={ this.state.searchInput }
+          <input type="text" placeholder="Sök efter taggar/album" value={ this.state.searchInput }
                  onChange={ this.onSearchInputChange.bind(this) }/>
           <button type="submit">Sök</button>
         </form>
@@ -99,6 +125,15 @@ class TagSearchView extends React.Component {
         <LoadingSpinner visible={ Boolean(tag && imageList.loading) } />
         { imageList.error ? <p>Kunde inte söka efter taggen.</p> : null }
         { tag && imageList.loaded && !hasResults && !imageList.error ? <p>Inga resultat hittade.</p> : null }
+        { galleries.length > 0 ? (
+          <React.Fragment>
+            <h3>Album</h3>
+            <div className="gallery-list tag-search-gallery-list">
+              { galleries.map(this.renderGallery) }
+            </div>
+          </React.Fragment>
+        ) : null }
+        { images.length > 0 ? <h3>Bilder</h3> : null }
         <ImageList
           disableLazyLoad={ true }
           images={ images }

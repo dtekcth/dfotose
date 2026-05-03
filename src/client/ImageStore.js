@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {computed, action, observable, makeObservable, toJS} from 'mobx';
+import {Gallery as GalleryModel} from './GalleryStore';
 
 export class Image {
   @observable data;
@@ -167,6 +168,7 @@ export class ImageGalleryList {
 
 export class ImagesForTagList {
   @observable images = [];
+  @observable galleries = [];
   @observable tag = null;
   @observable loading = false;
   @observable loaded = false;
@@ -183,6 +185,7 @@ export class ImagesForTagList {
   fetchImages() {
     if (!this.tag) {
       this.images = [];
+      this.galleries = [];
       this.loading = false;
       this.loaded = true;
       return Promise.resolve();
@@ -194,14 +197,22 @@ export class ImagesForTagList {
 
     return axios.get(`/v1/image/tags/${this.tag}/search`)
       .then(action((response) => {
-        this.images = response.data.map(data => {
+        const searchResult = Array.isArray(response.data)
+          ? { images: response.data, galleries: [] }
+          : response.data;
+
+        this.images = (searchResult.images || []).map(data => {
           return new Image(data);
+        });
+        this.galleries = (searchResult.galleries || []).map(data => {
+          return new GalleryModel(data);
         });
         this.loading = false;
         this.loaded = true;
       }))
       .catch(action((err) => {
         this.images = [];
+        this.galleries = [];
         this.loading = false;
         this.loaded = true;
         this.error = err;

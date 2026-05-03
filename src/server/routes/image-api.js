@@ -473,7 +473,7 @@ router.get('/image/tags/:tagName/search', async (req, res) => {
     const searchResult = await searchImagesByTag(req.params.tagName);
 
     res.set('Cache-Control', 'public, max-age=30');
-    res.send(searchResult.images);
+    res.send(searchResult);
   } catch (err) {
     abortOnError(err, res);
   }

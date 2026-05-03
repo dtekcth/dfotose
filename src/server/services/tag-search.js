@@ -64,6 +64,16 @@ async function findGalleryNameImages(tagName, limit) {
     .exec();
 }
 
+async function findMatchingGalleries(tagName) {
+  return Gallery.find({
+    published: true,
+    name: new RegExp(escapeRegExp(tagName), 'i')
+  })
+    .sort('-shootDate')
+    .lean()
+    .exec();
+}
+
 async function findYearImages(tagName, limit) {
   const range = getYearRange(tagName);
   if (!range) {
@@ -119,12 +129,14 @@ async function searchImagesByTag(rawTag, limit = TAG_SEARCH_LIMIT) {
   if (!tagName) {
     return {
       tag: tagName,
+      galleries: [],
       images: [],
       limit
     };
   }
 
-  const imageGroups = await Promise.all([
+  const [galleries, ...imageGroups] = await Promise.all([
+    findMatchingGalleries(tagName),
     findExplicitTagImages(tagName, limit),
     findGalleryNameImages(tagName, limit),
     findYearImages(tagName, limit),
@@ -133,6 +145,7 @@ async function searchImagesByTag(rawTag, limit = TAG_SEARCH_LIMIT) {
 
   return {
     tag: tagName,
+    galleries,
     images: mergeUniqueImages(imageGroups, limit),
     limit
   };
