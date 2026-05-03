@@ -112,6 +112,7 @@ class GalleryStore {
       .then((response => {
         const newGallery = new Gallery(response.data);
         this.galleries.push(newGallery);
+        return newGallery;
       }).bind(this));
   }
   

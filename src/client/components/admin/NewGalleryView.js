@@ -36,8 +36,8 @@ class NewGalleryView extends React.Component {
     
     const {name,description,date} = this.state;
     uiState.galleryStore.addGallery(name, description, date)
-      .then(() => {
-        this.props.history.push('/admin');
+      .then((gallery) => {
+        this.props.history.push(`/admin/gallery/edit/${gallery.id}`);
       });
   }
   
