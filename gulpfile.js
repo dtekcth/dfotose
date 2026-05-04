@@ -24,17 +24,13 @@ let server = null;
 // -------------------- TASKS -------------------- //
 
 gulp.task('client:copy', function () {
-  gulp.src('./src/client/index.html')
+  return gulp.src([
+    './src/client/index.html',
+    './src/client/robots.txt',
+    './src/client/favicon.ico',
+    './src/client/assets/**/*'
+  ], { base: './src/client', encoding: false })
     .pipe(gulp.dest(path.OUT_DIR + 'public'));
-
-  gulp.src('./src/client/robots.txt')
-    .pipe(gulp.dest(path.OUT_DIR + 'public'));
-
-  gulp.src('./src/client/favicon.ico')
-    .pipe(gulp.dest(path.OUT_DIR + 'public'));
-
-  return gulp.src('./src/client/assets/**/*')
-    .pipe(gulp.dest(path.OUT_DIR + 'public/assets'));
 });
 
 gulp.task('config:copy', function () {

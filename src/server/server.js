@@ -127,8 +127,7 @@ app.use(helmet({
 app.use(compression());
 
 app.use('/assets', express.static(__dirname + '/public/assets', {
-  immutable: process.env.NODE_ENV === 'production',
-  maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0
+  maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0
 }));
 app.use('/', express.static(__dirname + '/public', {
   index: false,
